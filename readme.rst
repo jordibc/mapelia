@@ -23,9 +23,8 @@ Ejemplo
 Empezando con la siguiente imagen:
 
 .. image:: examples/venus.png
-   :name: Mapa de Venus
-   :scale: 15%
-
+    :name: Mapa de Venus
+    :width: 200px
 
 ejecutamos::
 
@@ -37,7 +36,7 @@ ejecutamos::
 y obtenemos:
 
 .. image:: examples/screenshot_meshlab.png
-   :scale: 50%
+    :width: 200px
 
 
 Uso
