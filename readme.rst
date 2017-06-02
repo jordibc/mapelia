@@ -23,8 +23,6 @@ Ejemplo
 Empezando con la siguiente imagen:
 
 .. image:: examples/venus.png
-    :name: Mapa de Venus
-    :width: 200px
 
 ejecutamos::
 
@@ -36,7 +34,6 @@ ejecutamos::
 y obtenemos:
 
 .. image:: examples/screenshot_meshlab.png
-    :width: 200px
 
 
 Uso
