@@ -24,7 +24,7 @@ Empezando con la siguiente imagen:
 
 .. image:: examples/venus.png
    :name: Mapa de Venus
-   :scale: 20%
+   :scale: 15%
 
 
 ejecutamos::
@@ -37,7 +37,7 @@ ejecutamos::
 y obtenemos:
 
 .. image:: examples/screenshot_meshlab.png
-   :scale: 80%
+   :scale: 50%
 
 
 Uso
