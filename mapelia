@@ -80,6 +80,7 @@ def write_ply(fname, heights, projection_args):
     points_sphere = project(np.ones_like(heights), **projection_args)
     faces = list(get_faces(points_sphere))
     # we use the points of a sphere without distortions for the
+    # connection of the points forming the faces
 
     with open(fname, 'wt') as fout:
         fout.write(ply_header(nvertices=points[-1][-1][0]+1, nfaces=len(faces)))
@@ -196,7 +197,8 @@ def project(heights, ptype, npoints, scale, poles, meridian):
         phi = f(y)
 
         row = []
-        for i in range(0, nx, stepx * int(1 / np.cos(phi))):
+        cphi, sphi = np.cos(phi), np.sin(phi)
+        for i in range(0, nx, stepx * int(1 / cphi)):
             theta = np.pi * (2 * i / nx - 1)
 
             if meridian and -0.02 < theta < 0.02:
@@ -204,9 +206,9 @@ def project(heights, ptype, npoints, scale, poles, meridian):
             else:
                 r = radii[j, i]
 
-            x = r * np.cos(theta) * np.cos(phi)
-            y = r * np.sin(theta) * np.cos(phi)
-            z = r * np.sin(phi)
+            x = r * np.cos(theta) * cphi
+            y = r * np.sin(theta) * cphi
+            z = r * sphi
             row.append((pid, x, y, z))
             pid += 1
         points.append(row)
@@ -235,45 +237,45 @@ def get_faces(points):
     # points must be a list of rows, each containing the actual points
     # that correspond to a (closed!) section of an object.
 
-    # This follows the Day of the Tentacle algorithm that I just made up.
-    # It doesn't seem to work too bad when using the points of a sphere...
+    # This follows the "walking the dog" algorithm that I just made up.
+    # It seems to work fine when using the points of a sphere...
 
-    def dist2(p0, p1):
+    def dist2(p0, p1):  # geometric distance (squared) between two points
         _, x0, y0, z0 = p0
         _, x1, y1, z1 = p1
         return (x1 - x0)**2 + (y1 - y0)**2 + (z1 - z0)**2
 
-    # hoagie                  <-- previous row
-    #   ^
-    #   |
-    # bernard  ->  laverne    <-- current row
+    # dog            <-- previous row
+    #  ^
+    #  i  ->  i+1    <-- current row
+    # The position i (where the human is) is updated, and then the dog is
+    # moved (in the previous row) until it cannot be closer to the human,
+    # making triangles along the way. Then, a new triangle is made from the
+    # current position to the next one and the dog (i -> i+1 -> dog).
     for j in range(1, len(points)):
         row_previous = points[j - 1]
         row_current = points[j]
-        hoagie = 0
-        b = lambda: row_current[bernard]
-        h = lambda: row_previous[hoagie]
-        hw = lambda: row_previous[hoagie_walking]
+        dog = 0
+        h = lambda: row_current[i]              # point where the human is
+        d = lambda: row_previous[dog]           # point where the dog is
+        dw = lambda: row_previous[dog_walking]  # point where the dog goes
         for i in range(len(row_current)):
-            bernard = i
-            laverne = (i + 1) % len(row_current)
-            hoagie_start = hoagie
-            hoagie_walking = hoagie
-            dist_bh = dist2(b(), h())
-            while True:
-                hoagie_walking = (hoagie_walking + 1) % len(row_previous)
-                dist_new = dist2(b(), hw())
-                if dist_new < dist_bh:
-                    yield (b()[0], hw()[0], h()[0])
-                    hoagie = hoagie_walking
-                    dist_bh = dist_new
+            dog_walking = dog
+            dist = dist2(h(), d())
+            while True:  # let the dog walk until it's as close as possible
+                dog_walking = (dog_walking + 1) % len(row_previous)
+                dist_new = dist2(h(), dw())
+                if dist_new < dist:
+                    yield (h()[0], dw()[0], d()[0])
+                    dog = dog_walking
+                    dist = dist_new
                 else:
                     break
-            yield (b()[0], row_current[laverne][0], h()[0])
-        while hoagie != 0:
-            hoagie_walking = (hoagie + 1) % len(row_previous)
-            yield (row_current[0][0], hw()[0], h()[0])
-            hoagie = hoagie_walking
+            yield (h()[0], row_current[(i + 1) % len(row_current)][0], d()[0])
+        while dog != 0:  # we have to close the figure
+            dog_walking = (dog + 1) % len(row_previous)
+            yield (row_current[0][0], dw()[0], d()[0])
+            dog = dog_walking
 
 
 def fill_dark(img, too_dark_value=30, darkest_fill=50):
