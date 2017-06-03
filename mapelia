@@ -26,7 +26,7 @@ import numpy as np
 def main():
     parser = ArgumentParser(description=__doc__, formatter_class=fmt)
     add = parser.add_argument  # shortcut
-    add('img', help='fichero de imagen con el mapa')
+    add('image', help='fichero de imagen con el mapa')
     add('-o', '--output', default=None,
         help='fichero de salida (si vacío, se genera a partir del de entrada)')
     add('--overwrite', action='store_true',
@@ -47,12 +47,12 @@ def main():
         help='intenta rellenar los huecos en el mapa')
     args = parser.parse_args()
 
-    outfname = args.output or '%s.%s' % (args.img.rsplit('.', 1)[0], args.type)
+    outfname = args.output or '%s.%s' % (args.image.rsplit('.', 1)[0], args.type)
     if not args.overwrite:
         check_if_exists(outfname)
 
-    print('Processing file %s ...' % args.img)
-    img = Image.open(args.img)
+    print('Processing file %s ...' % args.image)
+    img = Image.open(args.image)
 
     if args.fix_gaps:
         img = fill_dark(img)

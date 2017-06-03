@@ -43,7 +43,7 @@ Uso
                  [--channel {r,g,b,hue,value}]
                  [--projection {mercator,cylindrical}] [--points POINTS]
                  [--scale SCALE] [--no-poles] [--no-meridian] [--fix-gaps]
-                 img
+                 image
 
   Convierte imágenes con mapas en ficheros que le sirvan a Amelia (espero). Toma
   mapas en proyección de Mercator o cónica, de ficheros jpg, png, etc., y
@@ -52,7 +52,7 @@ Uso
   pueden a su vez manipular con programas como MeshLab o Blender.
 
   positional arguments:
-    img                   fichero de imagen con el mapa
+    image                 fichero de imagen con el mapa
 
   optional arguments:
     -h, --help            show this help message and exit
