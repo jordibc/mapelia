@@ -76,7 +76,7 @@ Uso
                           False)
 
 
-Procesamiento con meshlab
+Procesamiento con MeshLab
 -------------------------
 
 Una forma posible de continuar importando un fichero asc en meshlab:
@@ -91,7 +91,7 @@ Una forma posible de continuar importando un fichero asc en meshlab:
 * Exportar a stl.
 
 
-Procesamiento con blender
+Procesamiento con Blender
 -------------------------
 
 Una forma posible de continuar procesando el asc desde blender:
