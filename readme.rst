@@ -3,11 +3,10 @@ mapelia
 
 Convierte imágenes con mapas en ficheros que le sirvan a Amelia (espero).
 
-``mapelia`` es un programa para manipular ficheros de imágenes que
-contienen de mapas, en proyección `de Mercator`_ o `central
-cilíndrica`_ , y convertirlos en `polígonos`_ o `puntos en el
-espacio`_ que pueden ser manipulados por programas como `MeshLab`_ o
-`Blender`_.
+``mapelia`` es un programa para manipular ficheros de imágenes de
+mapas, en proyección `de Mercator`_ o `central cilíndrica`_ , y
+convertirlos en `polígonos`_ o `puntos en el espacio`_ que pueden ser
+manipulados por programas como `MeshLab`_ o `Blender`_.
 
 .. _`de Mercator`: https://en.wikipedia.org/wiki/Mercator_projection
 .. _`central cilíndrica`: https://en.wikipedia.org/wiki/Central_cylindrical_projection
