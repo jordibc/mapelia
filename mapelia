@@ -175,8 +175,7 @@ def project(heights, ptype, npoints, scale, poles, meridian):
             row = []
             rcphi, rsphi = r * cos(phi), r * sin(phi)
             z = rsphin + (limit - rsphin) * exp(- rcphi**2 / rcphin**2)
-            for theta in linspace(-pi, pi,
-                                     max(5, int(100 * cos(phi)))):
+            for theta in linspace(-pi, pi, max(5, int(100 * cos(phi)))):
                 x = cos(theta) * rcphi
                 y = sin(theta) * rcphi
                 row.append((pid, x, y, z))
