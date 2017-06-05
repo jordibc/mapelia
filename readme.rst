@@ -37,9 +37,8 @@ y obtenemos:
 
 Uso
 ---
-
   usage: mapelia [-h] [-o OUTPUT] [--overwrite] [--type {asc,ply}]
-                 [--channel {r,g,b,hue,value}]
+                 [--channel {r,g,b,hue,value}] [--invert]
                  [--projection {mercator,cylindrical}] [--points POINTS]
                  [--scale SCALE] [--no-poles] [--no-meridian] [--fix-gaps]
                  image
