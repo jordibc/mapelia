@@ -64,6 +64,7 @@ Uso
     --channel {r,g,b,hue,value}
                           canal que contiene la información de la elevación
                           (default: value)
+    --invert              invierte las elevaciones (default: False)
     --projection {mercator,cylindrical}
                           tipo de proyección usada en el mapa (default:
                           mercator)

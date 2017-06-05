@@ -35,6 +35,7 @@ def main():
         help='tipo de fichero a generar')
     add('--channel', choices=['r', 'g', 'b', 'hue', 'value'], default='value',
         help='canal que contiene la información de la elevación')
+    add('--invert', action='store_true', help='invierte las elevaciones')
     add('--projection', choices=['mercator', 'cylindrical'], default='mercator',
         help='tipo de proyección usada en el mapa')
     add('--points', type=int, default=500000,
@@ -47,7 +48,8 @@ def main():
         help='intenta rellenar los huecos en el mapa')
     args = parser.parse_args()
 
-    outfname = args.output or '%s.%s' % (args.image.rsplit('.', 1)[0], args.type)
+    outfname = args.output or '%s.%s' % (args.image.rsplit('.', 1)[0],
+                                         args.type)
     if not args.overwrite:
         check_if_exists(outfname)
 
@@ -58,6 +60,8 @@ def main():
         img = fill_dark(img)
 
     heights = get_heights(img, args.channel)
+    if args.invert:
+        heights = -heights
 
     projection_args = {'ptype': args.projection,
                        'npoints': args.points,
