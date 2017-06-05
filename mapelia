@@ -20,7 +20,8 @@ import sys
 import os
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
 from PIL import Image
-import numpy as np
+from numpy import (sin, cos, exp, arctan, sqrt, pi, e,
+                   array, linspace, ones_like, zeros, average)
 
 
 def main():
@@ -81,7 +82,7 @@ def write_ply(fname, heights, projection_args):
     "Write a ply file with the given points and deduced faces"
     points = project(heights, **projection_args)
 
-    points_sphere = project(np.ones_like(heights), **projection_args)
+    points_sphere = project(ones_like(heights), **projection_args)
     faces = list(get_faces(points_sphere))
     # we use the points of a sphere without distortions for the
     # connection of the points forming the faces
@@ -156,44 +157,50 @@ def project(heights, ptype, npoints, scale, poles, meridian):
 
     # Function to go from the y to the phi angle.
     if ptype == 'mercator':
-        f = lambda y: 2 * np.arctan(np.exp(np.pi * y / nx)) - np.pi / 2
+        f = lambda y: 2 * arctan(exp(pi * y / nx)) - pi / 2
     elif ptype == 'cylindrical':
-        f = lambda y: np.arctan(2 * np.pi * y / nx)
-    else:
-        raise RuntimeError('Projection must be "mercator" or "cylindrical"')
+        f = lambda y: arctan(2 * pi * y / nx)
 
     points = []
     pid = 0
 
-    # North pole.
-    if poles:
+    def add_pole(phi_n, pid):
         r = 1 + 1.2 * scale
-        rcphin, rsphin = r * np.cos(f(ny)), r * np.sin(f(ny))
-        for phi in np.linspace(np.pi / 2, f(ny), 10):
+        rcphin, rsphin = r * cos(phi_n), r * sin(phi_n)
+        if phi_n > 0:
+            phi_start, phi_end, limit = pi / 2, phi_n, r
+        else:
+            phi_start, phi_end, limit = phi_n, -pi / 2, -r
+        for phi in linspace(phi_start, phi_end, 10):
             row = []
-            rcphi, rsphi = r * np.cos(phi), r * np.sin(phi)
-            z = rsphin + (r - rsphin) * np.exp(- rcphi**2 / rcphin**2)
-            for theta in np.linspace(-np.pi, np.pi,
-                                     max(5, int(100 * np.cos(phi)))):
-                x = np.cos(theta) * rcphi
-                y = np.sin(theta) * rcphi
+            rcphi, rsphi = r * cos(phi), r * sin(phi)
+            z = rsphin + (limit - rsphin) * exp(- rcphi**2 / rcphin**2)
+            for theta in linspace(-pi, pi,
+                                     max(5, int(100 * cos(phi)))):
+                x = cos(theta) * rcphi
+                y = sin(theta) * rcphi
                 row.append((pid, x, y, z))
                 pid += 1
             points.append(row)
+        return pid
+
+    # North pole.
+    if poles:
+        pid = add_pole(phi_n=f(ny), pid=pid)
 
     # Points from the given heights.
     hmin, hmax = heights.min(), heights.max()
     if hmax - hmin > 0.01:
         radii = 1 + scale * (2 * (heights - hmin) / (hmax - hmin) - 1)
     else:
-        radii = np.ones_like(heights)
+        radii = ones_like(heights)
         meridian = False  # hack
 
-    n = np.sqrt(npoints)
+    n = sqrt(npoints)
     stepx = int(max(1, nx / n))  # will be multiplied by 1/cos(phi)
     stepy = int(max(1, ny / (3 * n)))  # the 3 factor is related to 1/cos(phi)
 
-    rmeridian = (1 + 1.2 * scale) * (1 / (np.e * np.sin(f(ny))) + 1 - 1 / np.e)
+    rmeridian = (1 + 1.2 * scale) * (1 / (e * sin(f(ny))) + 1 - 1 / e)
     # this way it connects nicely with the poles
 
     for j in range(0, ny, stepy):
@@ -201,17 +208,17 @@ def project(heights, ptype, npoints, scale, poles, meridian):
         phi = f(y)
 
         row = []
-        cphi, sphi = np.cos(phi), np.sin(phi)
+        cphi, sphi = cos(phi), sin(phi)
         for i in range(0, nx, stepx * int(1 / cphi)):
-            theta = np.pi * (2 * i / nx - 1)
+            theta = pi * (2 * i / nx - 1)
 
             if meridian and -0.02 < theta < 0.02:
                 r = rmeridian
             else:
                 r = radii[j, i]
 
-            x = r * np.cos(theta) * cphi
-            y = r * np.sin(theta) * cphi
+            x = r * cos(theta) * cphi
+            y = r * sin(theta) * cphi
             z = r * sphi
             row.append((pid, x, y, z))
             pid += 1
@@ -219,19 +226,7 @@ def project(heights, ptype, npoints, scale, poles, meridian):
 
     # South pole.
     if poles:
-        r = 1 + 1.2 * scale
-        rcphin, rsphin = r * np.cos(f(-ny)), r * np.sin(f(-ny))
-        for phi in np.linspace(f(-ny), -np.pi / 2, 10):
-            row = []
-            rcphi, rsphi = r * np.cos(phi), r * np.sin(phi)
-            z = rsphin + (-r - rsphin) * np.exp(- rcphi**2 / rcphin**2)
-            for theta in np.linspace(-np.pi, np.pi,
-                                     max(5, int(100 * np.cos(phi)))):
-                x = np.cos(theta) * rcphi
-                y = np.sin(theta) * rcphi
-                row.append((pid, x, y, z))
-                pid += 1
-            points.append(row)
+        pid = add_pole(phi_n=f(-ny), pid=pid)
 
     return points
 
@@ -301,7 +296,7 @@ def fill_dark(img, too_dark_value=30, darkest_fill=50):
 def get_heights(img, channel='value'):
     "Return an array with the heights extracted from the image"
     print('Extracting heights from the image...')
-    imx = np.array(img.convert('RGBA'))
+    imx = array(img.convert('RGBA'))
     if channel == 'r':
         return imx[:,:,0]
     elif channel == 'g':
@@ -309,11 +304,11 @@ def get_heights(img, channel='value'):
     elif channel == 'b':
         return imx[:,:,2]
     elif channel == 'value':
-        return np.average(imx, axis=2)
+        return average(imx, axis=2)
     elif channel == 'hue':
         rgb2height = find_rgb2height(img)
         nx, ny = img.size
-        heights = np.zeros((nx, ny))
+        heights = zeros((nx, ny))
         for i in range(nx):
             for j in range(ny):
                 heights[i, j] = rgb2height[img.getpixel((i, j))]
