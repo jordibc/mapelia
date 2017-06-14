@@ -24,6 +24,39 @@ from numpy import (sin, cos, exp, arcsin, arctan, sqrt, pi, e,
 
 
 def main():
+    parser = get_parser()
+    args = parser.parse_args()
+
+    output = args.output or '%s.%s' % (args.image.rsplit('.', 1)[0], args.type)
+    if not args.overwrite:
+        check_if_exists(output)
+
+    print('Processing file %s ...' % args.image)
+    img = Image.open(args.image)
+
+    if args.fix_gaps:
+        img = fill_dark(img)
+
+    heights = get_heights(img, args.channel)
+    if args.invert:
+        heights = -heights
+
+    projection_args = {'ptype': args.projection,
+                       'npoints': args.points,
+                       'scale': args.scale,
+                       'poles': not args.no_poles,
+                       'meridian': not args.no_meridian}
+
+    if args.type == 'asc':
+        write_asc(output, heights, projection_args)
+    elif args.type == 'ply':
+        write_ply(output, heights, projection_args)
+
+    print('The output is in file %s' % output)
+
+
+def get_parser():
+    "Return the parser object with all the arguments"
     parser = ArgumentParser(description=__doc__, formatter_class=fmt)
     add = parser.add_argument  # shortcut
     add('image', help='fichero de imagen con el mapa')
@@ -47,35 +80,7 @@ def main():
     add('--no-meridian', action='store_true', help='no añadir meridiano 0')
     add('--fix-gaps', action='store_true',
         help='intenta rellenar los huecos en el mapa')
-    args = parser.parse_args()
-
-    outfname = args.output or '%s.%s' % (args.image.rsplit('.', 1)[0],
-                                         args.type)
-    if not args.overwrite:
-        check_if_exists(outfname)
-
-    print('Processing file %s ...' % args.image)
-    img = Image.open(args.image)
-
-    if args.fix_gaps:
-        img = fill_dark(img)
-
-    heights = get_heights(img, args.channel)
-    if args.invert:
-        heights = -heights
-
-    projection_args = {'ptype': args.projection,
-                       'npoints': args.points,
-                       'scale': args.scale,
-                       'poles': not args.no_poles,
-                       'meridian': not args.no_meridian}
-
-    if args.type == 'asc':
-        write_asc(outfname, heights, projection_args)
-    elif args.type == 'ply':
-        write_ply(outfname, heights, projection_args)
-
-    print('The output is in file %s' % outfname)
+    return parser
 
 
 def write_ply(fname, heights, projection_args):
