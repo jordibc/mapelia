@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
 """
-Convierte imágenes con mapas en ficheros que le sirvan a Amelia (espero).
+Convierte imágenes con mapas a ficheros 3D.
 
-Toma mapas en proyección de Mercator o cónica, de ficheros jpg, png,
-etc., y escribe ficheros asc (nube de puntos) o ply (polígonos) con
-una esfera que contiene las elevaciones deducidas del mapa en cada
-punto. Estos ficheros se pueden a su vez manipular con programas como
-MeshLab o Blender.
+Toma mapas en proyección de Mercator, cónica o de Mollweide, de ficheros jpg,
+png, etc., y escribe ficheros ply (polígonos) o asc (nube de puntos) con una
+esfera que contiene las elevaciones deducidas del mapa en cada punto. Estos
+ficheros se pueden a su vez manipular con programas como MeshLab o Blender.
 """
 
 # TODO:
@@ -20,7 +19,7 @@ import sys
 import os
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
 from PIL import Image
-from numpy import (sin, cos, exp, arctan, sqrt, pi, e,
+from numpy import (sin, cos, exp, arcsin, arctan, sqrt, pi, e,
                    array, linspace, ones_like, zeros, average)
 
 
@@ -32,13 +31,14 @@ def main():
         help='fichero de salida (si vacío, se genera a partir del de entrada)')
     add('--overwrite', action='store_true',
         help='no comprobar si el fichero de salida existe')
-    add('--type', choices=['asc', 'ply'], default='ply',
+    add('--type', choices=['ply', 'asc'], default='ply',
         help='tipo de fichero a generar')
-    add('--channel', choices=['r', 'g', 'b', 'hue', 'value'], default='value',
+    add('--channel', default='val',
+        choices=['r', 'g', 'b', 'average', 'hue', 'sat', 'val', 'color'],
         help='canal que contiene la información de la elevación')
     add('--invert', action='store_true', help='invierte las elevaciones')
-    add('--projection', choices=['mercator', 'cylindrical'], default='mercator',
-        help='tipo de proyección usada en el mapa')
+    add('--projection', choices=['mercator', 'cylindrical', 'mollweide'],
+        default='mercator', help='tipo de proyección usada en el mapa')
     add('--points', type=int, default=500000,
         help='número de puntos a usar como máximo')
     add('--scale', type=float, default=0.02,
@@ -145,7 +145,15 @@ def write_asc(fname, heights, projection_args):
 #   theta = x / r
 #   phi = atan(y / r)
 # with r = nx / (2 * pi)
-
+#
+# Mollweide projection:
+#   x = r * 2 * sqrt(2) / pi * theta * cos(aux)
+#   y = r * sqrt(2) * sin(aux)
+# where aux is such that:  2 * aux + sin(2 * aux) = pi * sin(phi)
+# Inverse:
+#   theta = pi * x / (2 * r * sqrt(2) * cos(aux))
+#   phi = asin(((2 * aux) + sin(2 * aux)) / pi)
+# with  aux = asin(y / (r * sqrt(2))  and  r = nx / (2 * pi)
 def project(heights, ptype, npoints, scale, poles, meridian):
     "Return points on a sphere, modulated by the given heights"
     # The points returned look like a list of rows:
@@ -160,6 +168,8 @@ def project(heights, ptype, npoints, scale, poles, meridian):
         f = lambda y: 2 * arctan(exp(pi * y / nx)) - pi / 2
     elif ptype == 'cylindrical':
         f = lambda y: arctan(2 * pi * y / nx)
+    elif ptype == 'mollweide':
+        raise NotImplementedError
 
     points = []
     pid = 0
@@ -295,22 +305,28 @@ def fill_dark(img, too_dark_value=30, darkest_fill=50):
 def get_heights(img, channel='value'):
     "Return an array with the heights extracted from the image"
     print('Extracting heights from the image...')
-    imx = array(img.convert('RGBA'))
-    if channel == 'r':
-        return imx[:,:,0]
-    elif channel == 'g':
-        return imx[:,:,1]
-    elif channel == 'b':
-        return imx[:,:,2]
-    elif channel == 'value':
-        return average(imx, axis=2)
-    elif channel == 'hue':
+    if channel in ['r', 'g', 'b', 'average']:
+        # These channels are straigthforward: higher values are higher heights.
+        imx = array(img.convert('RGBA'))
+        if   channel == 'r':  return imx[:,:,0]
+        elif channel == 'g':  return imx[:,:,1]
+        elif channel == 'b':  return imx[:,:,2]
+        elif channel == 'average':
+            return average(imx, axis=2)
+    elif channel in ['hue', 'sat', 'val']:
+        # These channels are straigthforward: higher values are higher heights.
+        imxHSV = array(img.convert('HSV'))
+        if   channel == 'hue':  return imxHSV[:,:,0]
+        elif channel == 'sat':  return imxHSV[:,:,1]
+        elif channel == 'val':  return imxHSV[:,:,2]
+    elif channel == 'color':
+        # This channel is *not* straigthforward
         rgb2height = find_rgb2height(img)
         nx, ny = img.size
-        heights = zeros((nx, ny))
-        for i in range(nx):
-            for j in range(ny):
-                heights[i, j] = rgb2height[img.getpixel((i, j))]
+        heights = zeros((ny, nx))
+        for j in range(ny):
+            for i in range(nx):
+                heights[j, i] = rgb2height[img.getpixel((i, j))]
         return heights
 
 
