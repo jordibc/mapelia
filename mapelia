@@ -165,10 +165,19 @@ def project(heights, ptype, npoints, scale, poles, meridian):
 
     # Function to go from the y to the phi angle.
     if ptype == 'mercator':
-        f = lambda y: 2 * arctan(exp(pi * y / nx)) - pi / 2
+        get_theta = lambda x, y: pi * (2 * i / nx - 1)
+        get_phi = lambda x, y: 2 * arctan(exp(pi * y / nx)) - pi / 2
     elif ptype == 'cylindrical':
-        f = lambda y: arctan(2 * pi * y / nx)
+        get_theta = lambda x, y: pi * (2 * i / nx - 1)
+        get_phi = lambda x, y: arctan(2 * pi * y / nx)
     elif ptype == 'mollweide':
+        sqrt2 = sqrt(2)
+        def get_theta(x, y):
+            aux = arcsin(2 * pi * y / (nx * sqrt2))
+            return pi * pi * x / (nx * sqrt2 * cos(aux))
+        def get_phi(x, y):
+            aux = arcsin(2 * pi * y / (nx * sqrt2))
+            return arcsin(((2 * aux) + sin(2 * aux)) / pi)
         raise NotImplementedError
 
     points = []
@@ -194,8 +203,8 @@ def project(heights, ptype, npoints, scale, poles, meridian):
         return pid
 
     # North pole.
-    if poles:
-        pid = add_pole(phi_n=f(ny), pid=pid)
+    if poles and ptype != 'mollweide':
+        pid = add_pole(phi_n=get_phi(0, ny), pid=pid)
 
     # Points from the given heights.
     hmin, hmax = heights.min(), heights.max()
@@ -209,17 +218,18 @@ def project(heights, ptype, npoints, scale, poles, meridian):
     stepx = int(max(1, nx / n))  # will be multiplied by 1/cos(phi)
     stepy = int(max(1, ny / (3 * n)))  # the 3 factor is related to 1/cos(phi)
 
-    rmeridian = (1 + 1.2 * scale) * (1 / (e * sin(f(ny))) + 1 - 1 / e)
+    rmeridian = (1 + 1.2 * scale) * (1 / (e * sin(get_phi(0, ny))) + 1 - 1 / e)
     # this way it connects nicely with the poles
 
     for j in range(0, ny, stepy):
-        y = ny - 2 * j
-        phi = f(y)
+        y_map = ny - 2 * j
+        phi = get_phi(0, y_map)
 
         row = []
         cphi, sphi = cos(phi), sin(phi)
         for i in range(0, nx, stepx * int(1 / cphi)):
-            theta = pi * (2 * i / nx - 1)
+            x_map = i
+            theta = get_theta(x_map, y_map)
 
             if meridian and -0.02 < theta < 0.02:
                 r = rmeridian
@@ -234,8 +244,8 @@ def project(heights, ptype, npoints, scale, poles, meridian):
         points.append(row)
 
     # South pole.
-    if poles:
-        pid = add_pole(phi_n=f(-ny), pid=pid)
+    if poles and ptype != 'mollweide':
+        pid = add_pole(phi_n=get_phi(0, -ny), pid=pid)
 
     return points
 
@@ -320,7 +330,7 @@ def get_heights(img, channel='value'):
         elif channel == 'sat':  return imxHSV[:,:,1]
         elif channel == 'val':  return imxHSV[:,:,2]
     elif channel == 'color':
-        # This channel is *not* straigthforward
+        # This channel is *not* straigthforward.
         rgb2height = find_rgb2height(img)
         nx, ny = img.size
         heights = zeros((ny, nx))
