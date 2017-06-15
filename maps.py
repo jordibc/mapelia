@@ -351,7 +351,7 @@ def find_rgb2height(img):
     "Return a dict to transform rgb tuples to heights"
     # It is assumed that low heights correspond to big hues, and for
     # the same hue a lower color value corresponds to higher heights.
-    imgHSV = img.convert('HSV')
+    imgHSV = img.convert('RGBA').convert('HSV')
     nx, ny = img.size
     rgb2hv = {}
     for i in range(nx):
