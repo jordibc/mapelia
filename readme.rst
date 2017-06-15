@@ -135,3 +135,21 @@ y ver el contenido de la sección “GTDR” (la 4ª desde arriba). Se
 pueden bajar los datos en 4 proyecciones distintas desde:
 
 http://pds-geosciences.wustl.edu/mgn/mgn-v-gxdr-v1/mg_3002/gsdr/
+
+
+Mejoras
+-------
+
+Para el futuro querría:
+
+* Añadir un interfaz gráfico decente.
+* Barra de progreso mientras escribe el fichero.
+* Escribir plys binarios (más compactos).
+* Hacer un preview de las imágenes de los mapas cuando se seleccionan.
+* Presentar estadísticas de desviación típica, componentes de Fourier y
+  similares, según el canal elegido para extraer la elevación.
+* Añadir un modo de selección de canal automático, según lo que parece más
+  prometedor por las estadísticas de la imagen.
+* Permitir abrir el resultado en meshlab o en blender si están disponibles.
+* Documentar el algoritmo que he escrito para conectar los puntos en triángulos
+  de la esfera.
