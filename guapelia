@@ -1,0 +1,235 @@
+#!/usr/bin/env python3
+
+"""
+GUI for mapelia.
+"""
+
+import subprocess
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+
+import maps
+
+
+def main():
+    parser = maps.get_parser()
+    argv = get_argv(parser)
+    if argv:
+        args = parser.parse_args(argv)
+        output = maps.process(args)
+        print('The output is in file %s' % output)
+        try:
+            subprocess.call(['meshlab', output],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+        except FileNotFoundError:
+            pass
+
+
+def get_argv(parser):
+    "Show a gui associated to the parser, return the selected parameters"
+    dialog = create_dialog(parser, Gtk.Window())
+    dialog.connect('delete-event', Gtk.main_quit)
+    dialog.connect('response', get_args_callback)
+    dialog.show_all()
+
+    # Will show the dialog and wait until "Ok" or "Cancel" is clicked,
+    # in which case get_args_callback() will eventually call Gtk.main_quit().
+    Gtk.main()
+
+    return dialog.argv
+
+
+def get_args_callback(widget, result):
+    "Set widget.argv to the contents of all the children widgets"
+    # Only if result == Gtk.ResponseType.OK. Also, it will stop Gtk's main
+    # loop. It is a callback function, called when clicking in the dialog.
+
+    if result != Gtk.ResponseType.OK:
+        Gtk.main_quit()
+        widget.argv = []  # used to "return" the value... nothing here
+        return
+
+    argv = []
+    last_name = ''
+    def append_name(w):
+        if not last_name.startswith('['):
+            argv.append('--%s' % last_name)
+
+    pending = widget.get_children()
+    while pending:
+        w = pending.pop()
+
+        if isinstance(w, Gtk.Label):
+            last_name = w.get_text().replace(' ', '-')
+        elif isinstance(w, Gtk.ToggleButton):
+            if w.get_active():
+                append_name(w)
+        elif isinstance(w, Gtk.Entry):
+            if w.name:
+                append_name(w)
+            argv.append(w.get_text())
+        elif isinstance(w, Gtk.TextView):
+            buf = w.get_buffer()
+            text = buf.get_text(buf.get_start_iter(),
+                                buf.get_end_iter(), True)
+            if text:
+                if w.name:
+                    append_name(w)
+                argv += text.split('\n')
+        elif isinstance(w, Gtk.FileChooserButton):
+            fn = w.get_filename()
+            if w.name and fn:
+                append_name(w)
+            if fn:
+                argv.append(fn)
+
+        if hasattr(w, 'get_children'):
+            pending += w.get_children()
+
+    Gtk.main_quit()
+
+    widget.argv = argv  # used to "return" the value
+
+
+def create_dialog(parser, parent=None):
+    "Return a gtk dialog with a form extracted from the args of parser"
+    dialog = Gtk.Dialog(parser.prog, parent, 0,
+                        (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                         Gtk.STOCK_OK, Gtk.ResponseType.OK))
+    dialog.name = parser.prog
+
+    box = dialog.get_content_area()  # here it's where we will put stuff
+    box.set_border_width(20)
+    box.set_spacing(20)
+
+    box.add(Gtk.Label(parser.description or ''))  # description of program
+    args_info = get_args_info(parser.format_help())  # description of arguments
+    box.add(create_expander('Arguments', args_info, parent=dialog))
+    box.add(Gtk.Separator())  # ----
+    box.add(create_grid(parser))  # options
+
+    return dialog
+
+
+def get_args_info(full_help):
+    "Return string with only the description of arguments taken from full_help"
+    text = ''
+    include = False
+    for line in full_help.splitlines(keepends=True):
+        if (line.startswith('positional arguments:') or
+            line.startswith('optional arguments:')):
+            include = True
+        if include:
+            text += line
+    return text
+
+
+def create_expander(name, text, parent):
+    "Return an expander that contains the given text"
+    # It knows how to resize its parent when opened/closed too.
+    expander = Gtk.Expander()
+    expander.set_label(name)
+    label = Gtk.Label()
+    label.set_markup('<tt>%s</tt>' % text)
+    expander.add(label)
+    expander.connect('activate', lambda widget: parent.resize(1, 1))
+    return expander
+
+
+def create_grid(parser):
+    "Return grid with the options"
+    grid = Gtk.Grid(row_spacing=5, column_spacing=5)
+
+    grid.row = 0
+    def add(name, widget, helptxt):
+        "Add a new row to the grid, that looks like: [name | widget]"
+        label = Gtk.Label(name.replace('_', ' '))
+        if helptxt:
+            label.set_tooltip_text(helptxt)
+        grid.attach(label, 0, grid.row, 1, 1)
+        grid.attach(widget, 1, grid.row, 1, 1)
+        grid.row += 1
+
+    for i, action in enumerate(parser._get_positional_actions()):
+        add('[Argument %d]' % (i + 1), create_widget(action), action.help)
+
+    for action in parser._get_optional_actions():
+        if action.dest != 'help':
+            add(action.dest, create_widget(action), action.help)
+
+    return grid
+
+
+def create_widget(action):
+    "Return a widget for input, depending on the action type"
+    # action is an argumentparser action object.
+    name = action.dest.replace('_', ' ')
+    if action.nargs == 0:
+        return create_checkbox(name, action.default)
+    elif action.nargs in [1, None]:
+        if action.dest == 'image':
+            return create_image_button(name)
+        else:
+            return create_text_entry(name, text=action.default)
+    elif type(action.nargs) == int:
+        return create_multiline(name, nlines=action.nargs)
+    elif action.nargs in '?*+':
+        return create_multiline(name, nlines=1)
+
+
+def create_multiline(name, nlines):
+    "Return a nice scrolling window with space for nlines of values"
+    sw = Gtk.ScrolledWindow()
+    tv = Gtk.TextView()
+    tv.name = name
+    tv.set_hexpand(True)
+    tv.get_buffer().set_text('\n' * (nlines - 1))
+    sw.add(tv)
+    return sw
+
+
+def create_text_entry(name, text):
+    entry = Gtk.Entry(text=text)
+    entry.name = name
+    return entry
+
+
+def create_checkbox(name, active):
+    button = Gtk.CheckButton()
+    button.set_active(active)
+    button.name = name
+    return button
+
+
+def create_image_button(name):
+    "Return a button that opens a dialog to choose an image"
+    dialog = Gtk.FileChooserDialog(
+        'File with the map', None, Gtk.FileChooserAction.OPEN,
+        (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+         Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+    add_filter(dialog, 'Image files', mimes=['image/jpeg', 'image/png'])
+    add_filter(dialog, 'Any files', patterns=['*'])
+    button = Gtk.FileChooserButton('Select an image',
+                                   Gtk.FileChooserAction.OPEN,
+                                   dialog=dialog)
+    button.set_current_folder('.')
+    button.name = name
+    return button
+
+
+def add_filter(dialog, name, mimes=[], patterns=[]):
+    "Add file filter to gtk dialog based on the given mimes and patterns"
+    filter = Gtk.FileFilter()
+    filter.set_name(name)
+    for mime in mimes:
+        filter.add_mime_type(mime)
+    for pattern in patterns:
+        filter.add_pattern(pattern)
+    dialog.add_filter(filter)
+
+
+
+if __name__ == '__main__':
+    main()
