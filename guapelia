@@ -153,19 +153,27 @@ def create_grid(parser):
         grid.row += 1
 
     for i, action in enumerate(parser._get_positional_actions()):
-        add('[Argument %d]' % (i + 1), create_widget(action), action.help)
+        name = '[Argument %d]' % (i + 1)
+        add(name, create_widget(action), action.help)
 
+    groups_widgets = [parser._mutually_exclusive_groups, {}]
     for action in parser._get_optional_actions():
         if action.dest != 'help':
-            add(action.dest, create_widget(action), action.help)
+            widget = create_widget(action, groups_widgets)
+            add(action.dest, widget, action.help)
 
     return grid
 
 
-def create_widget(action):
+def create_widget(action, groups_widgets=None):
     "Return a widget for input, depending on the action type"
     # action is an argumentparser action object.
     name = action.dest.replace('_', ' ')
+
+    group = get_group(action, groups_widgets[0]) if groups_widgets else None
+    if group is not None:
+        return create_radio_button(name, group, groups_widgets[1],
+                                   active=action.default)
     if action.nargs == 0:
         return create_checkbox(name, action.default)
     elif action.nargs in [1, None]:
@@ -177,6 +185,26 @@ def create_widget(action):
         return create_multiline(name, nlines=action.nargs)
     elif action.nargs in '?*+':
         return create_multiline(name, nlines=1)
+
+
+def get_group(action, groups):
+    "Return the mutually exclusive group the action belongs to"
+    for group in groups:
+        if action in group._group_actions:
+            return group
+    return None  # return None for actions that are not in such a group
+
+
+def create_radio_button(name, group, widgets, active):
+    "Return a radio button and update the widgets dict if appropriate"
+    if group in widgets.keys():
+        button = Gtk.RadioButton.new_from_widget(widgets[group])
+    else:
+        button = Gtk.RadioButton()
+        widgets[group] = button
+    button.name = name
+    button.set_active(active)
+    return button
 
 
 def create_multiline(name, nlines):
