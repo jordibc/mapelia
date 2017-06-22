@@ -15,6 +15,7 @@ ficheros se pueden a su vez manipular con programas como MeshLab o Blender.
 
 import sys
 import os
+import struct
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
 from PIL import Image
@@ -95,7 +96,7 @@ def write_ply(fname, heights, projection_args):
     # we use the points of a sphere without distortions for the
     # connection of the points forming the faces
 
-    with open(fname, 'wt') as fout:
+    with open(fname, 'wb') as fout:
         fout.write(ply_header(nvertices=points[-1][-1][0]+1, nfaces=len(faces)))
         write_vertices(fout, points)
         write_faces(fout, faces)
@@ -103,38 +104,47 @@ def write_ply(fname, heights, projection_args):
 
 def ply_header(nvertices, nfaces):
     "Return header of a ply file with the given number of vertices and faces"
-    return """\
+    return b"""\
 ply
-format ascii 1.0
+format binary_little_endian 1.0
 comment made by mapelia
 element vertex %d
-property float64 x
-property float64 y
-property float64 z
+property float x
+property float y
+property float z
 element face %d
-property list uint8 int32 vertex_index
+property list int int vertex_index
 end_header
 """ % (nvertices, nfaces)
 
 
-def write_vertices(fout, points):
+def write_vertices(fout, points, binary=True):
     "Write in fout the tuples of x, y, z that define the vertices"
+    if binary:
+        write = lambda x, y, z: fout.write(struct.pack(b'<3f', x, y, z))
+    else:
+        write = lambda x, y, z: fout.write(b'%g %g %g\n' % (x, y, z))
+
     for row in points:
         for p, x, y, z in row:
-            fout.write('{:.12g} {:.12g} {:.12g}\n'.format(x, y, z))
+            write(x, y, z)
 
 
-def write_faces(fout, faces):
+def write_faces(fout, faces, binary=True):
     "Write in fout the lists of indices that define the faces"
+    if binary:
+        write = lambda f: fout.write(struct.pack(b'<i3i', 3, *f))
+    else:
+        write = lambda f: fout.write(b'3 %d %d %d\n' % f)
     for f in faces:
-        fout.write('3 {:d} {:d} {:d}\n'.format(*f))
+        write(f)
 
 
 def write_asc(fname, heights, projection_args):
     "Write an asc file with the given points"
     points = project(heights, **projection_args)
-    with open(fname, 'wt') as fout:
-        write_vertices(fout, points)
+    with open(fname, 'wb') as fout:
+        write_vertices(fout, points, binary=False)
 
 
 # Mercator projection:
