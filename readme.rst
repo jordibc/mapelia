@@ -45,21 +45,21 @@ Uso
                  [--points POINTS] [--scale SCALE] [--no-poles] [--no-meridian]
                  [--fix-gaps]
                  image
-  
+
   Convierte imágenes con mapas a ficheros 3D. Toma mapas en proyección de
   Mercator, cónica o de Mollweide, de ficheros jpg, png, etc., y escribe
   ficheros ply (polígonos) o asc (nube de puntos) con una esfera que contiene
   las elevaciones deducidas del mapa en cada punto. Estos ficheros se pueden a
   su vez manipular con programas como MeshLab o Blender.
-  
+
   positional arguments:
     image                 fichero de imagen con el mapa
-  
+
   optional arguments:
     -h, --help            show this help message and exit
     -o OUTPUT, --output OUTPUT
                           fichero de salida (si vacío, se genera a partir del de
-                          entrada) (default: None)
+                          entrada) (default: )
     --overwrite           no comprobar si el fichero de salida existe (default:
                           False)
     --type {ply,asc}      tipo de fichero a generar (default: ply)
@@ -77,12 +77,6 @@ Uso
     --no-meridian         no añadir meridiano 0 (default: False)
     --fix-gaps            intenta rellenar los huecos en el mapa (default:
                           False)
-  
-    usage: mapelia [-h] [-o OUTPUT] [--overwrite] [--type {asc,ply}]
-                   [--channel {r,g,b,hue,value}] [--invert]
-                   [--projection {mercator,cylindrical}] [--points POINTS]
-                   [--scale SCALE] [--no-poles] [--no-meridian] [--fix-gaps]
-                   image
 
 
 Procesamiento con MeshLab
