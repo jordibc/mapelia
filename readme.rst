@@ -138,7 +138,6 @@ Para el futuro querría:
 
 * Añadir un interfaz gráfico decente.
 * Barra de progreso mientras escribe el fichero.
-* Escribir plys binarios (más compactos).
 * Hacer un preview de las imágenes de los mapas cuando se seleccionan.
 * Presentar estadísticas de desviación típica, componentes de Fourier y
   similares, según el canal elegido para extraer la elevación.
