@@ -19,11 +19,13 @@ import struct
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
 from PIL import Image
-from numpy import (sin, cos, exp, arcsin, arctan, sqrt, pi, e,
+from numpy import (sin, cos, exp, arcsin, arctan, sqrt, pi, e, nan, isnan,
                    array, linspace, ones_like, zeros, average)
 
 
 def process(args):
+    check_caps(args.caps)
+
     output = args.output or '%s.%s' % (args.image.rsplit('.', 1)[0], args.type)
     if not args.overwrite:
         check_if_exists(output)
@@ -41,7 +43,7 @@ def process(args):
     projection_args = {'ptype': args.projection,
                        'npoints': args.points,
                        'scale': args.scale,
-                       'poles': not args.no_poles,
+                       'caps': args.caps,
                        'meridian': not args.no_meridian}
 
     if args.type == 'asc':
@@ -50,6 +52,17 @@ def process(args):
         write_ply(output, heights, projection_args)
 
     return output
+
+
+def check_caps(caps):
+    "Check that the caps are valid"
+    # We want this so as to fail early.
+    try:
+        if not 0 < float(caps) < 90:
+            sys.exit('caps can be an angle > 0 and < 90 (or auto or none).')
+    except ValueError:
+        if caps not in ['auto', 'none']:
+            sys.exit('caps can be "auto", "none" or a float.')
 
 
 def check_if_exists(fname):
@@ -80,7 +93,8 @@ def get_parser():
         help='número de puntos a usar como máximo')
     add('--scale', type=float, default=0.02,
         help='fracción de radio entre el punto más bajo y más alto')
-    add('--no-poles', action='store_true', help='no añadir polos')
+    add('--caps', default='auto',
+        help='ángulo (en grados) al que llegan los casquetes (o auto o none)')
     add('--no-meridian', action='store_true', help='no añadir meridiano 0')
     add('--fix-gaps', action='store_true',
         help='intenta rellenar los huecos en el mapa')
@@ -168,10 +182,10 @@ def write_asc(fname, heights, projection_args):
 #   y = r * sqrt(2) * sin(aux)
 # where aux is such that:  2 * aux + sin(2 * aux) = pi * sin(phi)
 # Inverse:
-#   theta = pi * x / (2 * r * sqrt(2) * cos(aux))
-#   phi = asin(((2 * aux) + sin(2 * aux)) / pi)
-# with  aux = asin(y / (r * sqrt(2))  and  r = nx / (2 * pi)
-def project(heights, ptype, npoints, scale, poles, meridian):
+#   theta = pi * x / (2 * r * sqrt(2) * cos(asin(aux)))
+#   phi = asin( ((2 * asin(aux) + sin(2 * asin(aux)) ) / pi)
+# with  aux = y / (r * sqrt(2))  and  r = nx / (2 * pi)
+def project(heights, ptype, npoints, scale, caps, meridian):
     "Return points on a sphere, modulated by the given heights"
     # The points returned look like a list of rows:
     # [[(0, x0_0, y0_0, z0_0), (1, x0_1, y0_1, z0_1), ...],
@@ -180,33 +194,49 @@ def project(heights, ptype, npoints, scale, poles, meridian):
     # This will be useful later on to connect the points and form faces.
     ny, nx = heights.shape
 
-    # Function to go from the y to the phi angle.
+    # Functions to get theta, phi from x, y.
     if ptype == 'mercator':
-        get_theta = lambda x, y: pi * (2 * i / nx - 1)
-        get_phi = lambda x, y: 2 * arctan(exp(pi * y / nx)) - pi / 2
+        get_theta = lambda x, y: 2 * pi * x / nx
+        get_phi = lambda y: 2 * arctan(exp(2 * pi * y / nx)) - pi / 2
     elif ptype == 'cylindrical':
-        get_theta = lambda x, y: pi * (2 * i / nx - 1)
-        get_phi = lambda x, y: arctan(2 * pi * y / nx)
+        get_theta = lambda x, y: 2 * pi * x / nx
+        get_phi = lambda y: arctan(2 * pi * y / nx)
     elif ptype == 'mollweide':
         sqrt2 = sqrt(2)
         def get_theta(x, y):
-            aux = arcsin(2 * pi * y / (nx * sqrt2))
-            return pi * pi * x / (nx * sqrt2 * cos(aux))
-        def get_phi(x, y):
-            aux = arcsin(2 * pi * y / (nx * sqrt2))
-            return arcsin(((2 * aux) + sin(2 * aux)) / pi)
-        raise NotImplementedError
+            aux = 2 * pi * y / (nx * sqrt2)
+            if -1 < aux < 1:
+                return pi * pi * x / (nx * sqrt2 * sqrt(1 - aux*aux))
+            else:
+                return nan
+        def get_phi(y):
+            aux = 2 * pi * y / (nx * sqrt2)
+            if -1 < aux < 1:
+                aux2 = (2 * arcsin(aux) + sin(2 * arcsin(aux))) / pi
+                return arcsin(aux2) if -1 < aux2 < 1 else nan
+            else:
+                return nan
 
     points = []
     pid = 0
 
-    def add_pole(phi_n, pid):
+    if ptype == 'mollweide' and caps == 'auto':
+        caps = 'none'
+
+    if caps == 'auto':
+        phi_cap = get_phi(ny // 2)
+    elif caps != 'none':
+        phi_cap = pi / 2 - pi * float(caps) / 180
+    else:
+        phi_cap = pi / 2
+
+    def add_cap(phi_cap, pid):
         r = 1 + 1.2 * scale
-        rcphin, rsphin = r * cos(phi_n), r * sin(phi_n)
-        if phi_n > 0:
-            phi_start, phi_end, limit = pi / 2, phi_n, r
+        rcphin, rsphin = r * cos(phi_cap), r * sin(phi_cap)
+        if phi_cap > 0:
+            phi_start, phi_end, limit = pi / 2, phi_cap, r
         else:
-            phi_start, phi_end, limit = phi_n, -pi / 2, -r
+            phi_start, phi_end, limit = phi_cap, -pi / 2, -r
         for phi in linspace(phi_start, phi_end, 10):
             row = []
             rcphi, rsphi = r * cos(phi), r * sin(phi)
@@ -219,9 +249,9 @@ def project(heights, ptype, npoints, scale, poles, meridian):
             points.append(row)
         return pid
 
-    # North pole.
-    if poles and ptype != 'mollweide':
-        pid = add_pole(phi_n=get_phi(0, ny), pid=pid)
+    # North cap.
+    if caps != 'none':
+        pid = add_cap(phi_cap=phi_cap, pid=pid)
 
     # Points from the given heights.
     hmin, hmax = heights.min(), heights.max()
@@ -235,18 +265,25 @@ def project(heights, ptype, npoints, scale, poles, meridian):
     stepx = int(max(1, nx / n))  # will be multiplied by 1/cos(phi)
     stepy = int(max(1, ny / (3 * n)))  # the 3 factor is related to 1/cos(phi)
 
-    rmeridian = (1 + 1.2 * scale) * (1 / (e * sin(get_phi(0, ny))) + 1 - 1 / e)
-    # this way it connects nicely with the poles
+    if caps != 'none':
+        rmeridian = (1 + 1.2 * scale) * (1 / (e * sin(phi_cap)) + 1 - 1 / e)
+        # this way it connects nicely with the caps
+    else:
+        rmeridian = (1 + 1.2 * scale)
 
     for j in range(0, ny, stepy):
-        y_map = ny - 2 * j
-        phi = get_phi(0, y_map)
+        y_map = ny // 2 - j
+        phi = get_phi(y_map)
+        if isnan(phi) or abs(phi) > phi_cap:
+            continue
 
         row = []
         cphi, sphi = cos(phi), sin(phi)
         for i in range(0, nx, stepx * int(1 / cphi)):
-            x_map = i
+            x_map = i - nx // 2
             theta = get_theta(x_map, y_map)
+            if isnan(theta):
+                continue
 
             if meridian and -0.02 < theta < 0.02:
                 r = rmeridian
@@ -260,9 +297,9 @@ def project(heights, ptype, npoints, scale, poles, meridian):
             pid += 1
         points.append(row)
 
-    # South pole.
-    if poles and ptype != 'mollweide':
-        pid = add_pole(phi_n=get_phi(0, -ny), pid=pid)
+    # South cap.
+    if caps != 'none':
+        pid = add_cap(phi_cap=-phi_cap, pid=pid)
 
     return points
 

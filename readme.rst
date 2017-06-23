@@ -42,7 +42,7 @@ Uso
   usage: mapelia [-h] [-o OUTPUT] [--overwrite] [--type {ply,asc}]
                  [--channel {r,g,b,average,hue,sat,val,color}] [--invert]
                  [--projection {mercator,cylindrical,mollweide}]
-                 [--points POINTS] [--scale SCALE] [--no-poles] [--no-meridian]
+                 [--points POINTS] [--scale SCALE] [--caps CAPS] [--no-meridian]
                  [--fix-gaps]
                  image
 
@@ -73,7 +73,8 @@ Uso
     --points POINTS       número de puntos a usar como máximo (default: 500000)
     --scale SCALE         fracción de radio entre el punto más bajo y más alto
                           (default: 0.02)
-    --no-poles            no añadir polos (default: False)
+    --caps CAPS           ángulo (en grados) al que llegan los casquetes (o auto
+                          o none) (default: auto)
     --no-meridian         no añadir meridiano 0 (default: False)
     --fix-gaps            intenta rellenar los huecos en el mapa (default:
                           False)
