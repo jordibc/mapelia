@@ -63,11 +63,11 @@ Uso
     --overwrite           no comprobar si el fichero de salida existe (default:
                           False)
     --type ply_asc        tipo de fichero a generar (default: ply)
-    --channel r,g,b,average,hue,sat,val,color
+    --channel r_g_b_average_hue_sat_val_color
                           canal que contiene la información de la elevación
                           (default: val)
     --invert              invierte las elevaciones (default: False)
-    --projection mercator,cylindrical,mollweide
+    --projection mercator_cylindrical_mollweide
                           tipo de proyección usada en el mapa (default:
                           mercator)
     --points POINTS       número de puntos a usar como máximo (default: 500000)
