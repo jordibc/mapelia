@@ -62,7 +62,7 @@ Uso
                           entrada) (default: )
     --overwrite           no comprobar si el fichero de salida existe (default:
                           False)
-    --type ply,asc        tipo de fichero a generar (default: ply)
+    --type ply_asc        tipo de fichero a generar (default: ply)
     --channel r,g,b,average,hue,sat,val,color
                           canal que contiene la información de la elevación
                           (default: val)
