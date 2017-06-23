@@ -39,12 +39,7 @@ y obtenemos:
 Uso
 ---
 
-  usage: mapelia [-h] [-o OUTPUT] [--overwrite] [--type {ply,asc}]
-                 [--channel {r,g,b,average,hue,sat,val,color}] [--invert]
-                 [--projection {mercator,cylindrical,mollweide}]
-                 [--points POINTS] [--scale SCALE] [--caps CAPS] [--no-meridian]
-                 [--fix-gaps]
-                 image
+  usage: mapelia [-h] [-o OUTPUT] [--overwrite] [--type {ply,asc}] [--channel {r,g,b,average,hue,sat,val,color}] [--invert] [--projection {mercator,cylindrical,mollweide}] [--points POINTS] [--scale SCALE] [--caps CAPS] [--no-meridian] [--fix-gaps] image
 
   Convierte imágenes con mapas a ficheros 3D. Toma mapas en proyección de
   Mercator, cónica o de Mollweide, de ficheros jpg, png, etc., y escribe
