@@ -39,9 +39,9 @@ y obtenemos:
 Uso
 ---
 
-  usage: mapelia [-h] [-o OUTPUT] [--overwrite] [--type ply_asc]
-                 [--channel r_g_b_average_hue_sat_val_color] [--invert]
-                 [--projection mercator_cylindrical_mollweide]
+  usage: mapelia [-h] [-o OUTPUT] [--overwrite] [--type {ply,asc}]
+                 [--channel {r,g,b,average,hue,sat,val,color}] [--invert]
+                 [--projection {mercator,cylindrical,mollweide}]
                  [--points POINTS] [--scale SCALE] [--caps CAPS] [--no-meridian]
                  [--fix-gaps]
                  image
