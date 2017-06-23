@@ -36,6 +36,15 @@ def process(args):
     if args.fix_gaps:
         img = fill_dark(img)
 
+    if args.projection == 'mollweide':
+        nx, ny = img.size
+        ny_expected = int(nx * sqrt(2) / pi)
+        if abs(ny - ny_expected) > 2:
+            print('You say this image is a Mollweide projection? The ratios '
+                  'do not look good (%dx%d).\nChanging them to %dx%d. '
+                  'Consider fixing the original...' % (nx, ny, nx, ny_expected))
+            img = img.resize((nx, ny_expected), Image.ANTIALIAS)
+
     heights = get_heights(img, args.channel)
     if args.invert:
         heights = -heights
@@ -161,30 +170,6 @@ def write_asc(fname, heights, projection_args):
         write_vertices(fout, points, binary=False)
 
 
-# Mercator projection:
-#   x = r * theta
-#   y = r * log(tan(pi / 4 + phi / 2))
-# Inverse:
-#   theta = x / r
-#   phi = 2 * atan(exp(y / r)) - pi / 2
-# with r = nx / (2 * pi)
-#
-# Central cylindrical projection:
-#   x = r * theta
-#   y = r * tan(phi)
-# Inverse:
-#   theta = x / r
-#   phi = atan(y / r)
-# with r = nx / (2 * pi)
-#
-# Mollweide projection:
-#   x = r * 2 * sqrt(2) / pi * theta * cos(aux)
-#   y = r * sqrt(2) * sin(aux)
-# where aux is such that:  2 * aux + sin(2 * aux) = pi * sin(phi)
-# Inverse:
-#   theta = pi * x / (2 * r * sqrt(2) * cos(asin(aux)))
-#   phi = asin( ((2 * asin(aux) + sin(2 * asin(aux)) ) / pi)
-# with  aux = y / (r * sqrt(2))  and  r = nx / (2 * pi)
 def project(heights, ptype, npoints, scale, caps, meridian):
     "Return points on a sphere, modulated by the given heights"
     # The points returned look like a list of rows:
@@ -194,41 +179,15 @@ def project(heights, ptype, npoints, scale, caps, meridian):
     # This will be useful later on to connect the points and form faces.
     ny, nx = heights.shape
 
-    # Functions to get theta, phi from x, y.
-    if ptype == 'mercator':
-        get_theta = lambda x, y: 2 * pi * x / nx
-        get_phi = lambda y: 2 * arctan(exp(2 * pi * y / nx)) - pi / 2
-    elif ptype == 'cylindrical':
-        get_theta = lambda x, y: 2 * pi * x / nx
-        get_phi = lambda y: arctan(2 * pi * y / nx)
-    elif ptype == 'mollweide':
-        sqrt2 = sqrt(2)
-        def get_theta(x, y):
-            aux = 2 * pi * y / (nx * sqrt2)
-            if -1 < aux < 1:
-                return pi * pi * x / (nx * sqrt2 * sqrt(1 - aux*aux))
-            else:
-                return nan
-        def get_phi(y):
-            aux = 2 * pi * y / (nx * sqrt2)
-            if -1 < aux < 1:
-                aux2 = (2 * arcsin(aux) + sin(2 * arcsin(aux))) / pi
-                return arcsin(aux2) if -1 < aux2 < 1 else nan
-            else:
-                return nan
+    get_theta, get_phi = projection_functions(ptype, nx, ny)
 
     points = []
-    pid = 0
+    pid = 0  # point id, used to reference the point by a number later on
 
     if ptype == 'mollweide' and caps == 'auto':
         caps = 'none'
 
-    if caps == 'auto':
-        phi_cap = get_phi(ny // 2)
-    elif caps != 'none':
-        phi_cap = pi / 2 - pi * float(caps) / 180
-    else:
-        phi_cap = pi / 2
+    phi_cap = get_phi_cap(caps, get_phi(ny // 2))
 
     def add_cap(phi_cap, pid):
         r = 1 + 1.2 * scale
@@ -269,7 +228,7 @@ def project(heights, ptype, npoints, scale, caps, meridian):
         rmeridian = (1 + 1.2 * scale) * (1 / (e * sin(phi_cap)) + 1 - 1 / e)
         # this way it connects nicely with the caps
     else:
-        rmeridian = (1 + 1.2 * scale)
+        rmeridian = 1 + 1.2 * scale
 
     for j in range(0, ny, stepy):
         y_map = ny // 2 - j
@@ -295,13 +254,70 @@ def project(heights, ptype, npoints, scale, caps, meridian):
             z = r * sphi
             row.append((pid, x, y, z))
             pid += 1
-        points.append(row)
+        if row:
+            points.append(row)
 
     # South cap.
     if caps != 'none':
         pid = add_cap(phi_cap=-phi_cap, pid=pid)
 
     return points
+
+
+def projection_functions(ptype, nx, ny):
+    "Return functions to get theta, phi from x, y"
+    r = nx / (2 * pi)  # reconstructing the radius from nx
+    if ptype == 'mercator':
+        # Mercator projection:
+        #   x = r * theta
+        #   y = r * log(tan(pi / 4 + phi / 2))
+        # Inverse:
+        #   theta = x / r
+        #   phi = 2 * atan(exp(y / r)) - pi / 2
+        get_theta = lambda x, y: x / r
+        get_phi = lambda y: 2 * arctan(exp(y / r)) - pi / 2
+    elif ptype == 'cylindrical':
+        # Central cylindrical projection:
+        #   x = r * theta
+        #   y = r * tan(phi)
+        # Inverse:
+        #   theta = x / r
+        #   phi = atan(y / r)
+        get_theta = lambda x, y: x / r
+        get_phi = lambda y: arctan(y / r)
+    elif ptype == 'mollweide':
+        # Mollweide projection:
+        #   x = r * 2 * sqrt(2) / pi * theta * cos(aux)
+        #   y = r * sqrt(2) * sin(aux)
+        # where aux is such that:  2 * aux + sin(2 * aux) = pi * sin(phi)
+        # Inverse:
+        #   theta = pi * x / (2 * r * sqrt(2) * cos(asin(aux)))
+        #   phi = asin( ((2 * asin(aux) + sin(2 * asin(aux)) ) / pi)
+        # with  aux = y / (r * sqrt(2))
+        sqrt2 = sqrt(2)
+        def get_theta(x, y):
+            aux = y / (r * sqrt2)
+            if not -1 < aux < 1:
+                return nan
+            aux2 = pi * x / (2 * r * sqrt2 * sqrt(1 - aux*aux))
+            return aux2 if -pi < aux2 < pi else nan
+        def get_phi(y):
+            aux = y / (r * sqrt2)
+            if not -1 < aux < 1:
+                return nan
+            aux2 = (2 * arcsin(aux) + sin(2 * arcsin(aux))) / pi
+            return arcsin(aux2) if -1 < aux2 < 1 else nan
+    return get_theta, get_phi
+
+
+def get_phi_cap(caps, phi_auto):
+    "Return the angle at which the cap ends"
+    if caps == 'auto':
+        return phi_auto
+    elif caps == 'none':
+        return pi / 2
+    else:  # caps is an angle then
+        return pi / 2 - pi * float(caps) / 180
 
 
 def get_faces(points):

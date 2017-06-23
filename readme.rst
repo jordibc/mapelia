@@ -137,7 +137,6 @@ Mejoras
 
 Para el futuro querría:
 
-* Terminar la proyección de Mollweide.
 * Añadir un interfaz gráfico decente.
 * Barra de progreso mientras escribe el fichero.
 * Hacer un preview de las imágenes de los mapas cuando se seleccionan.
