@@ -221,15 +221,14 @@ def project(heights, ptype, npoints, scale, caps, meridian):
         radii = ones_like(heights)
         meridian = False  # hack
 
-    n = sqrt(npoints)
-    stepy = int(max(1, ny / (3 * n)))  # the 3 factor is related to 1/cos(phi)
-
     if caps != 'none':
         rmeridian = (1 + 1.2 * scale) * (1 / (e * sin(phi_cap)) + 1 - 1 / e)
         # this way it connects nicely with the caps
     else:
         rmeridian = 1 + 1.2 * scale
 
+    n = sqrt(npoints)
+    stepy = int(max(1, ny / (3 * n)))  # the 3 factor is related to 1/cos(phi)
     for j in range(0, ny, stepy):
         y_map = ny // 2 - j
         phi = get_phi(y_map)
