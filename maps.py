@@ -136,7 +136,7 @@ property float x
 property float y
 property float z
 element face %d
-property list int int vertex_index
+property list uchar int vertex_index
 end_header
 """ % (nvertices, nfaces)
 
@@ -156,9 +156,10 @@ def write_vertices(fout, points, binary=True):
 def write_faces(fout, faces, binary=True):
     "Write in fout the lists of indices that define the faces"
     if binary:
-        write = lambda f: fout.write(struct.pack(b'<i3i', 3, *f))
+        write = lambda f: fout.write(struct.pack(b'<B3i', 3, *f))
     else:
         write = lambda f: fout.write(b'3 %d %d %d\n' % f)
+
     for f in faces:
         write(f)
 
