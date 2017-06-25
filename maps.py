@@ -222,7 +222,6 @@ def project(heights, ptype, npoints, scale, caps, meridian):
         meridian = False  # hack
 
     n = sqrt(npoints)
-    stepx = int(max(1, nx / n))  # will be multiplied by 1/cos(phi)
     stepy = int(max(1, ny / (3 * n)))  # the 3 factor is related to 1/cos(phi)
 
     if caps != 'none':
@@ -239,7 +238,8 @@ def project(heights, ptype, npoints, scale, caps, meridian):
 
         row = []
         cphi, sphi = cos(phi), sin(phi)
-        for i in range(0, nx, stepx * int(1 / cphi)):
+        stepx = int(max(1, nx / n) * (1 if ptype == 'mollweide' else 1 / cphi))
+        for i in range(0, nx, stepx):
             x_map = i - nx // 2
             theta = get_theta(x_map, y_map)
             if isnan(theta):
