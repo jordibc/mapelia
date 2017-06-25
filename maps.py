@@ -20,7 +20,7 @@ import struct
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
 from PIL import Image
 from numpy import (sin, cos, exp, arcsin, arctan, sqrt, pi, e, nan, isnan,
-                   array, linspace, ones_like, zeros, average)
+                   array, linspace, ones_like, zeros, average, all)
 
 
 def process(args):
@@ -178,10 +178,10 @@ def project(heights, ptype, npoints, scale, caps, meridian):
     #  [(n, x1_0, y1_0, z1_0), (n+1, x1_1, y1_1, z1_1), ...],
     #  ...]
     # This will be useful later on to connect the points and form faces.
+    if not all(heights == 1):
+        print('Projecting heights on a sphere...')
     ny, nx = heights.shape
-
     get_theta, get_phi = projection_functions(ptype, nx, ny)
-
     points = []
     pid = 0  # point id, used to reference the point by a number later on
 
@@ -324,6 +324,7 @@ def get_faces(points):
     "Yield faces as triplets of point indices"
     # points must be a list of rows, each containing the actual points
     # that correspond to a (closed!) section of an object.
+    print('Forming the faces...')
 
     # This follows the "walking the dog" algorithm that I just made up.
     # It seems to work fine when using the points of a sphere...
