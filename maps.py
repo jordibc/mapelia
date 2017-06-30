@@ -216,7 +216,7 @@ def project(heights, ptype, npoints, scale, caps, meridian):
     # Points from the given heights.
     hmin, hmax = heights.min(), heights.max()
     if hmax - hmin > 0.01:
-        radii = 1 + scale * (2 * (heights - hmin) / (hmax - hmin) - 1)
+        radii = 1.0 + scale * (2.0 * (heights - hmin) / (hmax - hmin) - 1.0)
     else:
         radii = ones_like(heights)
         meridian = False  # hack
