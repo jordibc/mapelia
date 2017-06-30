@@ -24,6 +24,9 @@ from numpy import (sin, cos, exp, arcsin, arctan, sqrt, pi, e, nan, isnan,
 
 
 def process(args):
+    if not os.path.isfile(args.image):
+        sys.exit('File %s does not exist.' % args.image)
+
     check_caps(args.caps)
 
     output = args.output or '%s.%s' % (args.image.rsplit('.', 1)[0], args.type)
