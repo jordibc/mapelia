@@ -7,6 +7,14 @@ esfera que contiene las elevaciones deducidas del mapa en cada punto. Estos
 ficheros se pueden a su vez manipular con programas como MeshLab o Blender.
 """
 
+# Spherical coordinates convention:
+#   theta: angle from the x axis to the projection of the point in the xy plane
+#   phi: angle from the xy plane to the point
+# so
+#   x = r * cos(theta) * cos(phi)
+#   y = r * sin(theta) * cos(phi)
+#   z = r * sin(phi)
+
 # TODO:
 # * Allow the use of an external 1xN image with the colors that
 #   correspond to different heights.
@@ -19,7 +27,8 @@ import struct
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
 from PIL import Image
-from numpy import (sin, cos, exp, arcsin, arctan, sqrt, pi, e, nan, isnan,
+from numpy import (sin, cos, exp, arcsin, arccos, arctan, arctan2, sqrt,
+                   pi, e, nan, isnan,
                    array, linspace, ones_like, zeros, average, all)
 
 
@@ -99,8 +108,9 @@ def get_parser():
         choices=['r', 'g', 'b', 'average', 'hue', 'sat', 'val', 'color'],
         help='canal que contiene la información de la elevación')
     add('--invert', action='store_true', help='invierte las elevaciones')
-    add('--projection', choices=['mercator', 'cylindrical', 'mollweide'],
-        default='mercator', help='tipo de proyección usada en el mapa')
+    add('--projection', default='mercator',
+        choices=['mercator', 'cylindrical', 'mollweide', 'equirectangular'],
+        help='tipo de proyección usada en el mapa')
     add('--points', type=int, default=500000,
         help='número de puntos a usar como máximo')
     add('--scale', type=float, default=0.02,
@@ -287,7 +297,7 @@ def projection_functions(ptype, nx, ny):
         #   theta = x / r
         #   phi = atan(y / r)
         get_theta = lambda x, y: x / r
-        get_phi = lambda y: arctan(y / r)
+        get_phi = lambda y: arctan2(y, r)
     elif ptype == 'mollweide':
         # Mollweide projection:
         #   x = r * 2 * sqrt(2) / pi * theta * cos(aux)
@@ -310,6 +320,15 @@ def projection_functions(ptype, nx, ny):
                 return nan
             aux2 = (2 * arcsin(aux) + sin(2 * arcsin(aux))) / pi
             return arcsin(aux2) if -1 < aux2 < 1 else nan
+    elif ptype == 'equirectangular':
+        # Equirectangular projection:
+        #   x =  r * theta
+        #   y = r * phi
+        # Inverse:
+        #   theta = x / r
+        #   phi = y / r
+        get_theta = lambda x, y: x / r
+        get_phi = lambda y: y / r
     return get_theta, get_phi
 
 
