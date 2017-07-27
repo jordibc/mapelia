@@ -10,7 +10,7 @@ ficheros se pueden a su vez manipular con programas como MeshLab o Blender.
 # Spherical coordinates convention:
 #   theta: angle from the x axis to the projection of the point in the xy plane
 #   phi: angle from the xy plane to the point
-# so
+# That is, theta is the longitude and phi is the latitude:
 #   x = r * cos(theta) * cos(phi)
 #   y = r * sin(theta) * cos(phi)
 #   z = r * sin(phi)
@@ -18,7 +18,6 @@ ficheros se pueden a su vez manipular con programas como MeshLab o Blender.
 # TODO:
 # * Allow the use of an external 1xN image with the colors that
 #   correspond to different heights.
-# * Clean up the project() and get_faces() functions.
 # * Remove the hack of  faces = list(get_faces(points_sphere))  in write_ply()
 # * Add option to low-pass filter the image. See:
 #   https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve2d.html
@@ -390,8 +389,8 @@ def get_faces(points):
     # It seems to work fine when using the points of a sphere...
 
     def dist2(p0, p1):  # geometric distance (squared) between two points
-        _, x0, y0, z0 = p0
-        _, x1, y1, z1 = p1
+        _, x0, y0, z0 = p0[:4]
+        _, x1, y1, z1 = p1[:4]
         return (x1 - x0)**2 + (y1 - y0)**2 + (z1 - z0)**2
 
     # dog            <-- previous row
