@@ -58,7 +58,8 @@ def process(args):
                        'npoints': args.points,
                        'scale': args.scale,
                        'caps': args.caps,
-                       'meridian': not args.no_meridian}
+                       'meridian': not args.no_meridian,
+                       'protrusion': args.protrusion}
 
     if args.type == 'asc':
         write_asc(output, heights, projection_args)
@@ -129,6 +130,8 @@ def get_parser():
     add('--caps', default='auto',
         help='ángulo (en grados) al que llegan los casquetes (o auto o none)')
     add('--no-meridian', action='store_true', help='no añadir meridiano 0')
+    add('--protrusion', type=float, default=1.2,
+        help='fracción en la que sobresalen meridiano y casquetes del máximo')
     add('--fix-gaps', action='store_true',
         help='intenta rellenar los huecos en el mapa')
     return parser
@@ -195,7 +198,7 @@ def write_asc(fname, heights, projection_args):
         write_vertices(fout, points, binary=False)
 
 
-def project(heights, ptype, npoints, scale, caps, meridian):
+def project(heights, ptype, npoints, scale, caps, meridian, protrusion):
     "Return points on a sphere, modulated by the given heights"
     # The points returned look like a list of rows:
     # [[(0, x0_0, y0_0, z0_0), (1, x0_1, y0_1, z0_1), ...],
@@ -215,7 +218,7 @@ def project(heights, ptype, npoints, scale, caps, meridian):
     phi_cap = get_phi_cap(caps, get_phi(ny // 2))
 
     def add_cap(phi_cap, pid):
-        r = 1 + 1.2 * scale
+        r = 1 + protrusion * scale
         rcphin, rsphin = r * cos(phi_cap), r * sin(phi_cap)
         if phi_cap > 0:
             phi_start, phi_end, limit = pi / 2, phi_cap, r
@@ -224,8 +227,8 @@ def project(heights, ptype, npoints, scale, caps, meridian):
         for phi in linspace(phi_start, phi_end, 10):
             row = []
             rcphi, rsphi = r * cos(phi), r * sin(phi)
-            z = rsphin + (limit - rsphin) * exp(- rcphi**2 / rcphin**2)
-            for theta in linspace(-pi, pi, max(5, int(100 * cos(phi)))):
+            z = rsphi
+            for theta in linspace(-pi, pi, max(9, int(100 * cos(phi)))):
                 x = cos(theta) * rcphi
                 y = sin(theta) * rcphi
                 row.append((pid, x, y, z))
@@ -245,11 +248,7 @@ def project(heights, ptype, npoints, scale, caps, meridian):
         radii = ones_like(heights)
         meridian = False  # hack
 
-    if caps != 'none':
-        rmeridian = (1 + 1.2 * scale) * (1 / (e * sin(phi_cap)) + 1 - 1 / e)
-        # this way it connects nicely with the caps
-    else:
-        rmeridian = 1 + 1.2 * scale
+    rmeridian = 1 + protrusion * scale
 
     n = sqrt(npoints)
     stepy = int(max(1, ny / (3 * n)))  # the 3 factor is related to 1/cos(phi)
