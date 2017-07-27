@@ -60,7 +60,8 @@ def process(args):
     if args.fix_gaps:
         img = fill_dark(img)
 
-    img = fix_ratios(img, args.projection)
+    if not args.no_ratio_check:
+        img = fix_ratios(img, args.projection)
 
     heights = get_heights(img, args.channel)
     if args.invert:
@@ -144,6 +145,8 @@ def get_parser():
     add('--no-meridian', action='store_true', help='no añadir meridiano 0')
     add('--protrusion', type=float, default=1.2,
         help='fracción en la que sobresalen meridiano y casquetes del máximo')
+    add('--no-ratio-check', action='store_true',
+        help='no arreglar el ratio altuo/ancho en ciertas proyecciones')
     add('--fix-gaps', action='store_true',
         help='intenta rellenar los huecos en el mapa')
     return parser
