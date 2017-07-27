@@ -194,12 +194,17 @@ def write_vertices(fout, points, binary=True):
             write(x, y, z)
 
 
-def write_faces(fout, faces, binary=True):
+def write_faces(fout, faces, binary=True, invert=False):
     "Write in fout the lists of indices that define the faces"
-    if binary:
-        write = lambda f: fout.write(struct.pack(b'<B3i', 3, *f))
+    if not invert:
+        reorder = lambda f: f
     else:
-        write = lambda f: fout.write(b'3 %d %d %d\n' % f)
+        reorder = lambda f: (f[0], f[2], f[1])
+
+    if binary:
+        write = lambda f: fout.write(struct.pack(b'<B3i', 3, *reorder(f)))
+    else:
+        write = lambda f: fout.write(b'3 %d %d %d\n' % reorder(f))
 
     for f in faces:
         write(f)

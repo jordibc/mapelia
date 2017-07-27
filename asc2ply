@@ -19,6 +19,8 @@ def main():
         help='no comprobar si el fichero de salida existe')
     add('--ascii', action='store_true',
         help='escribe el ply resultante en ascii')
+    add('--invert', action='store_true',
+        help='invierte la orientación de las caras')
     add('--row-length', type=int, default=0,
         help='número de puntos por sección (si 0, se autodetecta)')
     args = parser.parse_args()
@@ -36,7 +38,7 @@ def main():
         fout.write(maps.ply_header(nvertices=len(points_raw),
                                    nfaces=len(faces), binary=binary))
         maps.write_vertices(fout, points, binary)
-        maps.write_faces(fout, faces, binary)
+        maps.write_faces(fout, faces, binary, args.invert)
     print('The output is in file %s' % output)
 
 
