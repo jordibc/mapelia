@@ -167,11 +167,11 @@ def write_ply(fname, heights, projection_args):
         write_faces(fout, faces)
 
 
-def ply_header(nvertices, nfaces):
+def ply_header(nvertices, nfaces, binary=True):
     "Return header of a ply file with the given number of vertices and faces"
     return b"""\
 ply
-format binary_little_endian 1.0
+format %s 1.0
 comment made by mapelia
 element vertex %d
 property float x
@@ -180,7 +180,7 @@ property float z
 element face %d
 property list uchar int vertex_index
 end_header
-""" % (nvertices, nfaces)
+""" % (b'binary_little_endian' if binary else b'ascii', nvertices, nfaces)
 
 
 def write_vertices(fout, points, binary=True):
