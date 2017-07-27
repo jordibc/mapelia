@@ -48,14 +48,7 @@ def process(args):
     if args.fix_gaps:
         img = fill_dark(img)
 
-    if args.projection == 'mollweide':
-        nx, ny = img.size
-        ny_expected = int(nx * sqrt(2) / pi)
-        if abs(ny - ny_expected) > 2:
-            print('You say this image is a Mollweide projection? The ratios '
-                  'do not look good (%dx%d).\nChanging them to %dx%d. '
-                  'Consider fixing the original...' % (nx, ny, nx, ny_expected))
-            img = img.resize((nx, ny_expected), Image.ANTIALIAS)
+    img = fix_ratios(img, args.projection)
 
     heights = get_heights(img, args.channel)
     if args.invert:
@@ -73,6 +66,23 @@ def process(args):
         write_ply(output, heights, projection_args)
 
     return output
+
+
+def fix_ratios(img, ptype):
+    "Resize the image if ptype expects to have a different nx/ny ratio"
+    nx, ny = img.size
+    nys = {'mollweide': int(nx * sqrt(2) / pi),
+           'equirectangular': nx // 2,
+           'sinusoidal': nx // 2}
+    if ptype in nys:
+        ny_expected = nys[ptype]
+        if abs(ny - ny_expected) > 0:
+            print('You say this image is a %s projection? The ratios '
+                  'do not look good (%dx%d).\nChanging them to %dx%d. '
+                  'Consider fixing the original...' % (ptype, nx, ny, nx,
+                                                       ny_expected))
+            img = img.resize((nx, ny_expected), Image.ANTIALIAS)
+    return img
 
 
 def check_caps(caps):
@@ -109,7 +119,8 @@ def get_parser():
         help='canal que contiene la información de la elevación')
     add('--invert', action='store_true', help='invierte las elevaciones')
     add('--projection', default='mercator',
-        choices=['mercator', 'cylindrical', 'mollweide', 'equirectangular'],
+        choices=['mercator', 'cylindrical', 'mollweide', 'equirectangular',
+                 'sinusoidal'],
         help='tipo de proyección usada en el mapa')
     add('--points', type=int, default=500000,
         help='número de puntos a usar como máximo')
@@ -198,7 +209,7 @@ def project(heights, ptype, npoints, scale, caps, meridian):
     points = []
     pid = 0  # point id, used to reference the point by a number later on
 
-    if ptype == 'mollweide' and caps == 'auto':
+    if ptype in ['mollweide', 'sinusoidal'] and caps == 'auto':
         caps = 'none'
 
     phi_cap = get_phi_cap(caps, get_phi(ny // 2))
@@ -250,7 +261,8 @@ def project(heights, ptype, npoints, scale, caps, meridian):
 
         row = []
         cphi, sphi = cos(phi), sin(phi)
-        stepx = int(max(1, nx / n) * (1 if ptype == 'mollweide' else 1 / cphi))
+        stepx = int(max(1, nx / n) * (1 if ptype in ['mollweide', 'sinusoidal']
+                                        else 1 / cphi))
         for i in range(0, nx, stepx):
             x_map = i - nx // 2
             theta = get_theta(x_map, y_map)
@@ -329,6 +341,18 @@ def projection_functions(ptype, nx, ny):
         #   phi = y / r
         get_theta = lambda x, y: x / r
         get_phi = lambda y: y / r
+    elif ptype == 'sinusoidal':
+        # Sinusoidal projection:
+        #   x = r * theta * cos(phi)
+        #   y = r * phi
+        # Inverse:
+        #   theta = x / (r * cos(y / r))
+        #   phi = y / r
+        def get_theta(x, y):
+            theta = x / (r * cos(y / r))
+            return theta if -pi < theta < pi else nan
+        def get_phi(y):
+            return y / r
     return get_theta, get_phi
 
 
