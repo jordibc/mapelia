@@ -20,6 +20,9 @@ ficheros se pueden a su vez manipular con programas como MeshLab o Blender.
 #   correspond to different heights.
 # * Clean up the project() and get_faces() functions.
 # * Remove the hack of  faces = list(get_faces(points_sphere))  in write_ply()
+# * Add option to low-pass filter the image. See:
+#   https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve2d.html
+#   https://tomroelandts.com/articles/how-to-create-a-simple-low-pass-filter
 
 import sys
 import os
@@ -32,6 +35,15 @@ from numpy import (sin, cos, exp, arcsin, arccos, arctan, arctan2, sqrt,
                    array, linspace, ones_like, zeros, average, all)
 
 
+def ansi(n, bold=False):
+    "Return function that escapes text with ANSI color n."
+    return lambda txt: '\x1b[%d%sm%s\x1b[0m' % (n, ';1' if bold else '', txt)
+
+black, red, green, yellow, blue, magenta, cyan, white = map(ansi, range(30, 38))
+blackB, redB, greenB, yellowB, blueB, magentaB, cyanB, whiteB = [
+    ansi(i, bold=True) for i in range(30, 38)]
+
+
 def process(args):
     if not os.path.isfile(args.image):
         sys.exit('File %s does not exist.' % args.image)
@@ -42,7 +54,7 @@ def process(args):
     if not args.overwrite:
         check_if_exists(output)
 
-    print('Processing file %s ...' % args.image)
+    print(green('Processing file %s ...' % args.image))
     img = Image.open(args.image)
 
     if args.fix_gaps:
@@ -78,10 +90,10 @@ def fix_ratios(img, ptype):
     if ptype in nys:
         ny_expected = nys[ptype]
         if abs(ny - ny_expected) > 0:
-            print('You say this image is a %s projection? The ratios '
-                  'do not look good (%dx%d).\nChanging them to %dx%d. '
-                  'Consider fixing the original...' % (ptype, nx, ny, nx,
-                                                       ny_expected))
+            print(red('You say this image is a %s projection? The ratios '
+                      'do not look good (%dx%d).\nChanging them to %dx%d. '
+                      'Consider fixing the original.' % (ptype, nx, ny, nx,
+                                                         ny_expected)))
             img = img.resize((nx, ny_expected), Image.ANTIALIAS)
     return img
 
@@ -206,7 +218,7 @@ def project(heights, ptype, npoints, scale, caps, meridian, protrusion):
     #  ...]
     # This will be useful later on to connect the points and form faces.
     if not all(heights == 1):
-        print('Projecting heights on a sphere...')
+        print('- Projecting heights on a sphere...')
     ny, nx = heights.shape
     get_theta, get_phi = projection_functions(ptype, nx, ny)
     points = []
@@ -369,7 +381,7 @@ def get_faces(points):
     "Yield faces as triplets of point indices"
     # points must be a list of rows, each containing the actual points
     # that correspond to a (closed!) section of an object.
-    print('Forming the faces...')
+    print('- Forming the faces...')
 
     # This follows the "walking the dog" algorithm that I just made up.
     # It seems to work fine when using the points of a sphere...
@@ -414,7 +426,7 @@ def get_faces(points):
 
 def fill_dark(img, too_dark_value=30, darkest_fill=50):
     "Fill dark values in the image (which correspond to areas with no data)"
-    print('Filling dark areas with nearby color...')
+    print('- Filling dark areas with nearby color...')
     img_filled = img.convert('HSV')
     last_fill = (255, 255, 255)
     nx, ny = img_filled.size
@@ -430,7 +442,7 @@ def fill_dark(img, too_dark_value=30, darkest_fill=50):
 
 def get_heights(img, channel='value'):
     "Return an array with the heights extracted from the image"
-    print('Extracting heights from the image...')
+    print('- Extracting heights from the image...')
     if channel in ['r', 'g', 'b', 'average']:
         # These channels are straigthforward: higher values are higher heights.
         imx = array(img.convert('RGBA'))
