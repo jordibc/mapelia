@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+"""
+Crea un fichero de polígonos (.ply) a partir de uno con sólo los puntos (.asc).
+"""
+
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
+import maps
+import asc
+
+
+def main():
+    parser = ArgumentParser(description=__doc__, formatter_class=fmt)
+    add = parser.add_argument  # shortcut
+    add('file', help='fichero asc con las coordenadas de los puntos')
+    add('-o', '--output', default='',
+        help='fichero de salida (si vacío, se genera a partir del de entrada)')
+    add('--overwrite', action='store_true',
+        help='no comprobar si el fichero de salida existe')
+    add('--ascii', action='store_true',
+        help='escribe el ply resultante en ascii')
+    add('--row-length', type=int, default=0,
+        help='número de puntos por sección (si 0, se autodetecta)')
+    args = parser.parse_args()
+
+    output = args.output or '%s.ply' % args.file.rsplit('.', 1)[0]
+    if not args.overwrite:
+        maps.check_if_exists(output)
+
+    points_raw = asc.get_points_raw(args.file)
+    points = asc.get_points(points_raw, args.row_length)
+    faces = list(maps.get_faces(points))
+
+    with open(output, 'wb') as fout:
+        binary = not args.ascii
+        fout.write(maps.ply_header(nvertices=len(points_raw),
+                                   nfaces=len(faces), binary=binary))
+        maps.write_vertices(fout, points, binary)
+        maps.write_faces(fout, faces, binary)
+    print('The output is in file %s' % output)
+
+
+
+if __name__ == '__main__':
+    main()

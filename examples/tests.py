@@ -11,6 +11,41 @@ from PIL import Image
 import numpy as np
 
 
+def show_colored_rows():
+    import os
+    import sys
+    sys.path.append('..')
+    import asc
+    os.system('../mapelia earth_equirectangular.jpg --type asc '
+              '--projection equirectangular '
+              '--over --points 1000 --caps none --no-meridian')
+    points_raw = asc.get_points_raw('earth_equirectangular.asc')
+    print('Fast angle:', asc.find_fast_angle(points_raw))
+    points = asc.get_points(points_raw)
+    import numpy as np
+    r = lambda: np.random.randint(0, 255)
+    with open('test.ply', 'w') as fout:
+        # See http://paulbourke.net/dataformats/ply/
+        fout.write("""\
+ply
+format ascii 1.0
+element vertex %d
+property float x
+property float y
+property float z
+property uchar red
+property uchar green
+property uchar blue
+element face 0
+end_header\n""" % len(points_raw))
+        for row in points:
+            color = (r(), r(), r())
+            for p in row:
+                _, x, y, z = map(float, p)
+                fout.write('%g %g %g %d %d %d\n' % (x, y, z, *color))
+    os.system('meshlab test.ply')
+
+
 def write_ply():
     points = sphere_rows()
     #points = plane_rows()
