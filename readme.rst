@@ -28,9 +28,9 @@ ejecutamos::
 
   $ mapelia venus.png
   Processing file venus.png ...
-  Extracting heights from the image...
-  Projecting heights on a sphere...
-  Forming the faces...
+  - Extracting heights from the image...
+  - Projecting heights on a sphere...
+  - Forming the faces...
   The output is in file venus.ply
 
 y obtenemos:
@@ -43,9 +43,9 @@ Uso
 
   usage: mapelia [-h] [-o OUTPUT] [--overwrite] [--type {ply,asc}]
                  [--channel {r,g,b,average,hue,sat,val,color}] [--invert]
-                 [--projection {mercator,cylindrical,mollweide}]
+                 [--projection {mercator,cylindrical,mollweide,equirectangular,sinusoidal}]
                  [--points POINTS] [--scale SCALE] [--caps CAPS] [--no-meridian]
-                 [--fix-gaps]
+                 [--protrusion PROTRUSION] [--no-ratio-check] [--fix-gaps]
                  image
 
   Convierte imágenes con mapas a ficheros 3D. Toma mapas en proyección de
@@ -69,7 +69,7 @@ Uso
                           canal que contiene la información de la elevación
                           (default: val)
     --invert              invierte las elevaciones (default: False)
-    --projection mercator_cylindrical_mollweide
+    --projection mercator_cylindrical_mollweide_equirectangular_sinusoidal
                           tipo de proyección usada en el mapa (default:
                           mercator)
     --points POINTS       número de puntos a usar como máximo (default: 500000)
@@ -78,6 +78,11 @@ Uso
     --caps CAPS           ángulo (en grados) al que llegan los casquetes (o auto
                           o none) (default: auto)
     --no-meridian         no añadir meridiano 0 (default: False)
+    --protrusion PROTRUSION
+                          fracción en la que sobresalen meridiano y casquetes
+                          del máximo (default: 1.2)
+    --no-ratio-check      no arreglar el ratio alto/ancho en ciertas
+                          proyecciones (default: False)
     --fix-gaps            intenta rellenar los huecos en el mapa (default:
                           False)
 

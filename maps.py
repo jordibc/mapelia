@@ -145,7 +145,7 @@ def get_parser():
     add('--protrusion', type=float, default=1.2,
         help='fracción en la que sobresalen meridiano y casquetes del máximo')
     add('--no-ratio-check', action='store_true',
-        help='no arreglar el ratio altuo/ancho en ciertas proyecciones')
+        help='no arreglar el ratio alto/ancho en ciertas proyecciones')
     add('--fix-gaps', action='store_true',
         help='intenta rellenar los huecos en el mapa')
     return parser
