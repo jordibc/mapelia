@@ -1,10 +1,10 @@
 """
 Convierte imágenes con mapas a ficheros 3D.
 
-Toma mapas en proyección de Mercator, cónica o de Mollweide, de ficheros jpg,
-png, etc., y escribe ficheros ply (polígonos) o asc (nube de puntos) con una
-esfera que contiene las elevaciones deducidas del mapa en cada punto. Estos
-ficheros se pueden a su vez manipular con programas como MeshLab o Blender.
+Toma mapas de ficheros jpg, png, etc., y escribe ficheros ply (polígonos) o asc
+(nube de puntos) con una esfera que contiene las elevaciones deducidas del mapa
+en cada punto. Estos ficheros se pueden a su vez manipular con programas como
+MeshLab o Blender.
 """
 
 # Spherical coordinates convention:

@@ -3,8 +3,7 @@
 """
 Pinta en colores sobre la superficie de una esfera una imagen con un mapa.
 
-Toma mapas en proyección de Mercator, cónica o de Mollweide, de ficheros jpg,
-png, etc., y escribe ficheros ply (polígonos).
+Toma mapas de ficheros jpg, png, etc., y escribe ficheros ply (polígonos).
 """
 
 # Spherical coordinates convention:

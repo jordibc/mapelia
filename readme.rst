@@ -3,14 +3,18 @@ mapelia
 
 Convierte imágenes con mapas a ficheros 3D.
 
-``mapelia`` es un programa para manipular ficheros de imágenes de mapas, en
-proyección `de Mercator`_, `central cilíndrica`_ o `de Mollweide`_, y
+``mapelia`` es un programa para manipular ficheros de imágenes de mapas, y
 convertirlos en `polígonos`_ o `puntos en el espacio`_ que pueden ser
 manipulados por programas como `MeshLab`_ o `Blender`_.
 
+Los mapas pueden estar en proyección `equirectangular`_, `de Mercator`_,
+`central cilíndrica`_, `de Mollweide`_ o `sinusoidal`_.
+
+.. _`equirectangular`: https://en.wikipedia.org/wiki/Equirectangular_projection
 .. _`de Mercator`: https://en.wikipedia.org/wiki/Mercator_projection
 .. _`central cilíndrica`: https://en.wikipedia.org/wiki/Central_cylindrical_projection
 .. _`de Mollweide`: https://en.wikipedia.org/wiki/Mollweide_projection
+.. _`sinusoidal`: https://en.wikipedia.org/wiki/Sinusoidal_projection
 .. _`polígonos`: https://en.wikipedia.org/wiki/PLY_(file_format)
 .. _`puntos en el espacio`: https://codeyarns.com/2011/08/17/asc-file-format-for-3d-points/
 .. _`MeshLab`: https://en.wikipedia.org/wiki/MeshLab
