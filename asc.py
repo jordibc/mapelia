@@ -19,6 +19,7 @@ def get_points(points_raw, row_length=0):
     fast_angle = find_fast_angle(points_raw)
 
     def mod(x, y):
+        "Return the representative of x between -y/2 and y/2 for the group R/yR"
         x_1 = x - y * floor(x / y)
         return x_1 if x_1 < y / 2 else x_1 - y
 
@@ -31,13 +32,13 @@ def get_points(points_raw, row_length=0):
         theta = arctan2(y, x)
         phi = arcsin(z / r)
 
+        # See if we have to add a new row.
         if pid == 0:
-            row.append([pid, x, y, z])
+            pass
         elif row_length > 0:
             if pid % row_length == 0:
                 points.append(row)
                 row = []
-            row.append([pid, x, y, z])
         else:
             d_theta = mod(theta - theta_last, 2 * pi)
             d_phi = mod(phi - phi_last, pi)
@@ -45,15 +46,15 @@ def get_points(points_raw, row_length=0):
                 if abs(d_phi) > delta_threshold:
                     points.append(row)
                     row = []
-                row.append([pid, x, y, z])
             elif fast_angle == 'phi':
                 if abs(d_theta) > delta_threshold:
                     points.append(row)
                     row = []
-                row.append([pid, x, y, z])
+
+        row.append([pid, x, y, z])
         theta_last, phi_last = theta, phi
         pid += 1
-    points.append(row)
+    points.append(row)  # append the last row
     return points
 
 
