@@ -29,6 +29,7 @@ def main():
     if not args.overwrite:
         maps.check_if_exists(output)
 
+    print(maps.green('Processing file %s ...' % args.file))
     points_raw = asc.get_points_raw(args.file)
     points = asc.get_points(points_raw, args.row_length)
     faces = list(maps.get_faces(points))

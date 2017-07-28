@@ -18,11 +18,6 @@ def get_points(points_raw, row_length=0):
     "Return points (list of rows) from a list of raw points"
     fast_angle = find_fast_angle(points_raw)
 
-    def mod(x, y):
-        "Return the representative of x between -y/2 and y/2 for the group R/yR"
-        x_1 = x - y * floor(x / y)
-        return x_1 if x_1 < y / 2 else x_1 - y
-
     points = []
     row = []
     pid = 0
@@ -54,14 +49,13 @@ def get_points(points_raw, row_length=0):
         row.append([pid, x, y, z])
         theta_last, phi_last = theta, phi
         pid += 1
-    points.append(row)  # append the last row
+    points.append(row)  # don't forget to append the last row!
     return points
 
 
 def find_fast_angle(points_raw):
     "Return the angle that changes faster between consecutive points"
     d_thetas, d_phis = [], []
-    mod = lambda x, y: x - floor(x / y)
     pid = 0
     for x, y, z in points_raw:
         r = sqrt(x**2 + y**2 + z**2)
@@ -75,3 +69,9 @@ def find_fast_angle(points_raw):
         if pid > 10:  # enough to get an idea
             break
     return 'theta' if sum(d_thetas) > sum(d_phis) else 'phi'
+
+
+def mod(x, y):
+    "Return the representative of x between -y/2 and y/2 for the group R/yR"
+    x0 = x - y * floor(x / y)
+    return x0 if x0 < y / 2 else x0 - y

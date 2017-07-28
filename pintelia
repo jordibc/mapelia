@@ -56,7 +56,7 @@ def process(args):
     if not args.overwrite:
         maps.check_if_exists(output)
 
-    print('Processing file %s ...' % args.image)
+    print(maps.green('Processing file %s ...' % args.image))
     img = Image.open(args.image)
 
     if args.fix_gaps:

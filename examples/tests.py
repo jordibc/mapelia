@@ -7,8 +7,33 @@ Este fichero no es necesario para ejecutar mapelia, pero me sirve para
 probar cosas relacionadas con lo que quiero hacer en el programa principal.
 """
 
+import os
 from PIL import Image
 import numpy as np
+
+
+def run(cmd):
+    print('\x1b[35m%s\x1b[0m' % cmd)
+    os.system(cmd)
+
+
+def test_mapelia():
+    run('../mapelia venus.png')
+    run('../mapelia earth_equirectangular.jpg '
+        '--projection equirectangular --channel hue '
+        '--no-meridian')
+    run('../mapelia earth_tissot_mollweide.jpg '
+        '--projection mollweide --channel average '
+        '--caps none --no-meridian --invert')
+
+
+def test_pintelia():
+    run('../pintelia earth_mercator.png')
+
+
+def test_poligoniza():
+    run('../mapelia moon.jpg --type asc')
+    run('../poligoniza moon.asc')
 
 
 def show_colored_rows():
@@ -267,3 +292,10 @@ def get_hues_slow(img):
     return hues
     # I wrote this version before knowing you could do it so nicely
     # and fast in a different way...
+
+
+
+if __name__ == '__main__':
+    test_mapelia()
+    test_pintelia()
+    test_poligoniza()
