@@ -135,8 +135,8 @@ def get_parser():
         choices=['mercator', 'cylindrical', 'mollweide', 'equirectangular',
                  'sinusoidal'],
         help='tipo de proyección usada en el mapa')
-    add('--points', type=int, default=500000,
-        help='número de puntos a usar como máximo')
+    add('--points', type=int, default=0,
+        help='número de puntos a usar como máximo (o 0 para usar todos)')
     add('--scale', type=float, default=0.02,
         help='fracción de radio entre el punto más bajo y más alto')
     add('--caps', default='auto',
@@ -270,7 +270,9 @@ def project(heights, ptype, npoints, scale, caps, meridian, protrusion):
     rmeridian = 1 + protrusion * scale
 
     n = sqrt(npoints)
-    stepy = int(max(1, ny / (3 * n)))  # the 3 factor is related to 1/cos(phi)
+    stepy = int(max(1, ny / (3 * n))) if n > 0 else 1
+    # the 3 factor is related to 1/cos(phi)
+
     for j in range(0, ny, stepy):
         y_map = ny // 2 - j
         phi = get_phi(y_map)
@@ -280,7 +282,7 @@ def project(heights, ptype, npoints, scale, caps, meridian, protrusion):
         row = []
         cphi, sphi = cos(phi), sin(phi)
         stepx = int(max(1, nx / n) * (1 if ptype in ['mollweide', 'sinusoidal']
-                                        else 1 / cphi))
+                                        else 1 / cphi)) if n > 0 else 1
         for i in range(0, nx, stepx):
             x_map = i - nx // 2
             theta = get_theta(x_map, y_map)
