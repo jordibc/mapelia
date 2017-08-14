@@ -35,7 +35,7 @@ def main():
     print(maps.green('Processing file %s ...' % args.file))
     points_raw = asc.get_points_raw(args.file)
     points = asc.get_points(points_raw, args.row_length)
-    faces = list(maps.get_faces(points))
+    faces = maps.get_faces(points)
 
     with open(output, 'wb') as fout:
         binary = not args.ascii

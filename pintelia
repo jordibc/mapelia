@@ -78,7 +78,7 @@ def process(args):
 def write_ply(fname, img, projection_args):
     "Write a ply file with the given points and deduced faces"
     points = project(img, **projection_args)
-    faces = list(maps.get_faces(points))
+    faces = maps.get_faces(points)
 
     with open(fname, 'wb') as fout:
         fout.write(ply_header(nvertices=points[-1][-1][0]+1, nfaces=len(faces)))

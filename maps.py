@@ -18,7 +18,6 @@ MeshLab o Blender.
 # TODO:
 # * Allow the use of an external 1xN image with the colors that
 #   correspond to different heights.
-# * Remove the hack of  faces = list(get_faces(points_sphere))  in write_ply()
 # * Add option to low-pass filter the image. See:
 #   https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.convolve2d.html
 #   https://tomroelandts.com/articles/how-to-create-a-simple-low-pass-filter
@@ -154,7 +153,7 @@ def get_parser():
         help='ángulo (en grados) al que llegan los casquetes (o auto o none)')
     add('--logo', default='', help='fichero de imagen con el logo')
     add('--no-meridian', action='store_true', help='no añadir meridiano 0')
-    add('--protrusion', type=float, default=1.2,
+    add('--protrusion', type=float, default=1.02,
         help='fracción en la que sobresalen meridiano y casquetes del máximo')
     add('--no-ratio-check', action='store_true',
         help='no arreglar el ratio alto/ancho en ciertas proyecciones')
@@ -174,81 +173,93 @@ def generate_patches(heights, projection_args, logo, add_faces=True):
     phi_cap = get_phi_cap(caps, heights, ptype)
 
     pid = 0
+    last_pid = lambda patches: patches[-1].points[-1][-1].pid if patches else -1
 
     # Logo / North cap.
     if logo:
-        print(blue('Adding logo...'))
-        if not os.path.isfile(logo):
-            sys.exit('File %s does not exist.' % logo)
-        img = Image.open(logo)
-        heights_logo = get_heights(img)
-        points = get_points_logo(heights_logo, phi_max=phi_cap,
-                                 protrusion=protrusion)
-        if add_faces:
-            points_flat = get_points_logo(ones_like(heights_logo),
-                                          phi_max=phi_cap)
-            # use flattened points for the connections forming the faces
-            faces = list(get_faces(points_flat))
-        else:
-            faces = []
-        patches.append(Patch(points, faces))
+        patch = get_logo_patch(logo, phi_cap, protrusion * (1 + scale / 2),
+                               pid=pid, add_faces=add_faces)
+        patches.append(patch)
     elif caps != 'none':
-        print(blue('Adding north cap...'))
-        points = []
-        for row in generate_cap(1 + protrusion * scale,
-                                phi_max=phi_cap, pid=pid):
-            points.append(row)
-            pid += len(row)
-        faces = list(get_faces(points)) if add_faces else []
-        patches.append(Patch(points, faces))
+        patch = get_cap_patch(phi_cap, protrusion * (1 + scale / 2),
+                              pid=pid, add_faces=add_faces)
+        patches.append(patch)
 
-    pid = patches[-1].points[-1][-1].pid + 1 if patches else 0
+    pid = last_pid(patches) + 1
 
-    # Sphere.
-    print(blue('Adding map...'))
-    points = project(heights, pid=pid, **projection_args)
-    if add_faces:
-        if patches:
-            # We could make the faces connecting the previous patch to this one
-            # by doing something like:
-            # last_points = get_lowest_phis(patches[-1].points)
-            # last_points_sorted = sort_by_theta(last_points)
-            # faces = list(get_faces([last_points_sorted, points[-1]]))
-            # patches.append(Patch([], faces))
-            pass
-        points_flat = project(ones_like(heights), pid=pid, **projection_args)
-        # use flattened points for the connections forming the faces
-        faces = list(get_faces(points_flat))
-    else:
-        faces = []
-    patches.append(Patch(points, faces))
+    # Map.
+    patch = get_map_patch(heights, projection_args,
+                          pid=pid, add_faces=add_faces)
+    # if add_faces:
+    #     connect_faces(patches, patch)
+    patches.append(patch)
 
-    pid = patches[-1].points[-1][-1].pid + 1 if patches else 0
+    pid = last_pid(patches) + 1
 
     # South cap.
     if caps != 'none':
-        print(blue('Adding south cap...'))
-        points = []
-        for row in generate_cap(1 + protrusion * scale,
-                                phi_max=-phi_cap, pid=pid):
-            points.append(row)
-            pid += len(row)
-
+        patch = get_cap_patch(-phi_cap, protrusion * (1 + scale / 2),
+                              pid=pid, add_faces=add_faces)
         if add_faces:
-            # First make patch connecting the two new regions.
-            last_row = patches[-1].points[-1]
-            faces = list(get_faces([last_row, points[0]]))
-            patches.append(Patch([], faces))
+            connect_faces(patches, patch)
+        patches.append(patch)
 
-            # Now prepare faces for this region.
-            faces = list(get_faces(points))
-        else:
-            faces = []
-        patches.append(Patch(points, faces))
-
-    pid = patches[-1].points[-1][-1].pid + 1 if patches else 0
+    pid = last_pid(patches) + 1
 
     return patches
+
+
+def connect_faces(patches, patch):
+    "Append to patches the faces connecting the last patch with the new one"
+    if patches:
+        last_old_row = patches[-1].points[-1]
+        # we could make the faces connecting the previous patch to this one
+        # by doing something more general like:
+        # last_old_row = sort_by_theta(get_lowest_phis(patches[-1].points))
+        first_new_row = patch.points[0]
+        faces = get_faces([last_old_row, first_new_row])
+        patches.append(Patch([], faces))
+
+
+def get_map_patch(heights, projection_args, pid=0, add_faces=True):
+    "Return patch (points, faces) containing the map"
+    print(blue('Adding map...'))
+    points = get_map_points(heights, pid=pid, **projection_args)
+    if add_faces:
+        points_flat = get_map_points(ones_like(heights), pid=pid,
+                                     **projection_args)
+        # use flattened points for the connections forming the faces
+        faces = get_faces(points_flat)
+    else:
+        faces = []
+    return Patch(points, faces)
+
+
+def get_cap_patch(phi_cap, protrusion, pid=0, add_faces=True):
+    "Return patch (points, faces) containing the cap"
+    print(blue('Adding %s cap...' % ('north' if phi_cap > 0 else 'south')))
+    points = get_cap_points(protrusion, phi_max=phi_cap, pid=pid)
+    faces = get_faces(points) if add_faces else []
+    return Patch(points, faces)
+
+
+def get_logo_patch(logo, phi_cap, protrusion, pid=0, add_faces=True):
+    "Return patch (points, faces) containing the logo"
+    print(blue('Adding logo...'))
+    if not os.path.isfile(logo):
+        sys.exit('File %s does not exist.' % logo)
+    img = Image.open(logo)
+    heights_logo = get_heights(img)
+    points = get_logo_points(heights_logo, phi_max=phi_cap,
+                             protrusion=protrusion, pid=pid)
+    if add_faces:
+        points_flat = get_logo_points(ones_like(heights_logo),
+                                      phi_max=phi_cap, pid=pid)
+        # use flattened points for the connections forming the faces
+        faces = get_faces(points_flat)
+    else:
+        faces = []
+    return Patch(points, faces)
 
 
 def write_ply(fname, patches):
@@ -315,7 +326,8 @@ def write_asc(fname, patches):
             write_vertices(fout, patch.points, binary=False)
 
 
-def project(heights, pid, ptype, npoints, scale, caps, meridian, protrusion):
+def get_map_points(heights, pid, ptype, npoints,
+                   scale, caps, meridian, protrusion):
     "Return points on a sphere, modulated by the given heights"
     # The points returned look like a list of rows:
     # [[(0, x0_0, y0_0, z0_0), (1, x0_1, y0_1, z0_1), ...],
@@ -377,7 +389,7 @@ def project(heights, pid, ptype, npoints, scale, caps, meridian, protrusion):
     return points
 
 
-def get_points_logo(heights, phi_max, protrusion=1, pid=0):
+def get_logo_points(heights, phi_max, protrusion=1, pid=0):
     "Return list of rows with the points from the logo in fname"
     print('- Projecting %slogo...' %
           ('flattened ' if all(heights == 1) else ''))
@@ -390,7 +402,7 @@ def get_points_logo(heights, phi_max, protrusion=1, pid=0):
             dist = sqrt( (i - nx_2)**2 + (j - ny_2)**2 ) / N_2
             if dist > 1:
                 continue  # only values inside the circle
-            r = 1 + 0.2 * (protrusion - 1) * heights[j, i] / heights.max()
+            r = protrusion + (protrusion - 1) * heights[j, i] / heights.max()
             theta = arctan2(ny_2 - j, i - nx_2)
             phi = pi / 2 - (pi / 2 - phi_max) * dist
 
@@ -410,13 +422,14 @@ def mod(x, y):
     return x0 if x0 < y / 2 else x0 - y
 
 
-def generate_cap(r, phi_max, pid):
-    "Yield lists of points that form the cap of radii r and from angle phi_max"
+def get_cap_points(r, phi_max, pid):
+    "Return lists of points that form the cap of radii r and from angle phi_max"
     rcphin, rsphin = r * cos(phi_max), r * sin(phi_max)
     if phi_max > 0:
         phi_start, phi_end, limit = pi / 2, phi_max, r
     else:
         phi_start, phi_end, limit = phi_max, -pi / 2, -r
+    points = []
     for phi in linspace(phi_start, phi_end, 10):
         row = []
         rcphi, rsphi = r * cos(phi), r * sin(phi)
@@ -426,7 +439,8 @@ def generate_cap(r, phi_max, pid):
             y = sin(theta) * rcphi
             row.append(Point(pid, x, y, z))
             pid += 1
-        yield row
+        points.append(row)
+    return points
 
 
 def projection_functions(ptype, nx, ny):
@@ -509,7 +523,7 @@ def get_phi_cap(caps, heights, ptype):
 
 
 def get_faces(points):
-    "Yield faces as triplets of point indices"
+    "Return faces as triplets of point indices"
     # points must be a list of rows, each containing the actual points
     # that correspond to a (closed!) section of an object.
     print('- Forming faces...')
@@ -529,6 +543,7 @@ def get_faces(points):
     # moved (in the previous row) until it cannot be closer to the human,
     # making triangles along the way. Then, a new triangle is made from the
     # current position to the next one and the dog (i -> i+1 -> dog).
+    faces = []
     for j in range(1, len(points)):
         row_previous = points[j - 1]
         row_current = points[j]
@@ -543,16 +558,17 @@ def get_faces(points):
                 dog_walking = (dog_walking + 1) % len(row_previous)
                 dist_new = dist2(h(), dw())
                 if dist_new < dist:
-                    yield (h()[0], dw()[0], d()[0])
+                    faces.append((h()[0], dw()[0], d()[0]))
                     dog = dog_walking
                     dist = dist_new
                 else:
                     break
-            yield (h()[0], row_current[(i + 1) % len(row_current)][0], d()[0])
+            faces.append((h()[0], row_current[(i + 1) % len(row_current)][0], d()[0]))
         while dog != 0:  # we have to close the figure
             dog_walking = (dog + 1) % len(row_previous)
-            yield (row_current[0][0], dw()[0], d()[0])
+            faces.append((row_current[0][0], dw()[0], d()[0]))
             dog = dog_walking
+    return faces
 
 
 def fill_dark(img, too_dark_value=30, darkest_fill=50):
