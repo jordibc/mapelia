@@ -26,13 +26,16 @@ MeshLab o Blender.
 import sys
 import os
 import struct
+from collections import namedtuple
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
 from PIL import Image
-from numpy import (sin, cos, exp, arcsin, arccos, arctan, arctan2, sqrt,
+from numpy import (sin, cos, exp, arcsin, arccos, arctan, arctan2, sqrt, floor,
                    pi, e, nan, isnan,
                    array, linspace, ones_like, zeros, average, all)
 
+Patch = namedtuple('Patch', ['points', 'faces'])
+Point = namedtuple('Point', ['pid', 'x', 'y', 'z'])
 
 def ansi(n, bold=False):
     "Return function that escapes text with ANSI color n."
@@ -66,17 +69,25 @@ def process(args):
     if args.invert:
         heights = -heights
 
+    if args.projection in ['mollweide', 'sinusoidal'] and args.caps == 'auto':
+        caps = 'none'
+    else:
+        caps = args.caps
+
     projection_args = {'ptype': args.projection,
                        'npoints': args.points,
                        'scale': args.scale,
-                       'caps': args.caps,
+                       'caps': caps,
                        'meridian': not args.no_meridian,
                        'protrusion': args.protrusion}
 
     if args.type == 'asc':
-        write_asc(output, heights, projection_args)
+        patches = generate_patches(heights, projection_args, args.logo,
+                                   add_faces=False)
+        write_asc(output, patches)
     elif args.type == 'ply':
-        write_ply(output, heights, projection_args)
+        patches = generate_patches(heights, projection_args, args.logo)
+        write_ply(output, patches)
 
     return output
 
@@ -141,6 +152,7 @@ def get_parser():
         help='fracción de radio entre el punto más bajo y más alto')
     add('--caps', default='auto',
         help='ángulo (en grados) al que llegan los casquetes (o auto o none)')
+    add('--logo', default='', help='fichero de imagen con el logo')
     add('--no-meridian', action='store_true', help='no añadir meridiano 0')
     add('--protrusion', type=float, default=1.2,
         help='fracción en la que sobresalen meridiano y casquetes del máximo')
@@ -151,19 +163,105 @@ def get_parser():
     return parser
 
 
-def write_ply(fname, heights, projection_args):
-    "Write a ply file with the given points and deduced faces"
-    points = project(heights, **projection_args)
+def generate_patches(heights, projection_args, logo, add_faces=True):
+    "Return a list of the patches (points and faces) that form the figure"
+    patches = []
 
-    points_sphere = project(ones_like(heights), **projection_args)
-    faces = list(get_faces(points_sphere))
-    # we use the points of a sphere without distortions for the
-    # connection of the points forming the faces
+    protrusion = projection_args['protrusion']
+    scale = projection_args['scale']
+    ptype = projection_args['ptype']
+    caps = projection_args['caps']
+    phi_cap = get_phi_cap(caps, heights, ptype)
+
+    pid = 0
+
+    # Logo / North cap.
+    if logo:
+        print(blue('Adding logo...'))
+        if not os.path.isfile(logo):
+            sys.exit('File %s does not exist.' % logo)
+        img = Image.open(logo)
+        heights_logo = get_heights(img)
+        points = get_points_logo(heights_logo, phi_max=phi_cap,
+                                 protrusion=protrusion)
+        if add_faces:
+            points_flat = get_points_logo(ones_like(heights_logo),
+                                          phi_max=phi_cap)
+            # use flattened points for the connections forming the faces
+            faces = list(get_faces(points_flat))
+        else:
+            faces = []
+        patches.append(Patch(points, faces))
+    elif caps != 'none':
+        print(blue('Adding north cap...'))
+        points = []
+        for row in generate_cap(1 + protrusion * scale,
+                                phi_max=phi_cap, pid=pid):
+            points.append(row)
+            pid += len(row)
+        faces = list(get_faces(points)) if add_faces else []
+        patches.append(Patch(points, faces))
+
+    pid = patches[-1].points[-1][-1].pid + 1 if patches else 0
+
+    # Sphere.
+    print(blue('Adding map...'))
+    points = project(heights, pid=pid, **projection_args)
+    if add_faces:
+        if patches:
+            # We could make the faces connecting the previous patch to this one
+            # by doing something like:
+            # last_points = get_lowest_phis(patches[-1].points)
+            # last_points_sorted = sort_by_theta(last_points)
+            # faces = list(get_faces([last_points_sorted, points[-1]]))
+            # patches.append(Patch([], faces))
+            pass
+        points_flat = project(ones_like(heights), pid=pid, **projection_args)
+        # use flattened points for the connections forming the faces
+        faces = list(get_faces(points_flat))
+    else:
+        faces = []
+    patches.append(Patch(points, faces))
+
+    pid = patches[-1].points[-1][-1].pid + 1 if patches else 0
+
+    # South cap.
+    if caps != 'none':
+        print(blue('Adding south cap...'))
+        points = []
+        for row in generate_cap(1 + protrusion * scale,
+                                phi_max=-phi_cap, pid=pid):
+            points.append(row)
+            pid += len(row)
+
+        if add_faces:
+            # First make patch connecting the two new regions.
+            last_row = patches[-1].points[-1]
+            faces = list(get_faces([last_row, points[0]]))
+            patches.append(Patch([], faces))
+
+            # Now prepare faces for this region.
+            faces = list(get_faces(points))
+        else:
+            faces = []
+        patches.append(Patch(points, faces))
+
+    pid = patches[-1].points[-1][-1].pid + 1 if patches else 0
+
+    return patches
+
+
+def write_ply(fname, patches):
+    nvertices = patches[-1].points[-1][-1].pid + 1 if patches else 0
 
     with open(fname, 'wb') as fout:
-        fout.write(ply_header(nvertices=points[-1][-1][0]+1, nfaces=len(faces)))
-        write_vertices(fout, points)
-        write_faces(fout, faces)
+        all_points, all_faces = zip(*patches)
+        fout.write(ply_header(nvertices=nvertices,
+                              nfaces=sum(len(x) for x in all_faces)))
+        for points in all_points:
+            write_vertices(fout, points)
+        for faces in all_faces:
+            write_faces(fout, faces)
 
 
 def ply_header(nvertices, nfaces, binary=True):
@@ -210,54 +308,28 @@ def write_faces(fout, faces, binary=True, invert=False):
         write(f)
 
 
-def write_asc(fname, heights, projection_args):
-    "Write an asc file with the given points"
-    points = project(heights, **projection_args)
+def write_asc(fname, patches):
+    "Write an asc file with the points in the given patches"
     with open(fname, 'wb') as fout:
-        write_vertices(fout, points, binary=False)
+        for patch in patches:
+            write_vertices(fout, patch.points, binary=False)
 
 
-def project(heights, ptype, npoints, scale, caps, meridian, protrusion):
+def project(heights, pid, ptype, npoints, scale, caps, meridian, protrusion):
     "Return points on a sphere, modulated by the given heights"
     # The points returned look like a list of rows:
     # [[(0, x0_0, y0_0, z0_0), (1, x0_1, y0_1, z0_1), ...],
     #  [(n, x1_0, y1_0, z1_0), (n+1, x1_1, y1_1, z1_1), ...],
     #  ...]
     # This will be useful later on to connect the points and form faces.
-    if not all(heights == 1):
-        print('- Projecting heights on a sphere...')
+    print('- Projecting %s on a sphere...' %
+          ('flat image' if all(heights == 1) else 'heights'))
+
     ny, nx = heights.shape
     get_theta, get_phi = projection_functions(ptype, nx, ny)
     points = []
-    pid = 0  # point id, used to reference the point by a number later on
 
-    if ptype in ['mollweide', 'sinusoidal'] and caps == 'auto':
-        caps = 'none'
-
-    phi_cap = get_phi_cap(caps, get_phi(ny // 2))
-
-    def add_cap(phi_cap, pid):
-        r = 1 + protrusion * scale
-        rcphin, rsphin = r * cos(phi_cap), r * sin(phi_cap)
-        if phi_cap > 0:
-            phi_start, phi_end, limit = pi / 2, phi_cap, r
-        else:
-            phi_start, phi_end, limit = phi_cap, -pi / 2, -r
-        for phi in linspace(phi_start, phi_end, 10):
-            row = []
-            rcphi, rsphi = r * cos(phi), r * sin(phi)
-            z = rsphi
-            for theta in linspace(-pi, pi, max(9, int(100 * cos(phi)))):
-                x = cos(theta) * rcphi
-                y = sin(theta) * rcphi
-                row.append((pid, x, y, z))
-                pid += 1
-            points.append(row)
-        return pid
-
-    # North cap.
-    if caps != 'none':
-        pid = add_cap(phi_cap=phi_cap, pid=pid)
+    phi_cap = get_phi_cap(caps, heights, ptype)
 
     # Points from the given heights.
     hmin, hmax = heights.min(), heights.max()
@@ -297,16 +369,64 @@ def project(heights, ptype, npoints, scale, caps, meridian, protrusion):
             x = r * cos(theta) * cphi
             y = r * sin(theta) * cphi
             z = r * sphi
-            row.append((pid, x, y, z))
+            row.append(Point(pid, x, y, z))
             pid += 1
         if row:
             points.append(row)
 
-    # South cap.
-    if caps != 'none':
-        pid = add_cap(phi_cap=-phi_cap, pid=pid)
-
     return points
+
+
+def get_points_logo(heights, phi_max, protrusion=1, pid=0):
+    "Return list of rows with the points from the logo in fname"
+    print('- Projecting %slogo...' %
+          ('flattened ' if all(heights == 1) else ''))
+    ny, nx = heights.shape
+    points = []
+    N_2, nx_2, ny_2 = max(nx, ny) / 2, nx / 2, ny / 2
+    for j in range(ny):
+        row = []
+        for i in range(nx):
+            dist = sqrt( (i - nx_2)**2 + (j - ny_2)**2 ) / N_2
+            if dist > 1:
+                continue  # only values inside the circle
+            r = 1 + 0.2 * (protrusion - 1) * heights[j, i] / heights.max()
+            theta = arctan2(ny_2 - j, i - nx_2)
+            phi = pi / 2 - (pi / 2 - phi_max) * dist
+
+            x = r * cos(theta) * cos(phi)
+            y = r * sin(theta) * cos(phi)
+            z = r * sin(phi)
+            row.append(Point(pid, x, y, z))
+            pid += 1
+        if row:
+            points.append(row)
+    return points
+
+
+def mod(x, y):
+    "Return the representative of x between -y/2 and y/2 for the group R/yR"
+    x0 = x - y * floor(x / y)
+    return x0 if x0 < y / 2 else x0 - y
+
+
+def generate_cap(r, phi_max, pid):
+    "Yield lists of points that form the cap of radii r and from angle phi_max"
+    rcphin, rsphin = r * cos(phi_max), r * sin(phi_max)
+    if phi_max > 0:
+        phi_start, phi_end, limit = pi / 2, phi_max, r
+    else:
+        phi_start, phi_end, limit = phi_max, -pi / 2, -r
+    for phi in linspace(phi_start, phi_end, 10):
+        row = []
+        rcphi, rsphi = r * cos(phi), r * sin(phi)
+        z = rsphi
+        for theta in linspace(-pi, pi, max(9, int(100 * cos(phi)))):
+            x = cos(theta) * rcphi
+            y = sin(theta) * rcphi
+            row.append(Point(pid, x, y, z))
+            pid += 1
+        yield row
 
 
 def projection_functions(ptype, nx, ny):
@@ -376,10 +496,12 @@ def projection_functions(ptype, nx, ny):
     return get_theta, get_phi
 
 
-def get_phi_cap(caps, phi_auto):
+def get_phi_cap(caps, heights, ptype):
     "Return the angle at which the cap ends"
     if caps == 'auto':
-        return phi_auto
+        ny, nx = heights.shape
+        get_theta, get_phi = projection_functions(ptype, nx, ny)
+        return get_phi(ny // 2)
     elif caps == 'none':
         return pi / 2
     else:  # caps is an angle then
@@ -390,7 +512,7 @@ def get_faces(points):
     "Yield faces as triplets of point indices"
     # points must be a list of rows, each containing the actual points
     # that correspond to a (closed!) section of an object.
-    print('- Forming the faces...')
+    print('- Forming faces...')
 
     # This follows the "walking the dog" algorithm that I just made up.
     # It seems to work fine when using the points of a sphere...
@@ -449,9 +571,9 @@ def fill_dark(img, too_dark_value=30, darkest_fill=50):
     return img_filled.convert('RGBA')
 
 
-def get_heights(img, channel='value'):
+def get_heights(img, channel='val'):
     "Return an array with the heights extracted from the image"
-    print('- Extracting heights from the image...')
+    print('- Extracting heights from image (channel "%s")...' % channel)
     if channel in ['r', 'g', 'b', 'average']:
         # These channels are straigthforward: higher values are higher heights.
         imx = array(img.convert('RGBA'))
