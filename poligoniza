@@ -2,6 +2,9 @@
 
 """
 Crea un fichero de polígonos (.ply) a partir de uno con sólo los puntos (.asc).
+
+El fichero asc original debe tener los puntos en orden correspondiente a las
+secciones de un objeto casi-esférico.
 """
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
