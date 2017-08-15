@@ -45,6 +45,42 @@ blackB, redB, greenB, yellowB, blueB, magentaB, cyanB, whiteB = [
     ansi(i, bold=True) for i in range(30, 38)]
 
 
+def get_parser():
+    "Return the parser object with all the arguments"
+    parser = ArgumentParser(description=__doc__, formatter_class=fmt)
+    add = parser.add_argument  # shortcut
+    add('image', help='fichero de imagen con el mapa')
+    add('-o', '--output', default='',
+        help='fichero de salida (si vacío, se genera a partir del de entrada)')
+    add('--overwrite', action='store_true',
+        help='no comprobar si el fichero de salida existe')
+    add('--type', choices=['ply', 'asc'], default='ply',
+        help='tipo de fichero a generar')
+    add('--channel', default='val',
+        choices=['r', 'g', 'b', 'average', 'hue', 'sat', 'val', 'color'],
+        help='canal que contiene la información de la elevación')
+    add('--invert', action='store_true', help='invierte las elevaciones')
+    add('--projection', default='mercator',
+        choices=['mercator', 'cylindrical', 'mollweide', 'equirectangular',
+                 'sinusoidal'],
+        help='tipo de proyección usada en el mapa')
+    add('--points', type=int, default=0,
+        help='número de puntos a usar como máximo (o 0 para usar todos)')
+    add('--scale', type=float, default=0.02,
+        help='fracción de radio entre el punto más bajo y más alto')
+    add('--caps', default='auto',
+        help='ángulo (en grados) al que llegan los casquetes (o auto o none)')
+    add('--logo', default='', help='fichero de imagen con el logo')
+    add('--no-meridian', action='store_true', help='no añadir meridiano 0')
+    add('--protrusion', type=float, default=1.02,
+        help='fracción en la que sobresalen meridiano y casquetes del máximo')
+    add('--no-ratio-check', action='store_true',
+        help='no arreglar el ratio alto/ancho en ciertas proyecciones')
+    add('--fix-gaps', action='store_true',
+        help='intenta rellenar los huecos en el mapa')
+    return parser
+
+
 def process(args):
     if not os.path.isfile(args.image):
         sys.exit('File %s does not exist.' % args.image)
@@ -81,11 +117,11 @@ def process(args):
                        'protrusion': args.protrusion}
 
     if args.type == 'asc':
-        patches = generate_patches(heights, projection_args, args.logo,
-                                   add_faces=False)
+        patches = get_patches(heights, projection_args, args.logo,
+                              add_faces=False)
         write_asc(output, patches)
     elif args.type == 'ply':
-        patches = generate_patches(heights, projection_args, args.logo)
+        patches = get_patches(heights, projection_args, args.logo)
         write_ply(output, patches)
 
     return output
@@ -126,85 +162,40 @@ def check_if_exists(fname):
             sys.exit('Cancelling.')
 
 
-def get_parser():
-    "Return the parser object with all the arguments"
-    parser = ArgumentParser(description=__doc__, formatter_class=fmt)
-    add = parser.add_argument  # shortcut
-    add('image', help='fichero de imagen con el mapa')
-    add('-o', '--output', default='',
-        help='fichero de salida (si vacío, se genera a partir del de entrada)')
-    add('--overwrite', action='store_true',
-        help='no comprobar si el fichero de salida existe')
-    add('--type', choices=['ply', 'asc'], default='ply',
-        help='tipo de fichero a generar')
-    add('--channel', default='val',
-        choices=['r', 'g', 'b', 'average', 'hue', 'sat', 'val', 'color'],
-        help='canal que contiene la información de la elevación')
-    add('--invert', action='store_true', help='invierte las elevaciones')
-    add('--projection', default='mercator',
-        choices=['mercator', 'cylindrical', 'mollweide', 'equirectangular',
-                 'sinusoidal'],
-        help='tipo de proyección usada en el mapa')
-    add('--points', type=int, default=0,
-        help='número de puntos a usar como máximo (o 0 para usar todos)')
-    add('--scale', type=float, default=0.02,
-        help='fracción de radio entre el punto más bajo y más alto')
-    add('--caps', default='auto',
-        help='ángulo (en grados) al que llegan los casquetes (o auto o none)')
-    add('--logo', default='', help='fichero de imagen con el logo')
-    add('--no-meridian', action='store_true', help='no añadir meridiano 0')
-    add('--protrusion', type=float, default=1.02,
-        help='fracción en la que sobresalen meridiano y casquetes del máximo')
-    add('--no-ratio-check', action='store_true',
-        help='no arreglar el ratio alto/ancho en ciertas proyecciones')
-    add('--fix-gaps', action='store_true',
-        help='intenta rellenar los huecos en el mapa')
-    return parser
-
-
-def generate_patches(heights, projection_args, logo, add_faces=True):
+def get_patches(heights, projection_args, logo, add_faces=True):
     "Return a list of the patches (points and faces) that form the figure"
     patches = []
 
-    protrusion = projection_args['protrusion']
-    scale = projection_args['scale']
-    ptype = projection_args['ptype']
+    protrusion = projection_args['protrusion'] * (1 + projection_args['scale'] / 2)
     caps = projection_args['caps']
-    phi_cap = get_phi_cap(caps, heights, ptype)
+    phi_cap = get_phi_cap(caps, heights, projection_args['ptype'])
 
-    pid = 0
-    last_pid = lambda patches: patches[-1].points[-1][-1].pid if patches else -1
+    get_pid = lambda: patches[-1].points[-1][-1].pid + 1 if patches else 0
 
     # Logo / North cap.
     if logo:
-        patch = get_logo_patch(logo, phi_cap, protrusion * (1 + scale / 2),
-                               pid=pid, add_faces=add_faces)
+        patch = get_logo_patch(logo, phi_cap, protrusion,
+                               pid=get_pid(), add_faces=add_faces)
         patches.append(patch)
     elif caps != 'none':
-        patch = get_cap_patch(phi_cap, protrusion * (1 + scale / 2),
-                              pid=pid, add_faces=add_faces)
+        patch = get_cap_patch(phi_cap, protrusion,
+                              pid=get_pid(), add_faces=add_faces)
         patches.append(patch)
-
-    pid = last_pid(patches) + 1
 
     # Map.
     patch = get_map_patch(heights, projection_args,
-                          pid=pid, add_faces=add_faces)
+                          pid=get_pid(), add_faces=add_faces)
     # if add_faces:
     #     connect_faces(patches, patch)
     patches.append(patch)
 
-    pid = last_pid(patches) + 1
-
     # South cap.
     if caps != 'none':
-        patch = get_cap_patch(-phi_cap, protrusion * (1 + scale / 2),
-                              pid=pid, add_faces=add_faces)
+        patch = get_cap_patch(-phi_cap, protrusion,
+                              pid=get_pid(), add_faces=add_faces)
         if add_faces:
             connect_faces(patches, patch)
         patches.append(patch)
-
-    pid = last_pid(patches) + 1
 
     return patches
 
