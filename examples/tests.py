@@ -25,6 +25,9 @@ def test_mapelia():
     run('../mapelia earth_tissot_mollweide.jpg '
         '--projection mollweide --channel average '
         '--caps none --no-meridian --invert')
+    run('../mapelia earth_tissot_equirectangular.jpg '
+        '--projection equirectangular --logo logo_observatori.png '
+        '--caps 10 --no-meridian')
 
 
 def test_pintelia():
