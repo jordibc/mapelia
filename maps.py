@@ -185,44 +185,58 @@ def get_patches(heights, projection_args, logo, add_faces=True):
     # Map.
     patch = get_map_patch(heights, projection_args,
                           pid=get_pid(), add_faces=add_faces)
-    # if add_faces:
-    #     connect_faces(patches, patch)
+    if add_faces and patches:
+        row_previous = boundary_points(patches[-1].points)
+        faces = get_faces([row_previous, patch.points[0]])
+        patches.append(Patch([], faces))
     patches.append(patch)
 
     # South cap.
     if caps != 'none':
         patch = get_cap_patch(-phi_cap, protrusion,
                               pid=get_pid(), add_faces=add_faces)
-        if add_faces:
-            connect_faces(patches, patch)
+        if add_faces and patches:
+            faces = get_faces([patches[-1].points[-1], patch.points[0]])
+            patches.append(Patch([], faces))
         patches.append(patch)
 
     return patches
 
 
-def connect_faces(patches, patch):
-    "Append to patches the faces connecting the last patch with the new one"
-    if patches:
-        last_old_row = patches[-1].points[-1]
-        # we could make the faces connecting the previous patch to this one
-        # by doing something more general like:
-        # last_old_row = sort_by_theta(get_lowest_phis(patches[-1].points))
-        first_new_row = patch.points[0]
-        faces = get_faces([last_old_row, first_new_row])
-        patches.append(Patch([], faces))
+def boundary_points(points):
+    "Return a list of points that correspond to the boundary of the given ones"
+    class OrderedPoint:  # will use for sorting in theta order
+        def __init__(self, pid, x, y, z):
+            self.pid = pid
+            self.x = x
+            self.y = y
+            self.z = z
+            self.theta = arctan2(y, x)
+
+        def __lt__(self, p):
+            theta = arctan2(p.y, p.x)
+            return self.theta < theta
+
+    points_flat = array([p for row in points for p in row])
+
+    # Normalize points (make them have r=1).
+    for i in range(len(points_flat)):
+        pid, x, y, z = points_flat[i]
+        r = sqrt(x*x + y*y + z*z)
+        points_flat[i] = [pid, x / r, y / r, z / r]
+
+    zmin = points_flat[:,-1].min() + 1e-6
+    points_border = [OrderedPoint(pid, x, y, z) for pid, x, y, z in points_flat
+                                                if z < zmin]
+
+    return [Point(int(p.pid), p.x, p.y, p.z) for p in sorted(points_border)]
 
 
 def get_map_patch(heights, projection_args, pid=0, add_faces=True):
     "Return patch (points, faces) containing the map"
     print(blue('Adding map...'))
     points = get_map_points(heights, pid=pid, **projection_args)
-    if add_faces:
-        points_flat = get_map_points(ones_like(heights), pid=pid,
-                                     **projection_args)
-        # use flattened points for the connections forming the faces
-        faces = get_faces(points_flat)
-    else:
-        faces = []
+    faces = get_faces(points) if add_faces else []
     return Patch(points, faces)
 
 
@@ -243,13 +257,7 @@ def get_logo_patch(logo, phi_cap, protrusion, pid=0, add_faces=True):
     heights_logo = get_heights(img)
     points = get_logo_points(heights_logo, phi_max=phi_cap,
                              protrusion=protrusion, pid=pid)
-    if add_faces:
-        points_flat = get_logo_points(ones_like(heights_logo),
-                                      phi_max=phi_cap, pid=pid)
-        # use flattened points for the connections forming the faces
-        faces = get_faces(points_flat)
-    else:
-        faces = []
+    faces = get_faces(points) if add_faces else []
     return Patch(points, faces)
 
 
@@ -325,8 +333,7 @@ def get_map_points(heights, pid, ptype, npoints,
     #  [(n, x1_0, y1_0, z1_0), (n+1, x1_1, y1_1, z1_1), ...],
     #  ...]
     # This will be useful later on to connect the points and form faces.
-    print('- Projecting %s on a sphere...' %
-          ('flat image' if all(heights == 1) else 'heights'))
+    print('- Projecting heights on a sphere...')
 
     ny, nx = heights.shape
     get_theta, get_phi = projection_functions(ptype, nx, ny)
@@ -382,8 +389,7 @@ def get_map_points(heights, pid, ptype, npoints,
 
 def get_logo_points(heights, phi_max, protrusion=1, pid=0):
     "Return list of rows with the points from the logo in fname"
-    print('- Projecting %slogo...' %
-          ('flattened ' if all(heights == 1) else ''))
+    print('- Projecting logo...')
     ny, nx = heights.shape
     points = []
     N_2, nx_2, ny_2 = max(nx, ny) / 2, nx / 2, ny / 2
@@ -525,7 +531,10 @@ def get_faces(points):
     def dist2(p0, p1):  # geometric distance (squared) between two points
         _, x0, y0, z0 = p0[:4]
         _, x1, y1, z1 = p1[:4]
-        return (x1 - x0)**2 + (y1 - y0)**2 + (z1 - z0)**2
+        r0 = sqrt(x0*x0 + y0*y0 + z0*z0)
+        r1 = sqrt(x1*x1 + y1*y1 + z1*z1)
+        # between points that have r=1, actually
+        return (x1/r1 - x0/r0)**2 + (y1/r1 - y0/r0)**2 + (z1/r1 - z0/r0)**2
 
     # dog            <-- previous row
     #  ^
