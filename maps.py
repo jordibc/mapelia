@@ -70,7 +70,8 @@ def get_parser():
         help='fracción de radio entre el punto más bajo y más alto')
     add('--caps', default='auto',
         help='ángulo (en grados) al que llegan los casquetes (o auto o none)')
-    add('--logo', default='', help='fichero de imagen con el logo')
+    add('--logo-north', default='', help='fichero de imagen con el logo norte')
+    add('--logo-south', default='', help='fichero de imagen con el logo sur')
     add('--no-meridian', action='store_true', help='no añadir meridiano 0')
     add('--protrusion', type=float, default=1.02,
         help='fracción en la que sobresalen meridiano y casquetes del máximo')
@@ -117,11 +118,12 @@ def process(args):
                        'protrusion': args.protrusion}
 
     if args.type == 'asc':
-        patches = get_patches(heights, projection_args, args.logo,
-                              add_faces=False)
+        patches = get_patches(heights, projection_args,
+                              args.logo_north, args.logo_south, add_faces=False)
         write_asc(output, patches)
     elif args.type == 'ply':
-        patches = get_patches(heights, projection_args, args.logo)
+        patches = get_patches(heights, projection_args,
+                              args.logo_north, args.logo_south)
         write_ply(output, patches)
 
     return output
@@ -162,7 +164,7 @@ def check_if_exists(fname):
             sys.exit('Cancelling.')
 
 
-def get_patches(heights, projection_args, logo, add_faces=True):
+def get_patches(heights, projection_args, logo_north, logo_south, add_faces=True):
     "Return a list of the patches (points and faces) that form the figure"
     patches = []
 
@@ -173,8 +175,8 @@ def get_patches(heights, projection_args, logo, add_faces=True):
     get_pid = lambda: patches[-1].points[-1][-1].pid + 1 if patches else 0
 
     # Logo / North cap.
-    if logo:
-        patch = get_logo_patch(logo, phi_cap, protrusion,
+    if logo_north:
+        patch = get_logo_patch(logo_north, phi_cap, protrusion,
                                pid=get_pid(), add_faces=add_faces)
         patches.append(patch)
     elif caps != 'none':
@@ -186,13 +188,21 @@ def get_patches(heights, projection_args, logo, add_faces=True):
     patch = get_map_patch(heights, projection_args,
                           pid=get_pid(), add_faces=add_faces)
     if add_faces and patches:
-        row_previous = boundary_points(patches[-1].points)
+        row_previous = points_at_z_extreme(patches[-1].points, extreme='min')
         faces = get_faces([row_previous, patch.points[0]])
         patches.append(Patch([], faces))
     patches.append(patch)
 
     # South cap.
-    if caps != 'none':
+    if logo_south:
+        patch = get_logo_patch(logo_south, -phi_cap, protrusion,
+                               pid=get_pid(), add_faces=add_faces)
+        if add_faces and patches:
+            row = points_at_z_extreme(patch.points, extreme='max')
+            faces = get_faces([patches[-1].points[-1], row])
+            patches.append(Patch([], faces))
+        patches.append(patch)
+    elif caps != 'none':
         patch = get_cap_patch(-phi_cap, protrusion,
                               pid=get_pid(), add_faces=add_faces)
         if add_faces and patches:
@@ -203,7 +213,7 @@ def get_patches(heights, projection_args, logo, add_faces=True):
     return patches
 
 
-def boundary_points(points):
+def points_at_z_extreme(points, extreme='max'):
     "Return a list of points that correspond to the boundary of the given ones"
     class OrderedPoint:  # will use for sorting in theta order
         def __init__(self, pid, x, y, z):
@@ -225,9 +235,15 @@ def boundary_points(points):
         r = sqrt(x*x + y*y + z*z)
         points_flat[i] = [pid, x / r, y / r, z / r]
 
+    if extreme == 'min':
+        zmin = points_flat[:,-1].min() + 1e-6
+        points_border = [OrderedPoint(pid, x, y, z)
+                            for pid, x, y, z in points_flat if z < zmin]
+    else:
+        zmax = points_flat[:,-1].max() - 1e-6
+        points_border = [OrderedPoint(pid, x, y, z)
+                            for pid, x, y, z in points_flat if z > zmax]
     zmin = points_flat[:,-1].min() + 1e-6
-    points_border = [OrderedPoint(pid, x, y, z) for pid, x, y, z in points_flat
-                                                if z < zmin]
 
     return [Point(int(p.pid), p.x, p.y, p.z) for p in sorted(points_border)]
 
@@ -390,6 +406,8 @@ def get_map_points(heights, pid, ptype, npoints,
 def get_logo_points(heights, phi_max, protrusion=1, pid=0):
     "Return list of rows with the points from the logo in fname"
     print('- Projecting logo...')
+    sign_phi = 1 if phi_max > 0 else -1
+    phi_max = abs(phi_max)
     ny, nx = heights.shape
     points = []
     N_2, nx_2, ny_2 = max(nx, ny) / 2, nx / 2, ny / 2
@@ -400,16 +418,18 @@ def get_logo_points(heights, phi_max, protrusion=1, pid=0):
             if dist > 1:
                 continue  # only values inside the circle
             r = protrusion + (protrusion - 1) * heights[j, i] / heights.max()
-            theta = arctan2(ny_2 - j, i - nx_2)
-            phi = pi / 2 - (pi / 2 - phi_max) * dist
+            theta = sign_phi * arctan2(ny_2 - j, i - nx_2)
+            phi = sign_phi * (pi / 2 - (pi / 2 - phi_max) * dist)
 
             x = r * cos(theta) * cos(phi)
             y = r * sin(theta) * cos(phi)
             z = r * sin(phi)
             row.append(Point(pid, x, y, z))
             pid += 1
-        if row:
+        if len(row) > 1:
             points.append(row)
+        elif len(row) == 1:
+            pid -= 1  # we didn't add it, so don't count it
     return points
 
 
