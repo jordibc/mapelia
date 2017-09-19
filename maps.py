@@ -436,12 +436,6 @@ def get_logo_points(heights, phi_max, protrusion=1, pid=0):
     return points
 
 
-def mod(x, y):
-    "Return the representative of x between -y/2 and y/2 for the group R/yR"
-    x0 = x - y * floor(x / y)
-    return x0 if x0 < y / 2 else x0 - y
-
-
 def get_cap_points(r, phi_max, pid):
     "Return lists of points that form the cap of radii r and from angle phi_max"
     rcphin, rsphin = r * cos(phi_max), r * sin(phi_max)
