@@ -239,11 +239,12 @@ def points_at_z_extreme(points, extreme='max'):
         zmin = points_flat[:,-1].min() + 1e-6
         points_border = [OrderedPoint(pid, x, y, z)
                             for pid, x, y, z in points_flat if z < zmin]
-    else:
+    elif extreme == 'max':
         zmax = points_flat[:,-1].max() - 1e-6
         points_border = [OrderedPoint(pid, x, y, z)
                             for pid, x, y, z in points_flat if z > zmax]
-    zmin = points_flat[:,-1].min() + 1e-6
+    else:
+        raise RuntimeError('extreme must be either min or max')
 
     return [Point(int(p.pid), p.x, p.y, p.z) for p in sorted(points_border)]
 
@@ -406,8 +407,10 @@ def get_map_points(heights, pid, ptype, npoints,
 def get_logo_points(heights, phi_max, protrusion=1, pid=0):
     "Return list of rows with the points from the logo in fname"
     print('- Projecting logo...')
+    # phi_max > 0 for the north cap, < 0 for the south one.
     sign_phi = 1 if phi_max > 0 else -1
     phi_max = abs(phi_max)
+
     ny, nx = heights.shape
     points = []
     N_2, nx_2, ny_2 = max(nx, ny) / 2, nx / 2, ny / 2
@@ -426,7 +429,7 @@ def get_logo_points(heights, phi_max, protrusion=1, pid=0):
             z = r * sin(phi)
             row.append(Point(pid, x, y, z))
             pid += 1
-        if len(row) > 1:
+        if len(row) > 1:  # we want at least 2 points in a row
             points.append(row)
         elif len(row) == 1:
             pid -= 1  # we didn't add it, so don't count it
