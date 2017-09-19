@@ -26,7 +26,7 @@ def test_mapelia():
         '--projection mollweide --channel average '
         '--caps none --no-meridian --invert')
     run('../mapelia earth_tissot_equirectangular.jpg '
-        '--projection equirectangular --logo logo_observatori.png '
+        '--projection equirectangular --logo-south logo_observatori.png '
         '--caps 10 --no-meridian')
 
 
