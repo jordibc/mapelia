@@ -297,6 +297,27 @@ def get_hues_slow(img):
     # and fast in a different way...
 
 
+def modify_ply():
+    with open(fname) as fin:
+        with open(fname + '_with_caps', 'wb') as fout:
+            while True:
+                line = fin.readline()
+                if line.startswith('element vertex'):
+                    n = int(line.split()[-1])
+                    fout.write('element vertex %d', n + nvertices)
+                elif line.startswith('element face'):
+                    n = int(line.split()[-1])
+                    fout.write('element face %d', n + nfaces)
+                elif line.startswith('end_header'):
+                    fout.write(line)
+                    break
+                else:
+                    fout.write(line)
+            fout.write(fin.read())
+            # not really, we have to add the new vertices first, then the new
+            # faces.
+
+
 
 if __name__ == '__main__':
     test_mapelia()
