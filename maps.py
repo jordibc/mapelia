@@ -409,7 +409,7 @@ def get_logo_points(heights, phi_max, protrusion=1, pid=0):
     print('- Projecting logo...')
     # phi_max > 0 for the north cap, < 0 for the south one.
     sign_phi = 1 if phi_max > 0 else -1
-    phi_max = abs(phi_max)
+    abs_phi_max = abs(phi_max)
 
     ny, nx = heights.shape
     points = []
@@ -422,7 +422,7 @@ def get_logo_points(heights, phi_max, protrusion=1, pid=0):
                 continue  # only values inside the circle
             r = protrusion + (protrusion - 1) * heights[j, i] / heights.max()
             theta = sign_phi * arctan2(ny_2 - j, i - nx_2)
-            phi = sign_phi * (pi / 2 - (pi / 2 - phi_max) * dist)
+            phi = sign_phi * (pi / 2 - (pi / 2 - abs_phi_max) * dist)
 
             x = r * cos(theta) * cos(phi)
             y = r * sin(theta) * cos(phi)
