@@ -30,7 +30,7 @@ from collections import namedtuple
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
 from PIL import Image
 from numpy import (sin, cos, exp, arcsin, arccos, arctan, arctan2, sqrt, floor,
-                   pi, e, nan, isnan,
+                   pi, nan, isnan,
                    array, linspace, ones_like, zeros, average, all)
 
 Patch = namedtuple('Patch', ['points', 'faces'])
