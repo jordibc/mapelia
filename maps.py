@@ -431,8 +431,8 @@ def get_logo_points(heights, phi_max, protrusion=1, pid=0):
             pid += 1
         if len(row) > 1:  # we want at least 2 points in a row
             points.append(row)
-        elif len(row) == 1:
-            pid -= 1  # we didn't add it, so don't count it
+        else:
+            pid -= len(row)  # we didn't add it, so don't count it
     return points
 
 
