@@ -244,7 +244,7 @@ def points_at_z_extreme(points, extreme='max'):
         points_border = [OrderedPoint(pid, x, y, z)
                             for pid, x, y, z in points_flat if z > zmax]
     else:
-        raise RuntimeError('extreme must be either min or max')
+        raise ValueError('extreme must be either min or max')
 
     return [Point(int(p.pid), p.x, p.y, p.z) for p in sorted(points_border)]
 
