@@ -85,7 +85,8 @@ Uso
     --projection mercator_cylindrical_mollweide_equirectangular_sinusoidal
                           tipo de proyección usada en el mapa (default:
                           mercator)
-    --points POINTS       número de puntos a usar como máximo (default: 500000)
+    --points POINTS       número de puntos a usar como máximo (o 0 para usar
+                          todos) (default: 0)
     --scale SCALE         fracción de radio entre el punto más bajo y más alto
                           (default: 0.02)
     --caps CAPS           ángulo (en grados) al que llegan los casquetes (o auto
@@ -97,7 +98,7 @@ Uso
     --no-meridian         no añadir meridiano 0 (default: False)
     --protrusion PROTRUSION
                           fracción en la que sobresalen meridiano y casquetes
-                          del máximo (default: 1.2)
+                          del máximo (default: 1.02)
     --no-ratio-check      no arreglar el ratio alto/ancho en ciertas
                           proyecciones (default: False)
     --fix-gaps            intenta rellenar los huecos en el mapa (default:
