@@ -29,9 +29,9 @@ from collections import namedtuple
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
 from PIL import Image
-from numpy import (sin, cos, exp, arcsin, arccos, arctan, arctan2, sqrt, floor,
+from numpy import (sin, cos, exp, arcsin, arccos, arctan, arctan2, sqrt,
                    pi, nan, isnan,
-                   array, linspace, ones_like, zeros, average, all)
+                   array, linspace, zeros, average, all)
 
 Patch = namedtuple('Patch', ['points', 'faces'])
 Point = namedtuple('Point', ['pid', 'x', 'y', 'z'])
@@ -103,7 +103,7 @@ def process(args):
 
     heights = get_heights(img, args.channel)
     if args.invert:
-        heights = -heights
+        heights = heights.max() - heights
 
     if args.projection in ['mollweide', 'sinusoidal'] and args.caps == 'auto':
         caps = 'none'
@@ -360,11 +360,7 @@ def get_map_points(heights, pid, ptype, npoints,
 
     # Points from the given heights.
     hmin, hmax = heights.min(), heights.max()
-    if hmax - hmin > 0.01:
-        radii = 1.0 + scale * (2.0 * (heights - hmin) / (hmax - hmin) - 1.0)
-    else:
-        radii = ones_like(heights)
-        meridian = False  # hack
+    radii = 1 + scale * (2 * (heights - hmin) / (hmax - hmin) - 1)
 
     rmeridian = 1 + protrusion * scale
 
@@ -609,7 +605,7 @@ def get_heights(img, channel='val'):
     print('- Extracting heights from image (channel "%s")...' % channel)
     if channel in ['r', 'g', 'b', 'average']:
         # These channels are straigthforward: higher values are higher heights.
-        imx = array(img.convert('RGBA'))
+        imx = array(img.convert('RGBA'), dtype=float)
         if   channel == 'r':  return imx[:,:,0]
         elif channel == 'g':  return imx[:,:,1]
         elif channel == 'b':  return imx[:,:,2]
@@ -617,7 +613,7 @@ def get_heights(img, channel='val'):
             return average(imx, axis=2)
     elif channel in ['hue', 'sat', 'val']:
         # These channels are straigthforward: higher values are higher heights.
-        imxHSV = array(img.convert('RGBA').convert('HSV'))
+        imxHSV = array(img.convert('RGBA').convert('HSV'), dtype=float)
         if   channel == 'hue':  return imxHSV[:,:,0]
         elif channel == 'sat':  return imxHSV[:,:,1]
         elif channel == 'val':  return imxHSV[:,:,2]
@@ -625,7 +621,7 @@ def get_heights(img, channel='val'):
         # This channel is *not* straigthforward.
         rgb2height = find_rgb2height(img)
         nx, ny = img.size
-        heights = zeros((ny, nx))
+        heights = zeros((ny, nx), dtype=float)
         for j in range(ny):
             for i in range(nx):
                 heights[j, i] = rgb2height[img.getpixel((i, j))]
