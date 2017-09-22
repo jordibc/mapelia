@@ -31,7 +31,7 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
 from PIL import Image
 from numpy import (sin, cos, exp, arcsin, arccos, arctan, arctan2, sqrt,
                    pi, nan, isnan,
-                   array, linspace, zeros, average, all)
+                   array, ones_like, linspace, zeros, average, all)
 
 Patch = namedtuple('Patch', ['points', 'faces'])
 Point = namedtuple('Point', ['pid', 'x', 'y', 'z'])
@@ -360,7 +360,10 @@ def get_map_points(heights, pid, ptype, npoints,
 
     # Points from the given heights.
     hmin, hmax = heights.min(), heights.max()
-    radii = 1 + scale * (2 * (heights - hmin) / (hmax - hmin) - 1)
+    if hmax - hmin > 0.001:
+        radii = 1 + scale * (2 * (heights - hmin) / (hmax - hmin) - 1)
+    else:
+        radii = ones_like(heights)
 
     rmeridian = 1 + protrusion * scale
 
