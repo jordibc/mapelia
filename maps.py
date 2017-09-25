@@ -1,10 +1,10 @@
 """
 Convierte imágenes con mapas a ficheros 3D.
 
-Toma mapas de ficheros jpg, png, etc., y escribe ficheros ply (polígonos) o asc
-(nube de puntos) con una esfera que contiene las elevaciones deducidas del mapa
-en cada punto. Estos ficheros se pueden a su vez manipular con programas como
-MeshLab o Blender.
+Toma mapas de ficheros jpg, png, etc., y escribe ficheros ply (polígonos), asc
+(nube de puntos) o stl (también polígonos) con una esfera que contiene las
+elevaciones deducidas del mapa en cada punto. Estos ficheros se pueden a su vez
+manipular con programas como MeshLab o Blender.
 """
 
 # Spherical coordinates convention:
@@ -54,7 +54,7 @@ def get_parser():
         help='fichero de salida (si vacío, se genera a partir del de entrada)')
     add('--overwrite', action='store_true',
         help='no comprobar si el fichero de salida existe')
-    add('--type', choices=['ply', 'asc'], default='ply',
+    add('--type', choices=['ply', 'asc', 'stl'], default='ply',
         help='tipo de fichero a generar')
     add('--channel', default='val',
         choices=['r', 'g', 'b', 'average', 'hue', 'sat', 'val', 'color'],
@@ -125,6 +125,10 @@ def process(args):
         patches = get_patches(heights, projection_args,
                               args.logo_north, args.logo_south)
         write_ply(output, patches)
+    elif args.type == 'stl':
+        patches = get_patches(heights, projection_args,
+                              args.logo_north, args.logo_south)
+        write_stl(output, patches)
 
     return output
 
@@ -279,10 +283,11 @@ def get_logo_patch(logo, phi_cap, protrusion, pid=0, add_faces=True):
 
 
 def write_ply(fname, patches):
+    "Create ply file fname with the points and faces in patches"
     nvertices = patches[-1].points[-1][-1].pid + 1 if patches else 0
+    all_points, all_faces = zip(*patches)
 
     with open(fname, 'wb') as fout:
-        all_points, all_faces = zip(*patches)
         fout.write(ply_header(nvertices=nvertices,
                               nfaces=sum(len(x) for x in all_faces)))
         for points in all_points:
@@ -340,6 +345,26 @@ def write_asc(fname, patches):
     with open(fname, 'wb') as fout:
         for patch in patches:
             write_vertices(fout, patch.points, binary=False)
+
+
+def write_stl(fname, patches):
+    "Create stl file fname with the triangles in patches"
+    all_points, all_faces = zip(*patches)
+    points_flat = array([(p.x, p.y, p.z) for points in all_points
+                                         for row in points for p in row])
+
+    with open(fname, 'wb') as fout:
+        write = lambda *args: fout.write(struct.pack(*args))
+
+        write('<80B', *tuple([0] * 80))  # header (empty)
+        write('<I', sum(len(x) for x in all_faces))  # number of triangles
+        for faces in all_faces:
+            for f in faces:
+                write('<3f', 0, 0, 0)  # normal vector (empty)
+                write('<3f', *points_flat[f[0]])  # vertex 1
+                write('<3f', *points_flat[f[1]])  # vertex 2
+                write('<3f', *points_flat[f[2]])  # vertex 3
+                write('<H', 0)  # attribute byte count (empty)
 
 
 def get_map_points(heights, pid, ptype, npoints,
@@ -447,11 +472,15 @@ def get_cap_points(r, phi_max, pid):
         row = []
         rcphi, rsphi = r * cos(phi), r * sin(phi)
         z = rsphi
-        for theta in linspace(-pi, pi, max(9, int(100 * cos(phi)))):
-            x = cos(theta) * rcphi
-            y = sin(theta) * rcphi
-            row.append(Point(pid, x, y, z))
+        if abs(z - r) < 1e-6:  # we are at an extreme
+            row.append(Point(pid, 0, 0, z))  # just put one point
             pid += 1
+        else:
+            for theta in linspace(-pi, pi, max(9, int(100 * cos(phi)))):
+                x = cos(theta) * rcphi
+                y = sin(theta) * rcphi
+                row.append(Point(pid, x, y, z))
+                pid += 1
         points.append(row)
     return points
 
