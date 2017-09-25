@@ -365,7 +365,7 @@ def get_map_points(heights, pid, ptype, npoints,
     else:
         radii = ones_like(heights)
 
-    rmeridian = 1 + protrusion * scale
+    rmeridian = protrusion * (1 + scale / 2)
 
     n = sqrt(npoints)
     stepy = int(max(1, ny / (3 * n))) if n > 0 else 1
