@@ -4,8 +4,8 @@ mapelia
 Convierte imágenes con mapas a ficheros 3D.
 
 ``mapelia`` es un programa para manipular ficheros de imágenes de mapas, y
-convertirlos en `polígonos`_ o `puntos en el espacio`_ que pueden ser
-manipulados por programas como `MeshLab`_ o `Blender`_.
+convertirlos en polígonos (`ply`_ o `stl`_) o `puntos en el espacio`_ que
+pueden ser manipulados por programas como `MeshLab`_ o `Blender`_.
 
 Los mapas pueden estar en proyección `equirectangular`_, `de Mercator`_,
 `central cilíndrica`_, `de Mollweide`_ o `sinusoidal`_.
@@ -15,7 +15,8 @@ Los mapas pueden estar en proyección `equirectangular`_, `de Mercator`_,
 .. _`central cilíndrica`: https://en.wikipedia.org/wiki/Central_cylindrical_projection
 .. _`de Mollweide`: https://en.wikipedia.org/wiki/Mollweide_projection
 .. _`sinusoidal`: https://en.wikipedia.org/wiki/Sinusoidal_projection
-.. _`polígonos`: https://en.wikipedia.org/wiki/PLY_(file_format)
+.. _`ply`: https://en.wikipedia.org/wiki/PLY_(file_format)
+.. _`stl`: https://en.wikipedia.org/wiki/STL_(file_format)
 .. _`puntos en el espacio`: https://codeyarns.com/2011/08/17/asc-file-format-for-3d-points/
 .. _`MeshLab`: https://en.wikipedia.org/wiki/MeshLab
 .. _`Blender`: https://www.blender.org/
@@ -52,7 +53,7 @@ y obtenemos:
 Uso
 ---
 
-  usage: mapelia [-h] [-o OUTPUT] [--overwrite] [--type {ply,asc}]
+  usage: mapelia [-h] [-o OUTPUT] [--overwrite] [--type {ply,asc,stl}]
                  [--channel {r,g,b,average,hue,sat,val,color}] [--invert]
                  [--projection {mercator,cylindrical,mollweide,equirectangular,sinusoidal}]
                  [--points POINTS] [--scale SCALE] [--caps CAPS]
@@ -63,9 +64,10 @@ Uso
 
   Convierte imágenes con mapas a ficheros 3D. Toma mapas en proyección de
   Mercator, cónica o de Mollweide, de ficheros jpg, png, etc., y escribe
-  ficheros ply (polígonos) o asc (nube de puntos) con una esfera que contiene
-  las elevaciones deducidas del mapa en cada punto. Estos ficheros se pueden a
-  su vez manipular con programas como MeshLab o Blender.
+  ficheros ply (polígonos), asc (nube de puntos) o stl (también polígonos) con
+  una esfera que contiene las elevaciones deducidas del mapa en cada punto.
+  Estos ficheros se pueden a su vez manipular con programas como MeshLab o
+  Blender.
 
   positional arguments:
     image                 fichero de imagen con el mapa
@@ -77,7 +79,7 @@ Uso
                           entrada) (default: )
     --overwrite           no comprobar si el fichero de salida existe (default:
                           False)
-    --type ply_asc        tipo de fichero a generar (default: ply)
+    --type ply_asc_stl    tipo de fichero a generar (default: ply)
     --channel r_g_b_average_hue_sat_val_color
                           canal que contiene la información de la elevación
                           (default: val)
