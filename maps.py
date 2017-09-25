@@ -72,7 +72,8 @@ def get_parser():
         help='ángulo (en grados) al que llegan los casquetes (o auto o none)')
     add('--logo-north', default='', help='fichero de imagen con el logo norte')
     add('--logo-south', default='', help='fichero de imagen con el logo sur')
-    add('--no-meridian', action='store_true', help='no añadir meridiano 0')
+    add('--meridian', default='0',
+        help='longitud (en grados) donde colocar el meridiano (o none)')
     add('--protrusion', type=float, default=1.02,
         help='fracción en la que sobresalen meridiano y casquetes del máximo')
     add('--no-ratio-check', action='store_true',
@@ -87,6 +88,7 @@ def process(args):
         sys.exit('File %s does not exist.' % args.image)
 
     check_caps(args.caps)
+    check_meridian(args.meridian)
 
     output = args.output or '%s.%s' % (args.image.rsplit('.', 1)[0], args.type)
     if not args.overwrite:
@@ -114,7 +116,7 @@ def process(args):
                        'npoints': args.points,
                        'scale': args.scale,
                        'caps': caps,
-                       'meridian': not args.no_meridian,
+                       'meridian': args.meridian,
                        'protrusion': args.protrusion}
 
     if args.type == 'asc':
@@ -159,6 +161,17 @@ def check_caps(caps):
     except ValueError:
         if caps not in ['auto', 'none']:
             sys.exit('caps can be "auto", "none" or a float.')
+
+
+def check_meridian(meridian):
+    "Check that the meridian is valid"
+    # We want this so as to fail early.
+    try:
+        if not -180 <= float(meridian) <= 180:
+            sys.exit('meridian can be an angle between -180 and 180 (or none).')
+    except ValueError:
+        if meridian != 'none':
+            sys.exit('meridian can be "none" or a float.')
 
 
 def check_if_exists(fname):
@@ -390,6 +403,7 @@ def get_map_points(heights, pid, ptype, npoints,
     else:
         radii = ones_like(heights)
 
+    long_meridian = pi * float(meridian) / 180 if meridian != 'none' else nan
     rmeridian = protrusion * (1 + scale / 2)
 
     n = sqrt(npoints)
@@ -412,7 +426,7 @@ def get_map_points(heights, pid, ptype, npoints,
             if isnan(theta):
                 continue
 
-            if meridian and -0.02 < theta < 0.02:
+            if not isnan(long_meridian) and abs(long_meridian - theta) < 0.02:
                 r = rmeridian
             else:
                 r = radii[j, i]
