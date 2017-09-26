@@ -362,11 +362,13 @@ def write_asc(fname, patches):
             write_vertices(fout, patch.points, binary=False)
 
 
-def write_stl(fname, patches):
+def write_stl(fname, patches, invert=False):
     "Create stl file fname with the triangles in patches"
     all_points, all_faces = zip(*patches)
     points_flat = array([(p.x, p.y, p.z) for points in all_points
                                          for row in points for p in row])
+
+    order = (0, 1, 2) if not invert else (0, 2, 1)
 
     with open(fname, 'wb') as fout:
         write = lambda *args: fout.write(struct.pack(*args))
@@ -375,10 +377,11 @@ def write_stl(fname, patches):
         write('<I', sum(len(x) for x in all_faces))  # number of triangles
         for faces in all_faces:
             for f in faces:
+                p0, p1, p2 = [points_flat[f[i]] for i in order]
                 write('<3f', 0, 0, 0)  # normal vector (empty)
-                write('<3f', *points_flat[f[0]])  # vertex 1
-                write('<3f', *points_flat[f[1]])  # vertex 2
-                write('<3f', *points_flat[f[2]])  # vertex 3
+                write('<3f', *p0)  # vertex 1
+                write('<3f', *p1)  # vertex 2
+                write('<3f', *p2)  # vertex 3
                 write('<H', 0)  # attribute byte count (empty)
 
 
