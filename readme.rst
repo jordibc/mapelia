@@ -55,7 +55,7 @@ Uso
 
   usage: mapelia [-h] [-o OUTPUT] [--overwrite] [--type {ply,asc,stl}]
                  [--channel {r,g,b,average,hue,sat,val,color}] [--invert]
-                 [--projection {mercator,cylindrical,mollweide,equirectangular,sinusoidal}]
+                 [--projection {mercator,central-cylindrical,mollweide,equirectangular,sinusoidal}]
                  [--points POINTS] [--scale SCALE] [--caps CAPS]
                  [--logo-north LOGO_NORTH] [--logo-south LOGO_SOUTH]
                  [--no-meridian] [--protrusion PROTRUSION] [--no-ratio-check]
@@ -83,7 +83,7 @@ Uso
                           canal que contiene la información de la elevación
                           (default: val)
     --invert              invierte las elevaciones (default: False)
-    --projection mercator_cylindrical_mollweide_equirectangular_sinusoidal
+    --projection mercator_central-cylindrical_mollweide_equirectangular_sinusoidal
                           tipo de proyección usada en el mapa (default:
                           mercator)
     --points POINTS       número de puntos a usar como máximo (o 0 para usar
