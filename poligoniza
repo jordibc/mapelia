@@ -20,6 +20,8 @@ def main():
         help='fichero de salida (si vacío, se genera a partir del de entrada)')
     add('--overwrite', action='store_true',
         help='no comprobar si el fichero de salida existe')
+    add('--type', choices=['ply', 'stl'], default='ply',
+        help='tipo de fichero a generar')
     add('--ascii', action='store_true',
         help='escribe el ply resultante en ascii')
     add('--invert', action='store_true',
@@ -28,7 +30,7 @@ def main():
         help='número de puntos por sección (si 0, se autodetecta)')
     args = parser.parse_args()
 
-    output = args.output or '%s.ply' % args.file.rsplit('.', 1)[0]
+    output = args.output or '%s.%s' % (args.file.rsplit('.', 1)[0], args.type)
     if not args.overwrite:
         maps.check_if_exists(output)
 
@@ -37,12 +39,16 @@ def main():
     points = asc.get_points(points_raw, args.row_length)
     faces = maps.get_faces(points)
 
-    with open(output, 'wb') as fout:
-        binary = not args.ascii
-        fout.write(maps.ply_header(nvertices=len(points_raw),
-                                   nfaces=len(faces), binary=binary))
-        maps.write_vertices(fout, points, binary)
-        maps.write_faces(fout, faces, binary, args.invert)
+    if args.type == 'ply':
+        with open(output, 'wb') as fout:
+            binary = not args.ascii
+            fout.write(maps.ply_header(nvertices=len(points_raw),
+                                       nfaces=len(faces), binary=binary))
+            maps.write_vertices(fout, points, binary)
+            maps.write_faces(fout, faces, binary, args.invert)
+    elif args.type == 'stl':
+        patches = [(points, faces)]
+        maps.write_stl(output, patches, args.invert)
     print('The output is in file %s' % output)
 
 
