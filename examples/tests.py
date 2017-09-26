@@ -40,7 +40,7 @@ def test_pintelia():
 def test_poligoniza():
     run('../mapelia moon.jpg --type asc')
     run('../poligoniza moon.asc')
-    run('../poligoniza moon.asc --type stl --invert')
+    run('../poligoniza moon.asc --type stl')
 
 
 def show_colored_rows():
