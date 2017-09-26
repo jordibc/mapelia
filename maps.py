@@ -112,11 +112,13 @@ def process(args):
     else:
         caps = args.caps
 
+    meridian = pi * float(args.meridian) / 180 if args.meridian != 'none' else nan
+
     projection_args = {'ptype': args.projection,
                        'npoints': args.points,
                        'scale': args.scale,
                        'caps': caps,
-                       'meridian': args.meridian,
+                       'meridian': meridian,
                        'protrusion': args.protrusion}
 
     if args.type == 'asc':
@@ -403,7 +405,6 @@ def get_map_points(heights, pid, ptype, npoints,
     else:
         radii = ones_like(heights)
 
-    long_meridian = pi * float(meridian) / 180 if meridian != 'none' else nan
     rmeridian = protrusion * (1 + scale / 2)
 
     n = sqrt(npoints)
@@ -426,7 +427,7 @@ def get_map_points(heights, pid, ptype, npoints,
             if isnan(theta):
                 continue
 
-            if not isnan(long_meridian) and abs(long_meridian - theta) < 0.02:
+            if not isnan(meridian) and abs(meridian - theta) < 0.02:
                 r = rmeridian
             else:
                 r = radii[j, i]
