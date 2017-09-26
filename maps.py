@@ -400,6 +400,11 @@ def get_map_points(heights, pid, ptype, npoints,
     points = []
 
     phi_cap = get_phi_cap(caps, heights, ptype)
+    if caps != 'none' and phi_cap > get_phi(ny // 2):
+        print(red('Gap between caps and the map projection (cap ends at '
+                  'latitude %g deg, but map highest is %g deg).\nIt may look '
+                  'ugly. You probably want a different value for --caps.' %
+                  (180 * phi_cap / pi, 180 * get_phi(ny // 2) / pi)))
 
     # Points from the given heights.
     hmin, hmax = heights.min(), heights.max()
