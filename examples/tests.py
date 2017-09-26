@@ -28,6 +28,9 @@ def test_mapelia():
     run('../mapelia earth_tissot_equirectangular.jpg '
         '--projection equirectangular --logo-south logo_observatori.png '
         '--caps 10 --meridian none')
+    run('../mapelia earth_central-cylindrical.jpg '
+        '--projection central-cylindrical --caps 30 --meridian 90 '
+        '--scale 0.05 --protrusion 1.2 --type stl')
 
 
 def test_pintelia():
@@ -37,6 +40,7 @@ def test_pintelia():
 def test_poligoniza():
     run('../mapelia moon.jpg --type asc')
     run('../poligoniza moon.asc')
+    run('../poligoniza moon.asc --type stl --invert')
 
 
 def show_colored_rows():
