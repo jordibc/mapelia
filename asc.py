@@ -3,6 +3,10 @@ Convierte ficheros asc en ficheros ply.
 """
 
 from numpy import sqrt, arcsin, arctan2, floor, pi
+from collections import namedtuple
+
+Patch = namedtuple('Patch', ['points', 'faces'])
+Point = namedtuple('Point', ['pid', 'x', 'y', 'z'])
 
 
 def get_points_raw(fname):
@@ -46,7 +50,7 @@ def get_points(points_raw, row_length=0):
                     points.append(row)
                     row = []
 
-        row.append([pid, x, y, z])
+        row.append(Point(pid, x, y, z))
         theta_last, phi_last = theta, phi
         pid += 1
     points.append(row)  # don't forget to append the last row!
