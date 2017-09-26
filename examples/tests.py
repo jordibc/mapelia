@@ -21,13 +21,13 @@ def test_mapelia():
     run('../mapelia venus.png')
     run('../mapelia earth_equirectangular.jpg '
         '--projection equirectangular --channel hue '
-        '--no-meridian')
+        '--meridian none')
     run('../mapelia earth_tissot_mollweide.jpg '
         '--projection mollweide --channel average '
-        '--caps none --no-meridian --invert')
+        '--caps none --meridian none --invert')
     run('../mapelia earth_tissot_equirectangular.jpg '
         '--projection equirectangular --logo-south logo_observatori.png '
-        '--caps 10 --no-meridian')
+        '--caps 10 --meridian none')
 
 
 def test_pintelia():

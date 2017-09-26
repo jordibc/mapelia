@@ -61,8 +61,8 @@ def get_parser():
         help='canal que contiene la información de la elevación')
     add('--invert', action='store_true', help='invierte las elevaciones')
     add('--projection', default='mercator',
-        choices=['mercator', 'cylindrical', 'mollweide', 'equirectangular',
-                 'sinusoidal'],
+        choices=['mercator', 'central-cylindrical', 'mollweide',
+                 'equirectangular', 'sinusoidal'],
         help='tipo de proyección usada en el mapa')
     add('--points', type=int, default=0,
         help='número de puntos a usar como máximo (o 0 para usar todos)')
@@ -515,7 +515,7 @@ def projection_functions(ptype, nx, ny):
         #   phi = 2 * atan(exp(y / r)) - pi / 2
         get_theta = lambda x, y: x / r
         get_phi = lambda y: 2 * arctan(exp(y / r)) - pi / 2
-    elif ptype == 'cylindrical':
+    elif ptype == 'central-cylindrical':
         # Central cylindrical projection:
         #   x = r * theta
         #   y = r * tan(phi)
