@@ -8,8 +8,16 @@ El fichero asc original debe tener los puntos en orden correspondiente a las
 secciones de un objeto casi-esférico.
 """
 
+import sys
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
+
 import maps
+try:
+    import projections
+except ImportError:
+    sys.exit('projections module not ready. You may want to first run:\n'
+             '  python3 setup.py build_ext --inplace')
+import formats
 import asc
 
 
@@ -38,18 +46,18 @@ def main():
     print(maps.green('Processing file %s ...' % args.file))
     points_raw = asc.get_points_raw(args.file)
     points = asc.get_points(points_raw, args.row_length)
-    faces = maps.get_faces(points)
+    faces = projections.get_faces(points)
 
     if args.type == 'ply':
         with open(output, 'wb') as fout:
             binary = not args.ascii
-            fout.write(maps.ply_header(nvertices=len(points_raw),
-                                       nfaces=len(faces), binary=binary))
-            maps.write_vertices(fout, points, binary)
-            maps.write_faces(fout, faces, binary, args.invert)
+            fout.write(formats.ply_header(nvertices=len(points_raw),
+                                          nfaces=len(faces), binary=binary))
+            formats.write_vertices(fout, points, binary)
+            formats.write_faces(fout, faces, binary, args.invert)
     elif args.type == 'stl':
         patches = [(points, faces)]
-        maps.write_stl(output, patches, args.invert)
+        formats.write_stl(output, patches, args.invert)
     print('The output is in file %s' % output)
 
 

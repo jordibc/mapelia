@@ -17,12 +17,20 @@ Toma mapas de ficheros jpg, png, etc., y escribe ficheros ply (polígonos).
 import sys
 import os
 import struct
+from collections import namedtuple
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
 from PIL import Image
 from numpy import sin, cos, sqrt, pi, isnan, array
 
 import maps
+try:
+    import projections
+except ImportError:
+    sys.exit('projections module not ready. You may want to first run:\n'
+             '  python3 setup.py build_ext --inplace')
+
+Point = namedtuple('Point', ['pid', 'x', 'y', 'z', 'r', 'g', 'b', 'a'])
 
 
 def main():
@@ -78,7 +86,7 @@ def process(args):
 def write_ply(fname, img, projection_args):
     "Write a ply file with the given points and deduced faces"
     points = project(img, **projection_args)
-    faces = maps.get_faces(points)
+    faces = projections.get_faces(points)
 
     with open(fname, 'wb') as fout:
         fout.write(ply_header(nvertices=points[-1][-1][0]+1, nfaces=len(faces)))
@@ -127,7 +135,7 @@ def project(imx, ptype, npoints):
     #  ...]
     # This will be useful later on to connect the points and form faces.
     ny, nx, _ = imx.shape
-    get_theta, get_phi = maps.projection_functions(ptype, nx, ny)
+    get_theta, get_phi = projections.projection_functions(ptype, nx, ny)
     points = []
     pid = 0  # point id, used to reference the point by a number later on
 
@@ -155,7 +163,7 @@ def project(imx, ptype, npoints):
             x = r * cos(theta) * cphi
             y = r * sin(theta) * cphi
             z = r * sphi
-            row.append((pid, x, y, z, *imx[j, i]))
+            row.append(Point(pid, x, y, z, *imx[j, i]))
             pid += 1
         if row:
             points.append(row)
