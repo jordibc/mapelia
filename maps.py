@@ -32,7 +32,7 @@ try:
                              get_phi_cap, get_faces, points_at_z_extreme)
 except ImportError:
     sys.exit('projections module not ready. You may want to first run:\n'
-             '  python3 setup.py build_ext --inplace')
+             '  %s setup.py build_ext --inplace' % sys.executable)
 
 from formats import write_ply, write_asc, write_stl
 
