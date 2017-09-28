@@ -123,18 +123,12 @@ def process(args):
                        'meridian': meridian,
                        'protrusion': args.protrusion}
 
-    if args.type == 'asc':
-        patches = get_patches(heights, projection_args,
-                              args.logo_north, args.logo_south, add_faces=False)
-        write_asc(output, patches)
-    elif args.type == 'ply':
-        patches = get_patches(heights, projection_args,
-                              args.logo_north, args.logo_south)
-        write_ply(output, patches)
-    elif args.type == 'stl':
-        patches = get_patches(heights, projection_args,
-                              args.logo_north, args.logo_south)
-        write_stl(output, patches)
+    add_faces = args.type in ['ply', 'stl']
+    patches = get_patches(heights, projection_args,
+                          args.logo_north, args.logo_south, add_faces)
+    if   args.type == 'asc':  write_asc(output, patches)
+    elif args.type == 'ply':  write_ply(output, patches)
+    elif args.type == 'stl':  write_stl(output, patches)
 
     return output
 
