@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+
+"""
+Divide en dos mitades un fichero stl.
+
+La idea es ayudar a post-procesar ficheros stl hechos con mapelia, para
+que se puedan imprimir más fácilmente. El fichero original no se modifica,
+sino que se crean dos nuevos ficheros acabados en "_N.stl" y "_S.stl".
+"""
+
+import sys
+import os
+import struct
+
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
+
+from maps import check_if_exists
+
+
+def main():
+    parser = ArgumentParser(description=__doc__, formatter_class=fmt)
+    add = parser.add_argument  # shortcut
+    add('file', help='fichero stl')
+    add('-n', '--name', default='',
+        help='nombre de salida (si vacío, se genera a partir del de entrada)')
+    add('--overwrite', action='store_true',
+        help='no comprobar si los ficheros de salida existen')
+    args = parser.parse_args()
+
+    if not os.path.isfile(args.file):
+        sys.exit('File %s does not exist.' % args.file)
+
+    name = args.name or args.file.rsplit('.', 1)[0]
+    output_N = '%s_N.stl' % name
+    output_S = '%s_S.stl' % name
+    if not args.overwrite:
+        check_if_exists(output_N)
+        check_if_exists(output_S)
+
+    print('Processing file %s ...' % args.file)
+    with open(args.file, 'rb') as fin:
+        fin.read(84)  # discard header + number of triangles
+
+        triangles = []
+        while True:
+            data = fin.read(12*4+2)
+            if not data:
+                sys.exit('Could not cut the figure in half.')
+            v1_z = struct.unpack('<f', data[20:24])[0]
+            if v1_z < 0:  # z component of the 1st vertex
+                break
+            triangles.append(data)
+        write_stl(output_N, triangles)
+
+        triangles = []
+        while True:
+            data = fin.read(12*4+2)
+            if not data:
+                break
+            triangles.append(data)
+        write_stl(output_S, triangles)
+
+
+def write_stl(fname, triangles):
+    "Write binary-encoded list of triangles as a stl file"
+    print('Writing file %s ...' % fname)
+    with open(fname, 'wb') as fout:
+        fout.write(b'\0' * 80)  # header (empty)
+        fout.write(struct.pack('<I', len(triangles)))  # number of triangles
+        for t in triangles:
+            fout.write(t)
+
+
+
+if __name__ == '__main__':
+    main()
