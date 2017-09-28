@@ -209,6 +209,7 @@ def get_patches(heights, projection_args, logo_north, logo_south, add_faces=True
     patch = get_map_patch(heights, projection_args,
                           pid=get_pid(), add_faces=add_faces)
     if add_faces and patches:
+        print(blue('Stitching patches...'))
         row_previous = points_at_z_extreme(patches[-1].points, extreme='min')
         faces = get_faces([row_previous, patch.points[0]])
         patches.append(Patch([], faces))
@@ -219,6 +220,7 @@ def get_patches(heights, projection_args, logo_north, logo_south, add_faces=True
         patch = get_logo_patch(logo_south, -phi_cap, protrusion,
                                pid=get_pid(), add_faces=add_faces)
         if add_faces and patches:
+            print(blue('Stitching patches...'))
             row = points_at_z_extreme(patch.points, extreme='max')
             faces = get_faces([patches[-1].points[-1], row])
             patches.append(Patch([], faces))
@@ -227,6 +229,7 @@ def get_patches(heights, projection_args, logo_north, logo_south, add_faces=True
         patch = get_cap_patch(-phi_cap, protrusion,
                               pid=get_pid(), add_faces=add_faces)
         if add_faces and patches:
+            print(blue('Stitching patches...'))
             faces = get_faces([patches[-1].points[-1], patch.points[0]])
             patches.append(Patch([], faces))
         patches.append(patch)
