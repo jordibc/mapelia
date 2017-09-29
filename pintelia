@@ -48,7 +48,7 @@ def main():
     add('--points', type=int, default=0,
         help='número de puntos a usar como máximo (o 0 para usar todos)')
     add('--no-ratio-check', action='store_true',
-        help='no arreglar el ratio altuo/ancho en ciertas proyecciones')
+        help='no arreglar el ratio alto/ancho en ciertas proyecciones')
     add('--fix-gaps', action='store_true',
         help='intenta rellenar los huecos en el mapa')
     args = parser.parse_args()

@@ -1,26 +1,38 @@
-mapelia
-=======
+Este repositorio contiene un grupo de programas relacionados con convertir
+imágenes con mapas a ficheros 3D.
 
-Convierte imágenes con mapas a ficheros 3D.
+* ``mapelia`` - convierte mapas en figuras 3D con relieves
+* ``guapelia`` - GUI opcional para usar mapelia
+* ``pintelia`` - convierte mapas en figuras 3D coloreadas
+* ``poligoniza`` - forma caras (polígonos) a partir de los puntos 3D
+* ``stl-split`` - divide un globo 3D en hemisferios norte y sur
 
-``mapelia`` es un programa para manipular ficheros de imágenes de mapas, y
-convertirlos en polígonos (`ply`_ o `stl`_) o puntos en el espacio (`asc`_)
-que pueden ser manipulados por programas como `MeshLab`_ o `Blender`_.
-
-Los mapas pueden estar en proyección `equirectangular`_, `de Mercator`_,
-`central cilíndrica`_, `de Mollweide`_ o `sinusoidal`_.
+Los mapas son imágenes ``jpg`` o ``png`` y pueden estar en proyección
+`equirectangular`_, `de Mercator`_, `central cilíndrica`_, `de Mollweide`_
+o `sinusoidal`_.
 
 .. _`equirectangular`: https://en.wikipedia.org/wiki/Equirectangular_projection
 .. _`de Mercator`: https://en.wikipedia.org/wiki/Mercator_projection
 .. _`central cilíndrica`: https://en.wikipedia.org/wiki/Central_cylindrical_projection
 .. _`de Mollweide`: https://en.wikipedia.org/wiki/Mollweide_projection
 .. _`sinusoidal`: https://en.wikipedia.org/wiki/Sinusoidal_projection
+
+El resultado de los programas son ficheros 3D (de polígonos como `ply`_ o
+`stl`_, o puntos en el espacio como `asc`_), que pueden ser visualizados y
+manipulados por programas como `MeshLab`_ o `Blender`_.
+
 .. _`ply`: https://en.wikipedia.org/wiki/PLY_(file_format)
 .. _`stl`: https://en.wikipedia.org/wiki/STL_(file_format)
 .. _`asc`: https://codeyarns.com/2011/08/17/asc-file-format-for-3d-points/
 .. _`MeshLab`: https://en.wikipedia.org/wiki/MeshLab
 .. _`Blender`: https://www.blender.org/
 
+
+mapelia
+=======
+
+``mapelia`` es un programa para manipular ficheros de imágenes de mapas, y
+convertirlos en figuras 3D con los relieves extraídos del mapa.
 
 Ejemplo
 -------
@@ -31,8 +43,8 @@ Empezando con la siguiente imagen:
 
 ejecutamos::
 
-  $ mapelia venus.png
-  Processing file venus.png ...
+  $ ./mapelia examples/venus.png
+  Processing file examples/venus.png ...
   - Extracting heights from image (channel "val")...
   Adding north cap...
   - Forming faces...
@@ -45,12 +57,11 @@ ejecutamos::
   - Forming faces...
   Stitching patches...
   - Forming faces...
-  The output is in file venus.ply
+  The output is in file examples/venus.ply
 
 y obtenemos:
 
 .. image:: examples/screenshot_meshlab.png
-
 
 Uso
 ---
@@ -109,6 +120,135 @@ Uso
                           False)
 
 
+pintelia
+========
+
+Ejemplo
+-------
+
+Ejecutando::
+
+  $ ./pintelia examples/earth_equirectangular.jpg --proj equirectangular
+  Processing file examples/earth_equirectangular.jpg ...
+  - Forming faces...
+  The output is in file examples/earth_equirectangular.ply
+
+obtenemos:
+
+.. image:: examples/screenshot_meshlab_pintelia.png
+
+
+Uso
+---
+
+  usage: pintelia [-h] [-o OUTPUT] [--overwrite]
+                  [--projection {mercator,cylindrical,mollweide,equirectangular,sinusoidal}]
+                  [--points POINTS] [--no-ratio-check] [--fix-gaps]
+                  image
+
+  Pinta en colores sobre la superficie de una esfera una imagen con un mapa.
+  Toma mapas de ficheros jpg, png, etc., y escribe ficheros ply (polígonos).
+
+  positional arguments:
+    image                 fichero de imagen con el mapa
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -o OUTPUT, --output OUTPUT
+                          fichero de salida (si vacío, se genera a partir del de
+                          entrada) (default: )
+    --overwrite           no comprobar si el fichero de salida existe (default:
+                          False)
+    --projection mercator_central-cylindrical_mollweide_equirectangular_sinusoidal
+                          tipo de proyección usada en el mapa (default:
+                          mercator)
+    --points POINTS       número de puntos a usar como máximo (o 0 para usar
+                          todos) (default: 0)
+    --no-ratio-check      no arreglar el ratio alto/ancho en ciertas
+                          proyecciones (default: False)
+    --fix-gaps            intenta rellenar los huecos en el mapa (default:
+                          False)
+
+
+poligoniza
+==========
+
+Ejemplo
+-------
+
+::
+  $ ./poligoniza ficheros_amelia/venus-out-12new.asc --type stl --invert
+  Processing file ficheros_amelia/venus-out-12new.asc ...
+  - Forming faces...
+  The output is in file ficheros_amelia/venus-out-12new.stl
+
+Uso
+---
+
+  usage: poligoniza [-h] [-o OUTPUT] [--overwrite] [--type {ply,stl}] [--ascii]
+                    [--invert] [--row-length ROW_LENGTH]
+                    file
+
+  Crea un fichero de polígonos (.ply o .stl) a partir de uno con sólo los puntos
+  (.asc). El fichero asc original debe tener los puntos en orden correspondiente
+  a las secciones de un objeto casi-esférico.
+
+  positional arguments:
+    file                  fichero asc con las coordenadas de los puntos
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -o OUTPUT, --output OUTPUT
+                          fichero de salida (si vacío, se genera a partir del de
+                          entrada) (default: )
+    --overwrite           no comprobar si el fichero de salida existe (default:
+                          False)
+    --type {ply,stl}      tipo de fichero a generar (default: ply)
+    --ascii               escribe el ply resultante en ascii (default: False)
+    --invert              invierte la orientación de las caras (default: False)
+    --row-length ROW_LENGTH
+                          número de puntos por sección (si 0, se autodetecta)
+                          (default: 0)
+
+
+stl-split
+=========
+
+Divide un stl en casquete norte y casquete sur.
+
+Ejemplo
+-------
+
+::
+  $ ./stl-split mars.stl
+  Processing file mars.stl ...
+  Writing file mars_N.stl ...
+  Writing file mars_S.stl ...
+
+Uso
+---
+
+  usage: stl-split [-h] [-n NAME] [--overwrite] file
+
+  Divide en dos mitades un fichero stl. La idea es ayudar a post-procesar
+  ficheros stl hechos con mapelia, para que se puedan imprimir más fácilmente.
+  El fichero original no se modifica, sino que se crean dos nuevos ficheros
+  acabados en "_N.stl" y "_S.stl".
+
+  positional arguments:
+    file                  fichero stl
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -n NAME, --name NAME  nombre de salida (si vacío, se genera a partir del de
+                          entrada) (default: )
+    --overwrite           no comprobar si los ficheros de salida existen
+                          (default: False)
+
+
+Posibles post-procesados
+========================
+
 Procesamiento con MeshLab
 -------------------------
 
@@ -138,7 +278,7 @@ Una forma posible de continuar procesando el asc desde blender:
 
 
 Mapas
------
+=====
 
 Datasets que se pueden considerar para Venus:
 
@@ -162,7 +302,7 @@ http://pds-geosciences.wustl.edu/mgn/mgn-v-gxdr-v1/mg_3002/gsdr/
 
 
 Mejoras
--------
+=======
 
 Para el futuro querría:
 
