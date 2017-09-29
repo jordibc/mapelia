@@ -212,3 +212,39 @@ Uso
     --row-length ROW_LENGTH
                           número de puntos por sección (si 0, se autodetecta)
                           (default: 0)
+
+
+stl-split
+=========
+
+Divide un stl en casquete norte y casquete sur.
+
+Ejemplo
+-------
+
+::
+
+  $ ./stl-split mars.stl
+  Processing file mars.stl ...
+  Writing file mars_N.stl ...
+  Writing file mars_S.stl ...
+
+Uso
+---
+
+  usage: stl-split [-h] [-n NAME] [--overwrite] file
+
+  Divide en dos mitades un fichero stl. La idea es ayudar a post-procesar
+  ficheros stl hechos con mapelia, para que se puedan imprimir más fácilmente.
+  El fichero original no se modifica, sino que se crean dos nuevos ficheros
+  acabados en "_N.stl" y "_S.stl".
+
+  positional arguments:
+    file                  fichero stl
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -n NAME, --name NAME  nombre de salida (si vacío, se genera a partir del de
+                          entrada) (default: )
+    --overwrite           no comprobar si los ficheros de salida existen
+                          (default: False)
