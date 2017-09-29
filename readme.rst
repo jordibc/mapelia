@@ -179,7 +179,36 @@ Ejemplo
 -------
 
 ::
+
   $ ./poligoniza ficheros_amelia/venus-out-12new.asc --type stl --invert
   Processing file ficheros_amelia/venus-out-12new.asc ...
   - Forming faces...
   The output is in file ficheros_amelia/venus-out-12new.stl
+
+Uso
+---
+
+  usage: poligoniza [-h] [-o OUTPUT] [--overwrite] [--type {ply,stl}] [--ascii]
+                    [--invert] [--row-length ROW_LENGTH]
+                    file
+
+  Crea un fichero de polígonos (.ply o .stl) a partir de uno con sólo los puntos
+  (.asc). El fichero asc original debe tener los puntos en orden correspondiente
+  a las secciones de un objeto casi-esférico.
+
+  positional arguments:
+    file                  fichero asc con las coordenadas de los puntos
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -o OUTPUT, --output OUTPUT
+                          fichero de salida (si vacío, se genera a partir del de
+                          entrada) (default: )
+    --overwrite           no comprobar si el fichero de salida existe (default:
+                          False)
+    --type {ply,stl}      tipo de fichero a generar (default: ply)
+    --ascii               escribe el ply resultante en ascii (default: False)
+    --invert              invierte la orientación de las caras (default: False)
+    --row-length ROW_LENGTH
+                          número de puntos por sección (si 0, se autodetecta)
+                          (default: 0)
