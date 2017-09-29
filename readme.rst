@@ -248,3 +248,75 @@ Uso
                           entrada) (default: )
     --overwrite           no comprobar si los ficheros de salida existen
                           (default: False)
+
+
+Posibles post-procesados
+========================
+
+Procesamiento con MeshLab
+-------------------------
+
+Una forma posible de continuar importando un fichero asc en meshlab:
+
+* Filters -> Sampling (tercero por abajo) -> Poisson-disk Sampling (a
+  la mitad) ; number of samples: 100000, con opción: Base Mesh
+  Subsampling.
+* Filters -> Normals, curvature and orientation -> Compute normals for
+  pointsets ; neigbors: 20.
+* Filters -> Point set -> Marching cubes (APSS) ; Grid resolution: 1000.
+* Filters -> Cleaning and Repairing -> Simplification MC: Edge Collapse.
+* Exportar a stl.
+
+
+Procesamiento con Blender
+-------------------------
+
+Una forma posible de continuar procesando el asc desde blender:
+
+* Con meshlab: exportar el asc como ply.
+* Importar con blender el nuevo ply.
+* Crear una "ico sphere" con 8 subdivisiones.
+* Escalar la esfera para que tenga un tamaño parecido a la nube de puntos.
+* Usar el modifier "shrinkwrap", poniendo como target la nube de puntos, y como modo "nearest vertex".
+* Exportar el resultado como ply.
+
+
+Mapas
+=====
+
+Datasets que se pueden considerar para Venus:
+
+* https://sos.noaa.gov/Datasets/dataset.php?id=218
+* http://www.maps-of-the-world.net/maps/space-maps/maps-of-venus/large-detailed-satellite-map-of-Venus.jpg
+* http://stevealbers.net/albers/sos/venus/venuscyl5.jpg
+* https://astrogeology.usgs.gov/search/map/Venus/Magellan/RadarProperties/Venus_Magellan_Topography_Global_4641m
+
+Datos de Magallanes
+~~~~~~~~~~~~~~~~~~~
+
+Para extraer elevaciones (radios planetarios) de latitudes y
+longitudes específicas en Venus, ir a:
+
+http://ode.rsl.wustl.edu/venus/pagehelp/quickstartguide/index.html?mgn_rdrs_gxdr.htm
+
+y ver el contenido de la sección “GTDR” (la 4ª desde arriba). Se
+pueden bajar los datos en 4 proyecciones distintas desde:
+
+http://pds-geosciences.wustl.edu/mgn/mgn-v-gxdr-v1/mg_3002/gsdr/
+
+
+Mejoras
+=======
+
+Para el futuro querría:
+
+* Añadir un interfaz gráfico decente.
+* Barra de progreso mientras escribe el fichero.
+* Hacer un preview de las imágenes de los mapas cuando se seleccionan.
+* Presentar estadísticas de desviación típica, componentes de Fourier y
+  similares, según el canal elegido para extraer la elevación.
+* Añadir un modo de selección de canal automático, según lo que parece más
+  prometedor por las estadísticas de la imagen.
+* Permitir abrir el resultado en meshlab o en blender si están disponibles.
+* Documentar el algoritmo que he escrito para conectar los puntos en triángulos
+  de la esfera.
