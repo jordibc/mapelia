@@ -121,3 +121,20 @@ Uso
                           proyecciones (default: False)
     --fix-gaps            intenta rellenar los huecos en el mapa (default:
                           False)
+
+pintelia
+========
+
+Ejemplo
+-------
+
+Ejecutando::
+
+  $ ./pintelia examples/earth_equirectangular.jpg --proj equirectangular
+  Processing file examples/earth_equirectangular.jpg ...
+  - Forming faces...
+  The output is in file examples/earth_equirectangular.ply
+
+obtenemos:
+
+.. image:: examples/screenshot_meshlab_pintelia.png
