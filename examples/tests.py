@@ -43,6 +43,12 @@ def test_poligoniza():
     run('../poligoniza moon.asc --type stl')
 
 
+def test_stl_split():
+    run('../mapelia wmap.jpg --projection mollweide --channel hue '
+        '--scale 0.10 --caps 8 --type stl')
+    run('../stl-split wmap.stl')
+
+
 def show_colored_rows():
     import os
     import sys
@@ -327,3 +333,4 @@ if __name__ == '__main__':
     test_mapelia()
     test_pintelia()
     test_poligoniza()
+    test_stl_split()
