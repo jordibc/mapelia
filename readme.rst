@@ -138,3 +138,35 @@ Ejecutando::
 obtenemos:
 
 .. image:: examples/screenshot_meshlab_pintelia.png
+
+
+Uso
+---
+
+  usage: pintelia [-h] [-o OUTPUT] [--overwrite]
+                  [--projection {mercator,cylindrical,mollweide,equirectangular,sinusoidal}]
+                  [--points POINTS] [--no-ratio-check] [--fix-gaps]
+                  image
+
+  Pinta en colores sobre la superficie de una esfera una imagen con un mapa.
+  Toma mapas de ficheros jpg, png, etc., y escribe ficheros ply (polígonos).
+
+  positional arguments:
+    image                 fichero de imagen con el mapa
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    -o OUTPUT, --output OUTPUT
+                          fichero de salida (si vacío, se genera a partir del de
+                          entrada) (default: )
+    --overwrite           no comprobar si el fichero de salida existe (default:
+                          False)
+    --projection mercator_central-cylindrical_mollweide_equirectangular_sinusoidal
+                          tipo de proyección usada en el mapa (default:
+                          mercator)
+    --points POINTS       número de puntos a usar como máximo (o 0 para usar
+                          todos) (default: 0)
+    --no-ratio-check      no arreglar el ratio alto/ancho en ciertas
+                          proyecciones (default: False)
+    --fix-gaps            intenta rellenar los huecos en el mapa (default:
+                          False)
