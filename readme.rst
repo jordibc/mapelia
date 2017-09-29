@@ -170,3 +170,16 @@ Uso
                           proyecciones (default: False)
     --fix-gaps            intenta rellenar los huecos en el mapa (default:
                           False)
+
+
+poligoniza
+==========
+
+Ejemplo
+-------
+
+::
+  $ ./poligoniza ficheros_amelia/venus-out-12new.asc --type stl --invert
+  Processing file ficheros_amelia/venus-out-12new.asc ...
+  - Forming faces...
+  The output is in file ficheros_amelia/venus-out-12new.stl
