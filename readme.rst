@@ -1,3 +1,6 @@
+mapelia y amigos
+================
+
 Este repositorio contiene un grupo de programas relacionados con convertir
 imágenes con mapas a ficheros 3D.
 
