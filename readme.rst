@@ -1,14 +1,14 @@
 mapelia y amigos
 ================
 
-Este repositorio contiene un grupo de programas relacionados con convertir
-imágenes con mapas a ficheros 3D.
+Este repositorio contiene varios programas relacionados con imágenes de mapas
+y ficheros 3D.
 
-* ``mapelia`` - convierte mapas en figuras 3D con relieves
-* ``guapelia`` - GUI opcional para usar mapelia
-* ``pintelia`` - convierte mapas en figuras 3D coloreadas
-* ``poligoniza`` - forma caras (polígonos) a partir de los puntos 3D
-* ``stl-split`` - divide un globo 3D en hemisferios norte y sur
+* ``mapelia`` ("mapas estilo Amelia") -- convierte mapas en figuras 3D con relieves.
+* ``guapelia`` ("mapelia con interfaz guapo") -- GUI opcional para usar mapelia.
+* ``pintelia`` ("pinta estilo Amelia") -- convierte mapas en figuras 3D coloreadas.
+* ``poligoniza`` -- forma caras (polígonos) a partir de puntos 3D.
+* ``stl-split`` -- divide un globo 3D en hemisferios norte y sur.
 
 Los mapas son imágenes ``jpg`` o ``png`` y pueden estar en proyección
 `equirectangular`_, `de Mercator`_, `central cilíndrica`_, `de Mollweide`_
@@ -34,7 +34,7 @@ manipulados por programas como `MeshLab`_ o `Blender`_.
 mapelia
 =======
 
-``mapelia`` es un programa para manipular ficheros de imágenes de mapas, y
+``mapelia`` es un programa para manipular ficheros de imágenes de mapas y
 convertirlos en figuras 3D con los relieves extraídos del mapa.
 
 Ejemplo
@@ -125,6 +125,9 @@ Uso
 pintelia
 ========
 
+``pintelia`` es un programa para proyectar mapas en esferas 3D con los colores
+originales del mapa.
+
 Ejemplo
 -------
 
@@ -174,6 +177,13 @@ Uso
 
 poligoniza
 ==========
+
+``poligoniza`` coge ficheros de puntos 3D (``.asc``) e intenta unirlos formando
+las caras de un sólido.
+
+Los puntos en el fichero original tienen que estar en cierto orden para que
+queden bien las caras. Por ejemplo, el orden en que ``mapelia`` genera los
+puntos (cuando no proyecta logos también).
 
 Ejemplo
 -------
