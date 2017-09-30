@@ -216,7 +216,7 @@ Uso
                           entrada) (default: )
     --overwrite           no comprobar si el fichero de salida existe (default:
                           False)
-    --type {ply,stl}      tipo de fichero a generar (default: ply)
+    --type ply_stl        tipo de fichero a generar (default: ply)
     --ascii               escribe el ply resultante en ascii (default: False)
     --invert              invierte la orientación de las caras (default: False)
     --row-length ROW_LENGTH
