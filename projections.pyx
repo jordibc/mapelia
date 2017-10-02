@@ -8,7 +8,7 @@ from using cython.
 from collections import namedtuple
 
 from numpy import (sin, cos, exp, arcsin, arccos, arctan, arctan2, sqrt,
-                   pi, nan, isnan, array, ones_like, linspace)
+                   pi, nan, isnan, ones_like, linspace)
 
 Point = namedtuple('Point', ['pid', 'x', 'y', 'z'])
 
@@ -289,12 +289,10 @@ def dist2(p0, p1):
     return dx*dx + dy*dy + dz*dz
 
 
-def points_at_z_extreme(points, extreme='max'):
+def points_at_extreme(points, sample_points=[]):
     "Return a list of points that correspond to the boundary of the given ones"
-    cdef double x, y, z, r
-
     class OrderedPoint:  # will use for sorting in theta order
-        def __init__(self, pid, x, y, z):
+        def __init__(self, pid, double x, double y, double z):
             self.pid = pid
             self.x = x
             self.y = y
@@ -305,23 +303,15 @@ def points_at_z_extreme(points, extreme='max'):
             theta = arctan2(p.y, p.x)
             return self.theta < theta
 
-    points_flat = array([p for row in points for p in row])
+    def rxy(p):
+        cdef double x, y
+        _, x, y, _ = p
+        return sqrt(x*x + y*y)
 
-    # Normalize points (make them have r=1).
-    for i in range(len(points_flat)):
-        pid, x, y, z = points_flat[i]
-        r = sqrt(x*x + y*y + z*z)
-        points_flat[i] = [pid, x / r, y / r, z / r]
+    sample_points = sample_points or points[1]
+    rxy_limit = sum(rxy(p) for p in sample_points) / len(sample_points)
 
-    if extreme == 'min':
-        zmin = points_flat[:,-1].min() + 1e-6
-        points_border = [OrderedPoint(pid, x, y, z)
-                            for pid, x, y, z in points_flat if z < zmin]
-    elif extreme == 'max':
-        zmax = points_flat[:,-1].max() - 1e-6
-        points_border = [OrderedPoint(pid, x, y, z)
-                            for pid, x, y, z in points_flat if z > zmax]
-    else:
-        raise ValueError('extreme must be either min or max')
+    points_border = [OrderedPoint(*p) for row in points for p in row
+                        if rxy(p) > rxy_limit]
 
-    return [Point(int(p.pid), p.x, p.y, p.z) for p in sorted(points_border)]
+    return [Point(p.pid, p.x, p.y, p.z) for p in sorted(points_border)]

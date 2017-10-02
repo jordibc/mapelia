@@ -29,7 +29,7 @@ from numpy import arctan2, sqrt, pi, nan, array, zeros, average
 
 try:
     from projections import (get_map_points, get_logo_points, get_cap_points,
-                             get_phi_cap, get_faces, points_at_z_extreme)
+                             get_phi_cap, get_faces, points_at_extreme)
 except ImportError:
     sys.exit('projections module not ready. You may want to first run:\n'
              '  %s setup.py build_ext --inplace' % sys.executable)
@@ -194,18 +194,19 @@ def get_patches(heights, projection_args, logo_north, logo_south, add_faces=True
         patch = get_logo_patch(logo_north, phi_cap, protrusion,
                                pid=get_pid(), add_faces=add_faces)
         patches.append(patch)
+        limiting_points = points_at_extreme(patch.points)
     elif caps != 'none':
         patch = get_cap_patch(phi_cap, protrusion,
                               pid=get_pid(), add_faces=add_faces)
         patches.append(patch)
+        limiting_points = patch.points[-1]
 
     # Map.
     patch = get_map_patch(heights, projection_args,
                           pid=get_pid(), add_faces=add_faces)
     if add_faces and patches:
         print(blue('Stitching patches...'))
-        row_previous = points_at_z_extreme(patches[-1].points, extreme='min')
-        faces = get_faces([row_previous, patch.points[0]])
+        faces = get_faces([limiting_points, patch.points[0]])
         patches.append(Patch([], faces))
     patches.append(patch)
 
@@ -215,8 +216,8 @@ def get_patches(heights, projection_args, logo_north, logo_south, add_faces=True
                                pid=get_pid(), add_faces=add_faces)
         if add_faces and patches:
             print(blue('Stitching patches...'))
-            row = points_at_z_extreme(patch.points, extreme='max')
-            faces = get_faces([patches[-1].points[-1], row])
+            limiting_points = points_at_extreme(patch.points)
+            faces = get_faces([patches[-1].points[-1], limiting_points])
             patches.append(Patch([], faces))
         patches.append(patch)
     elif caps != 'none':
