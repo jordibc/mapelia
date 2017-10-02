@@ -41,6 +41,7 @@ def main():
     with open(args.file, 'rb') as fin:
         fin.read(84)  # discard header + number of triangles
 
+        # North hemisphere.
         triangles = []
         while True:
             data = fin.read(12*4+2)
@@ -52,7 +53,8 @@ def main():
             triangles.append(data)
         write_stl(output_N, triangles)
 
-        triangles = []
+        # South hemisphere.
+        triangles = [data]  # include the first triangle
         while True:
             data = fin.read(12*4+2)
             if not data:
