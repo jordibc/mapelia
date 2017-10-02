@@ -15,8 +15,8 @@ Point = namedtuple('Point', ['pid', 'x', 'y', 'z'])
 red = lambda txt: '\x1b[31m%s\x1b[0m' % txt
 
 
-def get_map_points(heights, pid, ptype, npoints,
-                   scale, caps, meridian, protrusion):
+def get_map_points(heights, long pid, ptype, npoints,
+                   double scale, caps, meridian, double protrusion):
     "Return points on a sphere, modulated by the given heights"
     # The points returned look like a list of rows:
     # [[(0, x0_0, y0_0, z0_0), (1, x0_1, y0_1, z0_1), ...],
@@ -83,9 +83,9 @@ def get_map_points(heights, pid, ptype, npoints,
     return points
 
 
-def get_logo_points(heights, phi_max, protrusion=1, pid=0):
+def get_logo_points(heights, double phi_max, double protrusion=1, long pid=0):
     "Return list of rows with the points from the logo in fname"
-    cdef double x, y, z, r, theta, phi, dist
+    cdef double x, y, z, r, theta, phi, dist, sign_phi, abs_phi_max
 
     print('- Projecting logo...')
     # phi_max > 0 for the north cap, < 0 for the south one.
@@ -117,7 +117,7 @@ def get_logo_points(heights, phi_max, protrusion=1, pid=0):
     return points
 
 
-def get_cap_points(double r, double phi_max, int pid):
+def get_cap_points(double r, double phi_max, long pid):
     "Return lists of points that form the cap of radii r and from angle phi_max"
     cdef double x, y, z, theta, phi
 
