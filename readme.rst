@@ -31,6 +31,22 @@ manipulados por programas como `MeshLab`_ o `Blender`_.
 .. _`Blender`: https://www.blender.org/
 
 
+Instalación
+===========
+
+La primera vez que se baja este repositorio, hace falta ejecutar::
+
+  $ python3 setup.py build_ext --inplace
+
+de forma que se genera el módulo `projections` a partir de `projections.c`.
+
+Si se desea modificar el fichero `projections.pyx`, hará falta además hacer
+previamente::
+
+  $ cython3 -a projections.pyx
+
+para regenerar el fichero `projections.c`.
+
 mapelia
 =======
 
