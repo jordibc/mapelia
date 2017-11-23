@@ -37,6 +37,7 @@ except ImportError:
 from formats import write_ply, write_asc, write_stl
 
 Patch = namedtuple('Patch', ['points', 'faces'])
+Logo = namedtuple('Logo', ['image', 'scale'])
 
 def ansi(n, bold=False):
     "Return function that escapes text with ANSI color n"
@@ -73,7 +74,11 @@ def get_parser():
     add('--caps', default='auto',
         help='ángulo (en grados) al que llegan los casquetes (o auto o none)')
     add('--logo-north', default='', help='fichero de imagen con el logo norte')
+    add('--logo-north-scale', type=float, default=1.0,
+        help='factor de escalado del logo norte')
     add('--logo-south', default='', help='fichero de imagen con el logo sur')
+    add('--logo-south-scale', type=float, default=1.0,
+        help='factor de escalado del logo sur')
     add('--meridian', default='0',
         help='longitud (en grados) donde colocar el meridiano (o none)')
     add('--protrusion', type=float, default=1.02,
@@ -123,9 +128,11 @@ def process(args):
                        'meridian': meridian,
                        'protrusion': args.protrusion}
 
+    logo_args = {'north': Logo(args.logo_north, args.logo_north_scale),
+                 'south': Logo(args.logo_south, args.logo_south_scale)}
+
     add_faces = args.type in ['ply', 'stl']
-    patches = get_patches(heights, projection_args,
-                          args.logo_north, args.logo_south, add_faces)
+    patches = get_patches(heights, projection_args, logo_args, add_faces)
     if   args.type == 'asc':  write_asc(output, patches)
     elif args.type == 'ply':  write_ply(output, patches)
     elif args.type == 'stl':  write_stl(output, patches)
@@ -179,7 +186,7 @@ def check_if_exists(fname):
             sys.exit('Cancelling.')
 
 
-def get_patches(heights, projection_args, logo_north, logo_south, add_faces=True):
+def get_patches(heights, projection_args, logo_args, add_faces=True):
     "Return a list of the patches (points and faces) that form the figure"
     patches = []
 
@@ -190,8 +197,8 @@ def get_patches(heights, projection_args, logo_north, logo_south, add_faces=True
     get_pid = lambda: patches[-1].points[-1][-1].pid + 1 if patches else 0
 
     # Logo / North cap.
-    if logo_north:
-        patch = get_logo_patch(logo_north, phi_cap, protrusion,
+    if logo_args['north'].image:
+        patch = get_logo_patch(logo_args['north'], phi_cap, protrusion,
                                pid=get_pid(), add_faces=add_faces)
         patches.append(patch)
         limiting_points = points_at_extreme(patch.points)
@@ -211,8 +218,8 @@ def get_patches(heights, projection_args, logo_north, logo_south, add_faces=True
     patches.append(patch)
 
     # South cap.
-    if logo_south:
-        patch = get_logo_patch(logo_south, -phi_cap, protrusion,
+    if logo_args['south'].image:
+        patch = get_logo_patch(logo_args['south'], -phi_cap, protrusion,
                                pid=get_pid(), add_faces=add_faces)
         if add_faces and patches:
             print(blue('Stitching patches...'))
@@ -251,10 +258,12 @@ def get_cap_patch(phi_cap, protrusion, pid=0, add_faces=True):
 def get_logo_patch(logo, phi_cap, protrusion, pid=0, add_faces=True):
     "Return patch (points, faces) containing the logo"
     print(blue('Adding logo...'))
-    if not os.path.isfile(logo):
-        sys.exit('File %s does not exist.' % logo)
-    img = Image.open(logo)
+    if not os.path.isfile(logo.image):
+        sys.exit('File %s does not exist.' % logo.image)
+    img = Image.open(logo.image)
     heights_logo = get_heights(img)
+    heights_logo /= heights_logo.max()
+    heights_logo *= logo.scale
     points = get_logo_points(heights_logo, phi_max=phi_cap,
                              protrusion=protrusion, pid=pid)
     faces = get_faces(points) if add_faces else []

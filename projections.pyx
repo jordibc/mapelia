@@ -5,6 +5,11 @@ They are also the most computationally-intensive and thus can benefit
 from using cython.
 """
 
+# If you modify this file, you can recreate projections.c by running:
+#   cython3 -a projections.pyx
+# Then, you can create the python module with:
+#   python3 setup.py build_ext --inplace
+
 from collections import namedtuple
 
 from numpy import (sin, cos, exp, arcsin, arccos, arctan, arctan2, sqrt,
@@ -101,7 +106,7 @@ def get_logo_points(heights, double phi_max, double protrusion=1, long pid=0):
             dist = sqrt( (i - nx_2)**2 + (j - ny_2)**2 ) / N_2
             if dist > 1:
                 continue  # only values inside the circle
-            r = protrusion + (protrusion - 1) * heights[j, i] / heights.max()
+            r = protrusion + (protrusion - 1) * heights[j, i]
             theta = sign_phi * arctan2(ny_2 - j, i - nx_2)
             phi = sign_phi * (pi / 2 - (pi / 2 - abs_phi_max) * dist)
 
