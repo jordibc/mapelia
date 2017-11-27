@@ -266,7 +266,7 @@ def get_logo_patch(logo, phi_cap, protrusion, pid=0, add_faces=True):
     heights_logo *= logo.scale
     points = get_logo_points(heights_logo, phi_max=phi_cap,
                              protrusion=protrusion, pid=pid)
-    faces = get_faces(points) if add_faces else []
+    faces = get_faces(points, close_figure=False) if add_faces else []
     return Patch(points, faces)
 
 

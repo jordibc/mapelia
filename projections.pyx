@@ -151,12 +151,11 @@ def get_cap_points(double r, double phi_max, long pid):
 
 def get_phi_cap(caps, heights, ptype):
     "Return the angle at which the cap ends"
-    if caps == 'auto':
+    if caps in ['auto', 'none']:
         ny, nx = heights.shape
         get_theta, get_phi = projection_functions(ptype, nx, ny)
         return get_phi(ny // 2)
-    elif caps == 'none':
-        return pi / 2
+        # If caps == 'none' that value will only be used for the logo.
     else:  # caps is an angle then
         return pi / 2 - pi * float(caps) / 180
 
@@ -230,7 +229,7 @@ def projection_functions(ptype, int nx, int ny):
     return get_theta, get_phi
 
 
-def get_faces(points):
+def get_faces(points, close_figure=True):
     "Return faces as triplets of point indices"
     # points must be a list of rows, each containing the actual points
     # that correspond to a (closed!) section of an object.
@@ -268,12 +267,15 @@ def get_faces(points):
                 else:
                     break
             # Triangle from the current position to the next one and the dog.
-            human_next = row_current[(i + 1) % len(row_current)]
-            faces.append((h().pid, human_next.pid, d().pid))
-        while dog != 0:  # we have to close the figure
-            dog_walking = (dog + 1) % len(row_previous)
-            faces.append((row_current[0].pid, dw().pid, d().pid))
-            dog = dog_walking
+            if i + 1 < len(row_current):
+                faces.append((h().pid, row_current[i + 1].pid, d().pid))
+            elif close_figure:
+                faces.append((h().pid, row_current[0].pid, d().pid))
+        if close_figure:
+            while dog != 0:  # we have to close the figure
+                dog_walking = (dog + 1) % len(row_previous)
+                faces.append((row_current[0].pid, dw().pid, d().pid))
+                dog = dog_walking
     return faces
 
 
