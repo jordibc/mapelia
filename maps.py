@@ -75,10 +75,10 @@ def get_parser():
         help='ángulo (en grados) al que llegan los casquetes (o auto o none)')
     add('--logo-north', default='', help='fichero de imagen con el logo norte')
     add('--logo-north-scale', type=float, default=1.0,
-        help='factor de escalado del logo norte')
+        help='factor de escalado del logo norte (puede ser < 0 para grabados)')
     add('--logo-south', default='', help='fichero de imagen con el logo sur')
     add('--logo-south-scale', type=float, default=1.0,
-        help='factor de escalado del logo sur')
+        help='factor de escalado del logo sur (puede ser < 0 para grabados)')
     add('--meridian', default='0',
         help='longitud (en grados) donde colocar el meridiano (o none)')
     add('--protrusion', type=float, default=1.02,
