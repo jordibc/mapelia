@@ -207,7 +207,7 @@ def projection_functions(ptype, int nx, int ny):
             return arcsin(aux2) if -1 < aux2 < 1 else nan
     elif ptype == 'equirectangular':
         # Equirectangular projection:
-        #   x =  r * theta
+        #   x = r * theta
         #   y = r * phi
         # Inverse:
         #   theta = x / r
