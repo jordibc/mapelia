@@ -298,18 +298,6 @@ def dist2(p0, p1):
 
 def points_at_extreme(points, sample_points=[]):
     "Return a list of points that correspond to the boundary of the given ones"
-    class OrderedPoint:  # will use for sorting in theta order
-        def __init__(self, pid, double x, double y, double z):
-            self.pid = pid
-            self.x = x
-            self.y = y
-            self.z = z
-            self.theta = arctan2(y, x)
-
-        def __lt__(self, p):
-            theta = arctan2(p.y, p.x)
-            return self.theta < theta
-
     def rxy(p):
         cdef double x, y
         _, x, y, _ = p
@@ -318,7 +306,5 @@ def points_at_extreme(points, sample_points=[]):
     sample_points = sample_points or points[1]
     rxy_limit = sum(rxy(p) for p in sample_points) / len(sample_points)
 
-    points_border = [OrderedPoint(*p) for row in points for p in row
-                        if rxy(p) > rxy_limit]
-
-    return [Point(p.pid, p.x, p.y, p.z) for p in sorted(points_border)]
+    return sorted((p for row in points for p in row if rxy(p) > rxy_limit),
+                  key=lambda p: arctan2(p[2], p[1]))
