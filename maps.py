@@ -181,9 +181,11 @@ def check_meridian(meridian):
 
 def check_if_exists(fname):
     if os.path.exists(fname):
-        answer = input('File %s already exists. Overwrite? [y/n] ' % fname)
-        if not answer.lower().startswith('y'):
-            sys.exit('Cancelling.')
+        try:
+            answer = input('File %s already exists. Overwrite? [y/n] ' % fname)
+            assert answer.lower().startswith('y')
+        except (KeyboardInterrupt, AssertionError):
+            sys.exit('\nCancelling.')
 
 
 def get_patches(heights, projection_args, logo_args, add_faces=True):
