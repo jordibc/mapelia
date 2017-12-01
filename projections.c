@@ -8377,7 +8377,7 @@ static PyObject *__pyx_pf_11projections_8projection_functions(CYTHON_UNUSED PyOb
  *             return arcsin(aux2) if -1 < aux2 < 1 else nan
  *     elif ptype == 'equirectangular':             # <<<<<<<<<<<<<<
  *         # Equirectangular projection:
- *         #   x =  r * theta
+ *         #   x = r * theta
  */
   __pyx_t_5 = (__Pyx_PyString_Equals(__pyx_v_ptype, __pyx_n_s_equirectangular, Py_EQ)); if (unlikely(__pyx_t_5 < 0)) __PYX_ERR(0, 208, __pyx_L1_error)
   if (__pyx_t_5) {
@@ -8411,7 +8411,7 @@ static PyObject *__pyx_pf_11projections_8projection_functions(CYTHON_UNUSED PyOb
  *             return arcsin(aux2) if -1 < aux2 < 1 else nan
  *     elif ptype == 'equirectangular':             # <<<<<<<<<<<<<<
  *         # Equirectangular projection:
- *         #   x =  r * theta
+ *         #   x = r * theta
  */
     goto __pyx_L3;
   }
