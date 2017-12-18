@@ -47,31 +47,26 @@ def main():
         check_if_exists(output_N)
         check_if_exists(output_S)
 
-    print('Processing file %s ...' % args.file)
-    with open(args.file, 'rb') as fin:
+    triangles_N, triangles_S = extract_triangles(args.file)
+    write_stl(output_N, triangles_N)
+    write_stl(output_S, triangles_S)
+
+
+def extract_triangles(fname):
+    "Return lists of triangles on the north and south sides of stl file fname"
+    print('Processing file %s ...' % fname)
+    triangles_N = []
+    triangles_S = []
+    with open(fname, 'rb') as fin:
         fin.read(84)  # discard header + number of triangles
         size_triangle = 12 * 4 + 2  # 12 floats and 2 dummy bytes
-
-        # North hemisphere.
-        triangles = []
-        while True:
-            data = fin.read(size_triangle)
-            if not data:
-                sys.exit('Could not cut the figure in half.')
-            v1_z = struct.unpack('<f', data[20:24])[0]
-            if v1_z < 0:  # z component of the 1st vertex
-                break
-            triangles.append(data)
-        write_stl(output_N, triangles)
-
-        # South hemisphere.
-        triangles = [data]  # include the first triangle
-        while True:
-            data = fin.read(size_triangle)
-            if not data:
-                break
-            triangles.append(data)
-        write_stl(output_S, triangles)
+        for data in iter(lambda: fin.read(size_triangle), b''):
+            v1_z, _, _, v2_z, _, _, v3_z = struct.unpack('<7f', data[20:48])
+            if v1_z + v2_z + v3_z >= 0:  # z components
+                triangles_N.append(data)
+            else:
+                triangles_S.append(data)
+    return triangles_N, triangles_S
 
 
 def write_stl(fname, triangles):
