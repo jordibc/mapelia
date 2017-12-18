@@ -91,8 +91,8 @@ Uso
                  [--points POINTS] [--scale SCALE] [--caps CAPS]
                  [--logo-north LOGO_NORTH] [--logo-north-scale LOGO_NORTH_SCALE]
                  [--logo-south LOGO_SOUTH] [--logo-south-scale LOGO_SOUTH_SCALE]
-                 [--meridian MERIDIAN] [--protrusion PROTRUSION]
-                 [--no-ratio-check] [--fix-gaps]
+                 [--meridian MERIDIAN] [--thickness THICKNESS]
+                 [--protrusion PROTRUSION] [--no-ratio-check] [--fix-gaps]
                  image
 
   Convierte imágenes con mapas a ficheros 3D. Toma mapas de ficheros jpg, png,
@@ -128,13 +128,18 @@ Uso
     --logo-north LOGO_NORTH
                           fichero de imagen con el logo norte (default: )
     --logo-north-scale LOGO_NORTH_SCALE
-                          factor de escalado del logo norte (default: 1.0)
+                          factor de escalado del logo norte (puede ser < 0 para
+                          grabados) (default: 1.0)
     --logo-south LOGO_SOUTH
                           fichero de imagen con el logo sur (default: )
     --logo-south-scale LOGO_SOUTH_SCALE
-                          factor de escalado del logo sur (default: 1.0)
+                          factor de escalado del logo sur (puede ser < 0 para
+                          grabados) (default: 1.0)
     --meridian MERIDIAN   longitud (en grados) donde colocar el meridiano (o
                           none) (default: 0)
+    --thickness THICKNESS
+                          grosor del objeto generado (< 1 para que sea
+                          parcialmente hueco) (default: 1)
     --protrusion PROTRUSION
                           fracción en la que sobresalen meridiano y casquetes
                           del máximo (default: 1.02)

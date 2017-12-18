@@ -122,24 +122,29 @@ def get_logo_points(heights, double phi_max, double protrusion=1, long pid=0):
     return points
 
 
-def get_cap_points(double r, double phi_max, long pid):
+def get_cap_points(r, phi_max, pid):
     "Return lists of points that form the cap of radii r and from angle phi_max"
+    if phi_max > 0:
+        phi_start, phi_end = pi / 2, phi_max
+    else:
+        phi_start, phi_end = phi_max, -pi / 2
+    return get_sphere_points(r, phi_start, phi_end, pid)
+
+
+def get_sphere_points(double r, double phi_start, double phi_end, long pid):
+    "Return lists of points on a sphere of radii r, from phi_start to phi_end"
     cdef double x, y, z, theta, phi
 
-    rcphin, rsphin = r * cos(phi_max), r * sin(phi_max)
-    if phi_max > 0:
-        phi_start, phi_end, limit = pi / 2, phi_max, r
-    else:
-        phi_start, phi_end, limit = phi_max, -pi / 2, -r
+    nphi = max(10, 10 * abs(phi_end - phi_start))
     points = []
-    for phi in linspace(phi_start, phi_end, 10):
+    for phi in linspace(phi_start, phi_end, nphi):
         row = []
-        rcphi, rsphi = r * cos(phi), r * sin(phi)
-        z = rsphi
+        z = r * sin(phi)
         if abs(z - r) < 1e-6:  # we are at an extreme
             row.append(Point(pid, 0, 0, z))  # just put one point
             pid += 1
         else:
+            rcphi = r * cos(phi)
             for theta in linspace(-pi, pi, max(9, int(100 * cos(phi)))):
                 x = cos(theta) * rcphi
                 y = sin(theta) * rcphi
@@ -308,3 +313,11 @@ def points_at_extreme(points, sample_points=[]):
 
     return sorted((p for row in points for p in row if rxy(p) > rxy_limit),
                   key=lambda p: arctan2(p[2], p[1]))
+
+
+def invert(faces):
+    "Return a list of faces with the inverse orientation"
+    inverted_faces = []
+    for p0, p1, p2 in faces:
+        inverted_faces.append((p0, p2, p1))
+    return inverted_faces

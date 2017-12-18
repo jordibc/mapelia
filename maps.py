@@ -28,8 +28,7 @@ from PIL import Image
 from numpy import arctan2, sqrt, pi, nan, array, zeros, average
 
 try:
-    from projections import (get_map_points, get_logo_points, get_cap_points,
-                             get_phi_cap, get_faces, points_at_extreme)
+    import projections as pj
 except ImportError:
     sys.exit('projections module not ready. You may want to first run:\n'
              '  %s setup.py build_ext --inplace' % sys.executable)
@@ -81,6 +80,8 @@ def get_parser():
         help='factor de escalado del logo sur (puede ser < 0 para grabados)')
     add('--meridian', default='0',
         help='longitud (en grados) donde colocar el meridiano (o none)')
+    add('--thickness', type=float, default=1,
+        help='grosor del objeto generado (< 1 para que sea parcialmente hueco)')
     add('--protrusion', type=float, default=1.02,
         help='fracción en la que sobresalen meridiano y casquetes del máximo')
     add('--no-ratio-check', action='store_true',
@@ -91,6 +92,7 @@ def get_parser():
 
 
 def process(args):
+    "Create a 3d file from an image and return its name"
     if not os.path.isfile(args.image):
         sys.exit('File %s does not exist.' % args.image)
 
@@ -132,7 +134,8 @@ def process(args):
                  'south': Logo(args.logo_south, args.logo_south_scale)}
 
     add_faces = args.type in ['ply', 'stl']
-    patches = get_patches(heights, projection_args, logo_args, add_faces)
+    patches = get_patches(heights, projection_args, logo_args, args.thickness,
+                          add_faces)
     if   args.type == 'asc':  write_asc(output, patches)
     elif args.type == 'ply':  write_ply(output, patches)
     elif args.type == 'stl':  write_stl(output, patches)
@@ -188,13 +191,13 @@ def check_if_exists(fname):
             sys.exit('\nCancelling.')
 
 
-def get_patches(heights, projection_args, logo_args, add_faces=True):
+def get_patches(heights, projection_args, logo_args, thickness, add_faces=True):
     "Return a list of the patches (points and faces) that form the figure"
     patches = []
 
     protrusion = projection_args['protrusion'] * (1 + projection_args['scale'] / 2)
     caps = projection_args['caps']
-    phi_cap = get_phi_cap(caps, heights, projection_args['ptype'])
+    phi_cap = pj.get_phi_cap(caps, heights, projection_args['ptype'])
 
     get_pid = lambda: patches[-1].points[-1][-1].pid + 1 if patches else 0
 
@@ -203,7 +206,7 @@ def get_patches(heights, projection_args, logo_args, add_faces=True):
         patch = get_logo_patch(logo_args['north'], phi_cap, protrusion,
                                pid=get_pid(), add_faces=add_faces)
         patches.append(patch)
-        limiting_points = points_at_extreme(patch.points)
+        limiting_points = pj.points_at_extreme(patch.points)
     elif caps != 'none':
         patch = get_cap_patch(phi_cap, protrusion,
                               pid=get_pid(), add_faces=add_faces)
@@ -215,7 +218,7 @@ def get_patches(heights, projection_args, logo_args, add_faces=True):
                           pid=get_pid(), add_faces=add_faces)
     if add_faces and patches:
         print(blue('Stitching patches...'))
-        faces = get_faces([limiting_points, patch.points[0]])
+        faces = pj.get_faces([limiting_points, patch.points[0]])
         patches.append(Patch([], faces))
     patches.append(patch)
 
@@ -225,8 +228,8 @@ def get_patches(heights, projection_args, logo_args, add_faces=True):
                                pid=get_pid(), add_faces=add_faces)
         if add_faces and patches:
             print(blue('Stitching patches...'))
-            limiting_points = points_at_extreme(patch.points)
-            faces = get_faces([patches[-1].points[-1], limiting_points])
+            limiting_points = pj.points_at_extreme(patch.points)
+            faces = pj.get_faces([patches[-1].points[-1], limiting_points])
             patches.append(Patch([], faces))
         patches.append(patch)
     elif caps != 'none':
@@ -234,9 +237,14 @@ def get_patches(heights, projection_args, logo_args, add_faces=True):
                               pid=get_pid(), add_faces=add_faces)
         if add_faces and patches:
             print(blue('Stitching patches...'))
-            faces = get_faces([patches[-1].points[-1], patch.points[0]])
+            faces = pj.get_faces([patches[-1].points[-1], patch.points[0]])
             patches.append(Patch([], faces))
         patches.append(patch)
+
+    # Inner sphere (to make the ball hollow).
+    if 0 < thickness < 1:
+        patches.append(get_sphere_patch(1 - thickness,
+                                        pid=get_pid(), add_faces=add_faces))
 
     return patches
 
@@ -244,16 +252,24 @@ def get_patches(heights, projection_args, logo_args, add_faces=True):
 def get_map_patch(heights, projection_args, pid=0, add_faces=True):
     "Return patch (points, faces) containing the map"
     print(blue('Adding map...'))
-    points = get_map_points(heights, pid=pid, **projection_args)
-    faces = get_faces(points) if add_faces else []
+    points = pj.get_map_points(heights, pid=pid, **projection_args)
+    faces = pj.get_faces(points) if add_faces else []
     return Patch(points, faces)
 
 
 def get_cap_patch(phi_cap, protrusion, pid=0, add_faces=True):
     "Return patch (points, faces) containing the cap"
     print(blue('Adding %s cap...' % ('north' if phi_cap > 0 else 'south')))
-    points = get_cap_points(protrusion, phi_max=phi_cap, pid=pid)
-    faces = get_faces(points) if add_faces else []
+    points = pj.get_cap_points(protrusion, phi_max=phi_cap, pid=pid)
+    faces = pj.get_faces(points) if add_faces else []
+    return Patch(points, faces)
+
+
+def get_sphere_patch(r, pid=0, add_faces=True):
+    "Return patch (points, faces) containing the inner sphere"
+    print(blue('Adding inner sphere...'))
+    points = pj.get_sphere_points(r, phi_start=pi/2, phi_end=-pi/2, pid=pid)
+    faces = pj.invert(pj.get_faces(points)) if add_faces else []
     return Patch(points, faces)
 
 
@@ -266,9 +282,9 @@ def get_logo_patch(logo, phi_cap, protrusion, pid=0, add_faces=True):
     heights_logo = get_heights(img)
     heights_logo /= heights_logo.max()
     heights_logo *= logo.scale
-    points = get_logo_points(heights_logo, phi_max=phi_cap,
-                             protrusion=protrusion, pid=pid)
-    faces = get_faces(points, close_figure=False) if add_faces else []
+    points = pj.get_logo_points(heights_logo, phi_max=phi_cap,
+                                protrusion=protrusion, pid=pid)
+    faces = pj.get_faces(points, close_figure=False) if add_faces else []
     return Patch(points, faces)
 
 
