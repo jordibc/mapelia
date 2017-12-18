@@ -31,6 +31,10 @@ def test_mapelia():
     run('../mapelia earth_central-cylindrical.jpg '
         '--projection central-cylindrical --caps 30 --meridian 90 '
         '--scale 0.05 --protrusion 1.2 --type stl')
+    run('../mapelia venus.png --thickness 0.2 --type stl --meridian none')
+    run('../mapelia venus.png --output venus_with_logos.ply '
+        '--logo-north logo_observatori.png --logo-north-scale -0.5 '
+        '--logo-south logo_observatori.png --logo-south-scale 2')
 
 
 def test_pintelia():
@@ -45,7 +49,7 @@ def test_poligoniza():
 
 def test_stl_split():
     run('../mapelia wmap.jpg --projection mollweide --channel hue '
-        '--scale 0.10 --caps 8 --type stl')
+        '--scale 0.10 --caps 8 --thickness 0.2 --type stl')
     run('../stl-split wmap.stl')
 
 
