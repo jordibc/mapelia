@@ -183,6 +183,7 @@ def sphere():
             z = np.sin(phi)
             yield (x, y, z)
 
+
 def write_sphere_asc():
     "Write file sphere.asc with points of a sphere"
     with open('sphere.asc', 'wt') as fout:

@@ -18,6 +18,7 @@ manipular con programas como MeshLab o Blender.
 # TODO:
 # * Allow the use of an external 1xN image with the colors that
 #   correspond to different heights.
+# * Add option to remove parallels and meridians in the original image.
 
 import sys
 import os
