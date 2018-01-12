@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 """
-Divide en dos mitades un fichero stl.
+Divide un fichero stl.
 
 La idea es ayudar a post-procesar ficheros stl hechos con mapelia, para
 que se puedan imprimir más fácilmente. El fichero original no se modifica,
-sino que se crean dos nuevos ficheros acabados en "_N.stl" y "_S.stl".
+sino que se crean dos nuevos ficheros acabados en "_N.stl" y "_S.stl"
+(o "_head.stl" y "_tail.stl" si se usa la opción --number).
 """
 
 import sys
@@ -25,6 +26,8 @@ def main():
     add('file', help='fichero stl')
     add('-n', '--name', default='',
         help='nombre de salida (si vacío, se genera a partir del de entrada)')
+    add('--number', type=int, default=0,
+        help='separar dejando el número dado de triángulos en el primero')
     add('--overwrite', action='store_true',
         help='no comprobar si los ficheros de salida existen')
     add('--ignore-check', action='store_true',
@@ -40,33 +43,32 @@ def main():
         else:
             sys.exit('Cancelling (use --ignore-check to force processing it).')
 
+    if args.number == 0:
+        def find_class(n, data):
+            v1_z, _, _, v2_z, _, _, v3_z = struct.unpack('<7f', data[20:48])
+            return 'N' if v1_z + v2_z + v3_z >= 0 else 'S'
+    else:
+        def find_class(n, data):
+            return 'head' if n < args.number else 'tail'
+
     name = args.name or args.file.rsplit('.', 1)[0]
-    output_N = '%s_N.stl' % name
-    output_S = '%s_S.stl' % name
-    if not args.overwrite:
-        check_if_exists(output_N)
-        check_if_exists(output_S)
-
-    triangles_N, triangles_S = extract_triangles(args.file)
-    write_stl(output_N, triangles_N)
-    write_stl(output_S, triangles_S)
+    for group, triangles in extract_triangles(args.file, find_class).items():
+        output = '%s_%s.stl' % (name, group)
+        if not args.overwrite:
+            check_if_exists(output)
+        write_stl(output, triangles)
 
 
-def extract_triangles(fname):
-    "Return lists of triangles on the north and south sides of stl file fname"
+def extract_triangles(fname, find_class):
+    "Return dict with the triangles belonging to each class of stl file fname"
     print('Processing file %s ...' % fname)
-    triangles_N = []
-    triangles_S = []
+    triangles = {}
     with open(fname, 'rb') as fin:
         fin.read(84)  # discard header + number of triangles
         size_triangle = 12 * 4 + 2  # 12 floats and 2 dummy bytes
-        for data in iter(lambda: fin.read(size_triangle), b''):
-            v1_z, _, _, v2_z, _, _, v3_z = struct.unpack('<7f', data[20:48])
-            if v1_z + v2_z + v3_z >= 0:  # z components
-                triangles_N.append(data)
-            else:
-                triangles_S.append(data)
-    return triangles_N, triangles_S
+        for i, data in enumerate(iter(lambda: fin.read(size_triangle), b'')):
+            triangles.setdefault(find_class(i, data), []).append(data)
+    return triangles
 
 
 def write_stl(fname, triangles):
