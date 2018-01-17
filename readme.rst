@@ -308,16 +308,3 @@ Una forma posible de continuar importando un fichero asc en meshlab:
 * Filters -> Point set -> Marching cubes (APSS) ; Grid resolution: 1000.
 * Filters -> Cleaning and Repairing -> Simplification MC: Edge Collapse.
 * Exportar a stl.
-
-
-Procesamiento con Blender
--------------------------
-
-Una forma posible de continuar procesando el asc desde blender:
-
-* Con meshlab: exportar el asc como ply.
-* Importar con blender el nuevo ply.
-* Crear una "ico sphere" con 8 subdivisiones.
-* Escalar la esfera para que tenga un tamaño parecido a la nube de puntos.
-* Usar el modifier "shrinkwrap", poniendo como target la nube de puntos, y como modo "nearest vertex".
-* Exportar el resultado como ply.
