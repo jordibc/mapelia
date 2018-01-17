@@ -268,12 +268,14 @@ Ejemplo
 Uso
 ---
 
-  usage: stl-split [-h] [-n NAME] [--overwrite] file
+  usage: stl-split [-h] [-n NAME] [--number NUMBER] [--overwrite]
+                   [--ignore-check]
+                   file
 
-  Divide en dos mitades un fichero stl. La idea es ayudar a post-procesar
-  ficheros stl hechos con mapelia, para que se puedan imprimir más fácilmente.
-  El fichero original no se modifica, sino que se crean dos nuevos ficheros
-  acabados en "_N.stl" y "_S.stl".
+  Divide un fichero stl. La idea es ayudar a post-procesar ficheros stl hechos
+  con mapelia, para que se puedan imprimir más fácilmente. El fichero original
+  no se modifica, sino que se crean dos nuevos ficheros acabados en "_N.stl" y
+  "_S.stl" (o "_head.stl" y "_tail.stl" si se usa la opción --number).
 
   positional arguments:
     file                  fichero stl
@@ -282,8 +284,12 @@ Uso
     -h, --help            show this help message and exit
     -n NAME, --name NAME  nombre de salida (si vacío, se genera a partir del de
                           entrada) (default: )
+    --number NUMBER       separar dejando el número dado de triángulos en el
+                          primero (default: 0)
     --overwrite           no comprobar si los ficheros de salida existen
                           (default: False)
+    --ignore-check        forzar el procesado del fichero aunque no parezca un
+                          stl (default: False)
 
 
 Posibles post-procesados
