@@ -72,7 +72,7 @@ def extract_triangles(fname, find_class):
 
 
 def write_stl(fname, triangles):
-    "Write binary-encoded list of triangles as a stl file"
+    "Write binary-encoded list of triangles as an stl file"
     print('Writing file %s ...' % fname)
     with open(fname, 'wb') as fout:
         fout.write(b'\0' * 80)  # header (empty)
