@@ -132,6 +132,9 @@ def create_expander(name, text, parent):
     expander = Gtk.Expander()
     expander.set_label(name)
     label = Gtk.Label()
+    for c, esc in [('<', '&lt;'),
+                   ('>', '&gt;')]:
+        text = text.replace(c, esc)
     label.set_markup('<tt>%s</tt>' % text)
     expander.add(label)
     expander.connect('activate', lambda widget: parent.resize(1, 1))
