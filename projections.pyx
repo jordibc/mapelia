@@ -72,7 +72,8 @@ def get_map_points(heights, long pid, ptype, npoints,
             if isnan(theta):
                 continue
 
-            if not isnan(meridian) and abs(meridian - theta) < 0.02:
+            if (not isnan(meridian) and
+                abs(meridian - theta) < max(0.02, 4 * pi * stepx / nx)):
                 r = rmeridian
             else:
                 r = radii[j, i]
