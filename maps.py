@@ -104,7 +104,8 @@ def process(args):
     if not args.overwrite:
         check_if_exists(output)
 
-    print(green('Processing file %s ...' % args.image))
+    print(green('Processing file %s (projection %s) ...' %
+                (args.image, args.projection)))
     img = Image.open(args.image)
 
     if args.fix_gaps:
@@ -260,7 +261,8 @@ def get_map_patch(heights, projection_args, pid=0, add_faces=True):
 
 def get_cap_patch(phi_cap, protrusion, pid=0, add_faces=True):
     "Return patch (points, faces) containing the cap"
-    print(blue('Adding %s cap...' % ('north' if phi_cap > 0 else 'south')))
+    print(blue('Adding %s cap (at latitude %g deg) ...' %
+               (('north' if phi_cap > 0 else 'south'), phi_cap * 180 / pi)))
     points = pj.get_cap_points(protrusion, phi_max=phi_cap, pid=pid)
     faces = pj.get_faces(points) if add_faces else []
     return Patch(points, faces)
