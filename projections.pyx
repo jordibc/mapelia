@@ -72,6 +72,9 @@ def get_map_points(heights, long pid, ptype, npoints,
             if isnan(theta):
                 continue
 
+            # TODO: make a nicer algorithm for the meridian, that
+            # always puts it at the same place and interpolates the
+            # last point before putting the triangles in the meridian.
             if (not isnan(meridian) and
                 abs(meridian - theta) < max(0.02, 4 * pi * stepx / nx)):
                 r = rmeridian
