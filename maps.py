@@ -16,6 +16,8 @@ manipular con programas como MeshLab o Blender.
 #   z = r * sin(phi)
 
 # TODO:
+# * Create test image maps with simple lines or patterns and see if they
+#   are distorted when creating the 3d model.
 # * Allow the use of an external 1xN image with the colors that
 #   correspond to different heights.
 # * Add option to remove parallels and meridians in the original image.
