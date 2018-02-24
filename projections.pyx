@@ -13,7 +13,7 @@ from using cython.
 from collections import namedtuple
 
 from numpy import (sin, cos, exp, arcsin, arccos, arctan, arctan2, sqrt,
-                   pi, nan, isnan, ones_like, linspace)
+                   pi, nan, isnan, ones_like, linspace, floor)
 
 Point = namedtuple('Point', ['pid', 'x', 'y', 'z'])
 
@@ -21,7 +21,7 @@ red = lambda txt: '\x1b[31m%s\x1b[0m' % txt
 
 
 def get_map_points(heights, long pid, ptype, npoints,
-                   double scale, caps, meridian, double protrusion):
+                   double scale, caps, meridians, double protrusion):
     "Return points on a sphere, modulated by the given heights"
     # The points returned look like a list of rows:
     # [[(0, x0_0, y0_0, z0_0), (1, x0_1, y0_1, z0_1), ...],
@@ -72,11 +72,13 @@ def get_map_points(heights, long pid, ptype, npoints,
             if isnan(theta):
                 continue
 
+            fix_width = lambda x: max(x / 2, 4 * pi * stepx / nx)
+            meridian, meridian_width = next(((m, fix_width(mw)) for m, mw in meridians
+                                             if abs(mod_2pi(m - theta)) < fix_width(mw)), (nan, nan))
             # TODO: make a nicer algorithm for the meridian, that
             # always puts it at the same place and interpolates the
             # last point before putting the triangles in the meridian.
-            if (not isnan(meridian) and
-                abs(meridian - theta) < max(0.02, 4 * pi * stepx / nx)):
+            if not isnan(meridian):
                 r = rmeridian
             else:
                 r = radii[j, i]
@@ -325,3 +327,11 @@ def invert(faces):
     for p0, p1, p2 in faces:
         inverted_faces.append((p0, p2, p1))
     return inverted_faces
+
+
+def mod_2pi(double a):
+    "Return the equivalent to angle a in [-pi, pi)"
+    cdef int n
+    n = floor(a / (2*pi))  # number of times "a" is bigger than 2*pi
+    a0 = a - 2*pi * n  # so 0 <= a0 < 2*pi
+    return a0 if a0 < pi else a0 - 2*pi

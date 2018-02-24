@@ -81,8 +81,10 @@ def get_parser():
     add('--logo-south', default='', help='fichero de imagen con el logo sur')
     add('--logo-south-scale', type=float, default=1.0,
         help='factor de escalado del logo sur (puede ser < 0 para grabados)')
-    add('--meridian', default='0',
-        help='longitud (en grados) donde colocar el meridiano (o none)')
+    add('--meridians', nargs='*', metavar='POSITION', type=float, default=[0],
+        help='lista de longitudes (en grados) con meridianos')
+    add('--meridians-widths', nargs='*', metavar='WIDTH', type=float, default=[2],
+        help='lista de anchuras (en grados) de los meridianos')
     add('--thickness', type=float, default=1,
         help='grosor del objeto generado (< 1 para que sea parcialmente hueco)')
     add('--protrusion', type=float, default=1.02,
@@ -100,7 +102,7 @@ def process(args):
         sys.exit('File %s does not exist.' % args.image)
 
     check_caps(args.caps)
-    check_meridian(args.meridian)
+    check_meridians(args.meridians, args.meridians_widths)
 
     output = args.output or '%s.%s' % (args.image.rsplit('.', 1)[0], args.type)
     if not args.overwrite:
@@ -125,13 +127,12 @@ def process(args):
     else:
         caps = args.caps
 
-    meridian = pi * float(args.meridian) / 180 if args.meridian != 'none' else nan
-
     projection_args = {'ptype': args.projection,
                        'npoints': args.points,
                        'scale': args.scale,
                        'caps': caps,
-                       'meridian': meridian,
+                       'meridians': list(zip(map(deg2rad, args.meridians),
+                                             map(deg2rad, args.meridians_widths))),
                        'protrusion': args.protrusion}
 
     logo_args = {'north': Logo(args.logo_north, args.logo_north_scale),
@@ -175,15 +176,21 @@ def check_caps(caps):
             sys.exit('caps can be "auto", "none" or a float.')
 
 
-def check_meridian(meridian):
-    "Check that the meridian is valid"
+def check_meridians(meridians, meridians_widths):
+    "Check that the meridians are valid"
     # We want this so as to fail early.
     try:
-        if not -180 <= float(meridian) <= 180:
-            sys.exit('meridian can be an angle between -180 and 180 (or none).')
-    except ValueError:
-        if meridian != 'none':
-            sys.exit('meridian can be "none" or a float.')
+        assert (len(meridians) == len(meridians_widths),
+                '--meridians and --meridians-widths must have the same number '
+                'of elements (now %s vs %s).' % (meridians, meridians_widths))
+        for meridian in meridians:
+            assert (-180 <= meridian <= 180,
+                    'meridian %g should be between -180 and 180.' % meridian)
+        for width in meridians_widths:
+            assert (0 < width < 360,
+                    'width %g should be between 0 and 360.' % width)
+    except (AssertionError, e):
+        sys.exit(e)
 
 
 def check_if_exists(fname):
@@ -264,7 +271,7 @@ def get_map_patch(heights, projection_args, pid=0, add_faces=True):
 def get_cap_patch(phi_cap, protrusion, pid=0, add_faces=True):
     "Return patch (points, faces) containing the cap"
     print(blue('Adding %s cap (at latitude %g deg) ...' %
-               (('north' if phi_cap > 0 else 'south'), phi_cap * 180 / pi)))
+               (('north' if phi_cap > 0 else 'south'), deg2rad(phi_cap))))
     points = pj.get_cap_points(protrusion, phi_max=phi_cap, pid=pid)
     faces = pj.get_faces(points) if add_faces else []
     return Patch(points, faces)
@@ -354,3 +361,7 @@ def find_rgb2height(img):
         if rgb not in rgb2height:
             rgb2height[rgb] = hv2height[rgb2hv[rgb]]
     return rgb2height
+
+
+def deg2rad(x):
+    return pi * x / 180
