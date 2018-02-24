@@ -127,12 +127,14 @@ def process(args):
     else:
         caps = args.caps
 
+    meridians = [(deg2rad(m), deg2rad(mw)) for m, mw in
+                 zip(args.meridians, args.meridians_widths)]
+
     projection_args = {'ptype': args.projection,
                        'npoints': args.points,
                        'scale': args.scale,
                        'caps': caps,
-                       'meridians': list(zip(map(deg2rad, args.meridians),
-                                             map(deg2rad, args.meridians_widths))),
+                       'meridians': meridians,
                        'protrusion': args.protrusion}
 
     logo_args = {'north': Logo(args.logo_north, args.logo_north_scale),
@@ -180,16 +182,16 @@ def check_meridians(meridians, meridians_widths):
     "Check that the meridians are valid"
     # We want this so as to fail early.
     try:
-        assert (len(meridians) == len(meridians_widths),
-                '--meridians and --meridians-widths must have the same number '
-                'of elements (now %s vs %s).' % (meridians, meridians_widths))
+        assert len(meridians) == len(meridians_widths), \
+            ('--meridians and --meridians-widths must have the same number '
+             'of elements (now %s vs %s).' % (meridians, meridians_widths))
         for meridian in meridians:
-            assert (-180 <= meridian <= 180,
-                    'meridian %g should be between -180 and 180.' % meridian)
+            assert -180 <= meridian <= 180, \
+                'meridian %g should be between -180 and 180.' % meridian
         for width in meridians_widths:
-            assert (0 < width < 360,
-                    'width %g should be between 0 and 360.' % width)
-    except (AssertionError, e):
+            assert 0 < width < 360, \
+                'width %g should be between 0 and 360.' % width
+    except AssertionError as e:
         sys.exit(e)
 
 
