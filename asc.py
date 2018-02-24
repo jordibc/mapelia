@@ -1,5 +1,5 @@
 """
-Convierte ficheros asc en ficheros ply.
+Convierte ficheros asc en ficheros ply o stl.
 """
 
 from numpy import sqrt, arcsin, arctan2, floor, pi
