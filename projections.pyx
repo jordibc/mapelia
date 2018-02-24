@@ -66,19 +66,23 @@ def get_map_points(heights, long pid, ptype, npoints,
         cphi, sphi = cos(phi), sin(phi)
         stepx = int(max(1, nx / n) * (1 if ptype in ['mollweide', 'sinusoidal']
                                         else 1 / cphi)) if n > 0 else 1
+
+        min_meridian_width = 2 * pi * stepx / nx
+        def touches_meridians(theta):
+            dist = lambda x: abs(mod_2pi(theta - x))  # angular distance
+            return any(dist(pos) <= max(width / 2, min_meridian_width)
+                       for pos, width in meridians)
+
         for i in range(0, nx, stepx):
             x_map = i - nx // 2
             theta = get_theta(x_map, y_map)
             if isnan(theta):
                 continue
 
-            fix_width = lambda x: max(x / 2, 4 * pi * stepx / nx)
-            meridian, meridian_width = next(((m, fix_width(mw)) for m, mw in meridians
-                                             if abs(mod_2pi(m - theta)) < fix_width(mw)), (nan, nan))
             # TODO: make a nicer algorithm for the meridian, that
             # always puts it at the same place and interpolates the
             # last point before putting the triangles in the meridian.
-            if not isnan(meridian):
+            if touches_meridians(theta):
                 r = rmeridian
             else:
                 r = radii[j, i]

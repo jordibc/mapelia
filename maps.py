@@ -81,7 +81,7 @@ def get_parser():
     add('--logo-south', default='', help='fichero de imagen con el logo sur')
     add('--logo-south-scale', type=float, default=1.0,
         help='factor de escalado del logo sur (puede ser < 0 para grabados)')
-    add('--meridians', nargs='*', metavar='POSITION', type=float, default=[0],
+    add('--meridians-pos', nargs='*', metavar='POSITION', type=float, default=[0],
         help='lista de longitudes (en grados) con meridianos')
     add('--meridians-widths', nargs='*', metavar='WIDTH', type=float, default=[2],
         help='lista de anchuras (en grados) de los meridianos')
@@ -102,7 +102,7 @@ def process(args):
         sys.exit('File %s does not exist.' % args.image)
 
     check_caps(args.caps)
-    check_meridians(args.meridians, args.meridians_widths)
+    check_meridians(args.meridians_pos, args.meridians_widths)
 
     output = args.output or '%s.%s' % (args.image.rsplit('.', 1)[0], args.type)
     if not args.overwrite:
@@ -127,8 +127,8 @@ def process(args):
     else:
         caps = args.caps
 
-    meridians = [(deg2rad(m), deg2rad(mw)) for m, mw in
-                 zip(args.meridians, args.meridians_widths)]
+    meridians = [(deg2rad(pos), deg2rad(width)) for pos, width in
+                 zip(args.meridians_pos, args.meridians_widths)]
 
     projection_args = {'ptype': args.projection,
                        'npoints': args.points,
@@ -178,19 +178,19 @@ def check_caps(caps):
             sys.exit('caps can be "auto", "none" or a float.')
 
 
-def check_meridians(meridians, meridians_widths):
+def check_meridians(meridians_pos, meridians_widths):
     "Check that the meridians are valid"
     # We want this so as to fail early.
     try:
-        assert len(meridians) == len(meridians_widths), \
-            ('--meridians and --meridians-widths must have the same number '
-             'of elements (now %s vs %s).' % (meridians, meridians_widths))
-        for meridian in meridians:
-            assert -180 <= meridian <= 180, \
-                'meridian %g should be between -180 and 180.' % meridian
+        assert len(meridians_pos) == len(meridians_widths), \
+            ('--meridians-pos and --meridians-widths must have the same number '
+             'of elements (now %s vs %s).' % (meridians_pos, meridians_widths))
+        for pos in meridians_pos:
+            assert -180 <= pos <= 180, \
+                'Meridian %g should be between -180 and 180.' % pos
         for width in meridians_widths:
             assert 0 < width < 360, \
-                'width %g should be between 0 and 360.' % width
+                'Width %g should be between 0 and 360.' % width
     except AssertionError as e:
         sys.exit(e)
 
