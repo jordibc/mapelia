@@ -350,7 +350,7 @@ Formatos
 --------
 
 * `ply`_ -- "polígonos" en 3D, también admite colores
-* `stl`_ -- triángulos en 3D, más cutre que ply pero muy usado para imprimir en 3D
+* `stl`_ -- "estereolitografía", triángulos en 3D, más cutre que ``ply`` pero muy usado para imprimir en 3D
 * `asc`_ -- sólo puntos 3D
 
 .. _`ply`: https://en.wikipedia.org/wiki/PLY_(file_format)
