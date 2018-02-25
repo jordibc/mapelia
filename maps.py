@@ -92,6 +92,8 @@ def get_parser():
         help='fracción en la que sobresalen meridiano y casquetes del máximo')
     add('--no-ratio-check', action='store_true',
         help='no arreglar el ratio alto/ancho en ciertas proyecciones')
+    add('--blur', type=float, default=0,
+        help='cantidad mínima de píxeles usados para suavizar la imagen')
     add('--fix-gaps', action='store_true',
         help='intenta rellenar los huecos en el mapa')
     return parser
@@ -118,6 +120,9 @@ def process(args):
 
     if not args.no_ratio_check:
         img = fix_ratios(img, args.projection)
+
+    if args.blur > 0:
+        img = blur(img, args.blur, args.projection)
 
     heights = get_heights(img, args.channel)
     if args.invert:
@@ -357,6 +362,29 @@ def find_rgb_heights(img):
         return (-hue, val)
     rgbs = sorted(set(img.getdata()), key=rank)
     return {rgb: i for i, rgb in enumerate(rgbs)}
+
+
+def blur(img, strength=2, projection='equirectangular'):
+    "Return a blurred image"
+    print(blue('Blurring image (strength %g) ...' % strength))
+    # We'd love to do something as simple and fast as:
+    #   return img.filter(ImageFilter.BLUR)
+    # but we want it to wrap on the x axis and average more near the poles.
+    nx, ny = img.size
+    _, get_phi = pj.projection_functions(projection, nx, ny)
+
+    imx = array(img.convert('RGBA'), dtype=float)
+    imx_blurred = zeros(imx.shape, dtype='uint8')  # will be the image blurred
+    for j in range(ny):
+        y_map = ny // 2 - j
+        cphi = abs(cos(get_phi(y_map))) + 1e-6  # abs() and 1e-6 are for safety
+        dilation = (1 if projection in ['mollweide', 'sinusoidal'] else
+                    max(1, 1 / cphi))
+        di = min(ny // 4, int(strength * dilation))
+        for i in range(nx):
+            ri = [x if x < nx else x - nx for x in range(i - di, i + di + 1)]
+            imx_blurred[j,i,:] = average(imx[j,ri,:], axis=0)
+    return Image.fromarray(imx_blurred)
 
 
 def deg2rad(x):
