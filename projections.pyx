@@ -53,7 +53,7 @@ def get_map_points(heights, long pid, ptype, npoints,
     rmeridian = protrusion * (1 + scale / 2)
 
     n = sqrt(npoints)
-    stepy = int(max(1, ny / (3 * n))) if n > 0 else 1
+    stepy = 1 if n == 0 else int(max(1, ny / (3 * n)))
     # the 3 factor is related to 1/cos(phi)
 
     for j in range(0, ny, stepy):
@@ -64,8 +64,11 @@ def get_map_points(heights, long pid, ptype, npoints,
 
         row = []
         cphi, sphi = cos(phi), sin(phi)
-        stepx = int(max(1, nx / n) * (1 if ptype in ['mollweide', 'sinusoidal']
-                                        else 1 / cphi)) if n > 0 else 1
+        if n == 0:
+            stepx = 1
+        else:
+            dilation = 1 if ptype in ['mollweide', 'sinusoidal'] else 1 / cphi
+            stepx = int(max(1, nx / n) * dilation)
 
         min_meridian_width = 2 * pi * stepx / nx
         def touches_meridians(theta):
