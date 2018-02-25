@@ -148,7 +148,7 @@ def get_sphere_points(double r, double phi_start, double phi_end, long pid):
     "Return lists of points on a sphere of radii r, from phi_start to phi_end"
     cdef double x, y, z, theta, phi
 
-    nphi = max(10, 10 * abs(phi_end - phi_start))
+    nphi = max(10, 21 * abs(phi_end - phi_start))
     points = []
     for phi in linspace(phi_start, phi_end, nphi):
         row = []
@@ -158,7 +158,7 @@ def get_sphere_points(double r, double phi_start, double phi_end, long pid):
             pid += 1
         else:
             rcphi = r * cos(phi)
-            for theta in linspace(-pi, pi, max(9, int(100 * cos(phi)))):
+            for theta in linspace(-pi, pi, max(9, int(300 * cos(phi)))):
                 x = cos(theta) * rcphi
                 y = sin(theta) * rcphi
                 row.append(Point(pid, x, y, z))
