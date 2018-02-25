@@ -137,10 +137,10 @@ Uso
     --logo-south-scale LOGO_SOUTH_SCALE
                           factor de escalado del logo sur (puede ser < 0 para
                           grabados) (default: 1.0)
-    --meridians-pos ...
+    --meridians-pos POSITION1 POSITION2 POSITION3
                           lista de longitudes (en grados) con meridianos
                           (default: [0])
-    --meridians-widths ...
+    --meridians-widths WIDTH1 WIDTH2 WIDTH3
                           lista de anchuras (en grados) de los meridianos
                           (default: [2])
     --thickness THICKNESS
