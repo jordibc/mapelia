@@ -91,8 +91,10 @@ Uso
                  [--points POINTS] [--scale SCALE] [--caps CAPS]
                  [--logo-north LOGO_NORTH] [--logo-north-scale LOGO_NORTH_SCALE]
                  [--logo-south LOGO_SOUTH] [--logo-south-scale LOGO_SOUTH_SCALE]
-                 [--meridian MERIDIAN] [--thickness THICKNESS]
-                 [--protrusion PROTRUSION] [--no-ratio-check] [--fix-gaps]
+                 [--meridians-pos [POSITION [POSITION ...]]]
+                 [--meridians-widths [WIDTH [WIDTH ...]]]
+                 [--thickness THICKNESS] [--protrusion PROTRUSION]
+                 [--no-ratio-check] [--blur BLUR] [--fix-gaps]
                  image
 
   Convierte imágenes con mapas a ficheros 3D. Toma mapas de ficheros jpg, png,
@@ -135,8 +137,12 @@ Uso
     --logo-south-scale LOGO_SOUTH_SCALE
                           factor de escalado del logo sur (puede ser < 0 para
                           grabados) (default: 1.0)
-    --meridian MERIDIAN   longitud (en grados) donde colocar el meridiano (o
-                          none) (default: 0)
+    --meridians-pos [POSITION [POSITION ...]]
+                          lista de longitudes (en grados) con meridianos
+                          (default: [0])
+    --meridians-widths [WIDTH [WIDTH ...]]
+                          lista de anchuras (en grados) de los meridianos
+                          (default: [2])
     --thickness THICKNESS
                           grosor del objeto generado (< 1 para que sea
                           parcialmente hueco) (default: 1)
@@ -145,8 +151,11 @@ Uso
                           del máximo (default: 1.02)
     --no-ratio-check      no arreglar el ratio alto/ancho en ciertas
                           proyecciones (default: False)
+    --blur BLUR           cantidad mínima de píxeles usados para suavizar la
+                          imagen (default: 0)
     --fix-gaps            intenta rellenar los huecos en el mapa (default:
                           False)
+
 
 pintelia
 ========
@@ -308,3 +317,51 @@ Una forma posible de continuar importando un fichero asc en meshlab:
 * Filters -> Point set -> Marching cubes (APSS) ; Grid resolution: 1000.
 * Filters -> Cleaning and Repairing -> Simplification MC: Edge Collapse.
 * Exportar a stl.
+
+
+Material de referencia
+======================
+
+Mapas
+-----
+
+* `Finding and Using Space Image Data`_
+* `Planetary Data System`_
+
+.. _`Finding and Using Space Image Data`: http://www.planetary.org/explore/space-topics/space-imaging/data.html
+.. _`Planetary Data System`: https://en.wikipedia.org/wiki/Planetary_Data_System
+
+Proyecciones
+------------
+
+* `Equirectangular`_
+* `De Mercator`_
+* `Central cilíndrica`_
+* `De Mollweide`_
+* `Sinusoidal`_
+
+.. _`Equirectangular`: https://en.wikipedia.org/wiki/Equirectangular_projection
+.. _`De Mercator`: https://en.wikipedia.org/wiki/Mercator_projection
+.. _`Central cilíndrica`: https://en.wikipedia.org/wiki/Central_cylindrical_projection
+.. _`De Mollweide`: https://en.wikipedia.org/wiki/Mollweide_projection
+.. _`Sinusoidal`: https://en.wikipedia.org/wiki/Sinusoidal_projection
+
+Formatos
+--------
+
+* `ply`_ -- "polígonos" en 3D, también admite colores
+* `stl`_ -- triángulos en 3D, más cutre que ply pero muy usado para imprimir en 3D
+* `asc`_ -- sólo puntos 3D
+
+.. _`ply`: https://en.wikipedia.org/wiki/PLY_(file_format)
+.. _`stl`: https://en.wikipedia.org/wiki/STL_(file_format)
+.. _`asc`: https://codeyarns.com/2011/08/17/asc-file-format-for-3d-points/
+
+Procesado
+---------
+
+* `Pillow`_ -- Python Imaging Library
+* `Meshlab`_ -- programa para ver y editar mallas triangulares 3D
+
+.. _`Pillow`: https://pillow.readthedocs.io/
+.. _`MeshLab`: https://en.wikipedia.org/wiki/MeshLab
