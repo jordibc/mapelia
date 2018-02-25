@@ -108,8 +108,7 @@ Uso
 
   optional arguments:
     -h, --help            show this help message and exit
-    -o OUTPUT, --output OUTPUT
-                          fichero de salida (si vacío, se genera a partir del de
+    --output OUTPUT       fichero de salida (si vacío, se genera a partir del de
                           entrada) (default: )
     --overwrite           no comprobar si el fichero de salida existe (default:
                           False)
