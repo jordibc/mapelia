@@ -380,30 +380,6 @@ def fill_dark(img, too_dark_value=30, darkest_fill=50):
     return img_filled.convert('RGBA')
 
 
-def extract_meridians(img, threshold=10):
-    "Return list of meridians guessed from the image"
-    xs = []
-    nx, ny = img.size()
-    imgHSV = img.convert('HSV')
-    for j in range(ny):
-        val = lambda i: imgHSV.getpixel((i, j))[2]
-        if sum(val(i) - val(i - 1) for i in range(1, nx)) < threshold:
-            xs.append(j)
-    return xs
-
-
-def extract_parallels(img, threshold=10):
-    "Return list of parallels guessed from the image"
-    ys = []
-    nx, ny = img.size()
-    imgHSV = img.convert('HSV')
-    for i in range(nx):
-        val = lambda j: imgHSV.getpixel((i, j))[2]
-        if sum(val(j) - val(j - 1) for j in range(1, ny)) < threshold:
-            ys.append(i)
-    return ys
-
-
 def get_heights(img, channel='val'):
     "Return an array with the heights extracted from the image"
     print(blue('Extracting heights from image (channel "%s") ...' % channel))
