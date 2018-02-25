@@ -85,7 +85,7 @@ y obtenemos:
 Uso
 ---
 
-  usage: mapelia [-h] [-o OUTPUT] [--overwrite] [--type {ply,asc,stl}]
+  usage: mapelia [-h] [--output OUTPUT] [--overwrite] [--type {ply,asc,stl}]
                  [--channel {r,g,b,average,hue,sat,val,color}] [--invert]
                  [--projection {mercator,central-cylindrical,mollweide,equirectangular,sinusoidal}]
                  [--points POINTS] [--scale SCALE] [--caps CAPS]
@@ -94,7 +94,7 @@ Uso
                  [--meridians-pos [POSITION [POSITION ...]]]
                  [--meridians-widths [WIDTH [WIDTH ...]]]
                  [--thickness THICKNESS] [--protrusion PROTRUSION]
-                 [--no-ratio-check] [--blur BLUR] [--fix-gaps]
+                 [--no-ratio-check] [--blur BLUR] [--fix-gaps] [--config CONFIG]
                  image
 
   Convierte imágenes con mapas a ficheros 3D. Toma mapas de ficheros jpg, png,
@@ -155,6 +155,7 @@ Uso
                           imagen (default: 0)
     --fix-gaps            intenta rellenar los huecos en el mapa (default:
                           False)
+    --config CONFIG       fichero con parámetros por defecto (default: )
 
 
 pintelia

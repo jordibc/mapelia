@@ -26,7 +26,8 @@ import sys
 import os
 from collections import namedtuple
 
-from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
+import argparse as ap
+from configparser import ConfigParser
 import colorsys
 from PIL import Image
 from numpy import cos, sqrt, pi, array, zeros, average
@@ -53,10 +54,11 @@ blackB, redB, greenB, yellowB, blueB, magentaB, cyanB, whiteB = [
 
 def get_parser():
     "Return the parser object with all the arguments"
-    parser = ArgumentParser(description=__doc__, formatter_class=fmt)
+    parser = ap.ArgumentParser(description=__doc__, allow_abbrev=False,
+                               formatter_class=ap.ArgumentDefaultsHelpFormatter)
     add = parser.add_argument  # shortcut
     add('image', help='fichero de imagen con el mapa')
-    add('-o', '--output', default='',
+    add('--output', default='',
         help='fichero de salida (si vacío, se genera a partir del de entrada)')
     add('--overwrite', action='store_true',
         help='no comprobar si el fichero de salida existe')
@@ -96,6 +98,7 @@ def get_parser():
         help='cantidad mínima de píxeles usados para suavizar la imagen')
     add('--fix-gaps', action='store_true',
         help='intenta rellenar los huecos en el mapa')
+    add('--config', default='', help='fichero con parámetros por defecto')
     return parser
 
 
@@ -104,6 +107,17 @@ def process(args):
     if not os.path.isfile(args.image):
         sys.exit('File %s does not exist.' % args.image)
 
+    print(green('Processing file %s (projection %s) ...' %
+                (args.image, args.projection)))
+
+    if args.config:
+        try:
+            cfg = read_config(args.config)
+            check_config(cfg, args)
+            update_args(cfg, args)
+        except (FileNotFoundError, AssertionError, ValueError) as e:
+            sys.exit('Error in file %s: %s' % (args.config, e))
+
     check_caps(args.caps)
     check_meridians(args.meridians_pos, args.meridians_widths)
 
@@ -111,8 +125,6 @@ def process(args):
     if not args.overwrite:
         check_if_exists(output)
 
-    print(green('Processing file %s (projection %s) ...' %
-                (args.image, args.projection)))
     img = Image.open(args.image)
 
     if args.fix_gaps:
@@ -154,6 +166,50 @@ def process(args):
     elif args.type == 'stl':  write_stl(output, patches)
 
     return output
+
+
+def read_config(fname):
+    "Return dict with the parameters read from configuration file fname"
+    print(blue('Reading defaults from config file %s ...' % fname))
+    cp = ConfigParser()
+    cp.read_file(open(fname))
+    assert 'mapelia' in cp, 'Missing section [mapelia]'
+    return cp['mapelia']
+
+
+def check_config(cfg, args):
+    "Assert all the keys in configuration dict cfg exist in args"
+    valid_keys = dict(args._get_kwargs()).keys()
+    for key in cfg:
+        assert key.replace('-', '_') in valid_keys, 'Unknown option "%s"' % key
+    assert 'image' not in cfg, 'Invalid option "image"'  # less confusing
+
+
+def update_args(cfg, args):
+    "Modify args with the contents of config file fname"
+    converters = get_arguments_converters()
+    used_keys = {x[2:] for x in sys.argv if x.startswith('--')}
+    for key in cfg.keys() - used_keys:
+        cast = converters.get(key, lambda x: x)
+        value = cast(cfg[key])
+        print('- Setting %s to %s' % (key, value))
+        setattr(args, key.replace('-', '_'), value)
+
+
+def get_arguments_converters():
+    "Return dict {argname: converter} with converter functions for known args"
+    def list_of_floats(txt):
+        return [float(x) for x in txt.split()]
+    def truth(txt):
+        assert txt.lower() in ['true', 'yes', 'false', 'no'], \
+            'Invalid value "%s" (valid values: "true", "false")' % txt
+        return txt.lower() in ['true', 'yes']
+    return {
+        'points': int, 'scale': float, 'thickness': float, 'protrusion': float,
+        'blur': float, 'logo-north-scale': float, 'logo-south-scale': float,
+        'meridians-pos': list_of_floats, 'meridians-widths': list_of_floats,
+        'overwrite': truth, 'invert': truth, 'no-ratio-check': truth,
+        'fix-gaps': truth}
 
 
 def fix_ratios(img, ptype):
