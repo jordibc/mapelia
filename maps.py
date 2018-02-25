@@ -278,8 +278,8 @@ def get_map_patch(heights, projection_args, pid=0, add_faces=True):
 
 def get_cap_patch(phi_cap, protrusion, pid=0, add_faces=True):
     "Return patch (points, faces) containing the cap"
-    print(blue('Adding %s cap (at latitude %g deg) ...' %
-               (('north' if phi_cap > 0 else 'south'), deg2rad(phi_cap))))
+    print(blue('Adding %s cap (latitude %g deg) ...' %
+               (('north' if phi_cap > 0 else 'south'), 180 * phi_cap / pi)))
     points = pj.get_cap_points(protrusion, phi_max=phi_cap, pid=pid)
     faces = pj.get_faces(points) if add_faces else []
     return Patch(points, faces)
@@ -287,7 +287,7 @@ def get_cap_patch(phi_cap, protrusion, pid=0, add_faces=True):
 
 def get_sphere_patch(r, pid=0, add_faces=True):
     "Return patch (points, faces) containing the inner sphere"
-    print(blue('Adding inner sphere...'))
+    print(blue('Adding inner sphere (radius %g) ...' % r))
     points = pj.get_sphere_points(r, phi_start=pi/2, phi_end=-pi/2, pid=pid)
     faces = pj.invert(pj.get_faces(points)) if add_faces else []
     return Patch(points, faces)
@@ -295,7 +295,7 @@ def get_sphere_patch(r, pid=0, add_faces=True):
 
 def get_logo_patch(logo, phi_cap, protrusion, pid=0, add_faces=True):
     "Return patch (points, faces) containing the logo"
-    print(blue('Adding logo...'))
+    print(blue('Adding logo from %s ...' % logo.image))
     if not os.path.isfile(logo.image):
         sys.exit('File %s does not exist.' % logo.image)
     img = Image.open(logo.image)
