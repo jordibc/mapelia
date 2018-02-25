@@ -27,8 +27,9 @@ import os
 from collections import namedtuple
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
+import colorsys
 from PIL import Image
-from numpy import arctan2, sqrt, pi, nan, array, zeros, average
+from numpy import cos, sqrt, pi, nan, array, zeros, average
 
 try:
     import projections as pj
@@ -337,7 +338,7 @@ def get_heights(img, channel='val'):
         elif channel == 'val':  return imxHSV[:,:,2]
     elif channel == 'color':
         # This channel is *not* straigthforward.
-        rgb2height = find_rgb2height(img)
+        rgb2height = find_rgb_heights(img)
         nx, ny = img.size
         heights = zeros((ny, nx), dtype=float)
         for j in range(ny):
@@ -346,23 +347,16 @@ def get_heights(img, channel='val'):
         return heights
 
 
-def find_rgb2height(img):
-    "Return a dict to transform rgb tuples to heights"
+def find_rgb_heights(img):
+    "Return a dict to transform rgb(a) tuples to heights"
     # It is assumed that low heights correspond to big hues, and for
     # the same hue a lower color value corresponds to higher heights.
-    imgHSV = img.convert('RGBA').convert('HSV')
-    nx, ny = img.size
-    rgb2hv = {}
-    for i in range(nx):
-        for j in range(ny):
-            h, s, v = imgHSV.getpixel((i, j))
-            rgb2hv[img.getpixel((i, j))] = (-h, v)
-    hv2height = {hv: i for i, hv in enumerate(sorted(rgb2hv.values()))}
-    rgb2height = {}
-    for rgb in rgb2hv:
-        if rgb not in rgb2height:
-            rgb2height[rgb] = hv2height[rgb2hv[rgb]]
-    return rgb2height
+    def rank(rgb):
+        r, g, b = rgb[:3]  # there may be an alpha channel -- if so, ignore it
+        hue, sat, val = colorsys.rgb_to_hsv(r, g, b)
+        return (-hue, val)
+    rgbs = sorted(set(img.getdata()), key=rank)
+    return {rgb: i for i, rgb in enumerate(rgbs)}
 
 
 def deg2rad(x):
