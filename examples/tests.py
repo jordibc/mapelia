@@ -39,7 +39,7 @@ def test_mapelia():
     run('../mapelia venus.png --output venus_many_meridians.ply '
         '--meridians-pos -10 90 170 --meridians-widths 2 5 8')
     run('../mapelia wmap.jpg --projection mollweide --output wmap_blurred.ply '
-        '--meridians-pos --meridians-width --scale 0.04 --blur 2')
+        '--meridians-pos --meridians-widths --scale 0.04 --blur 2')
     run('../mapelia venus.png --scale 0.06 --output venus_blurred.ply --blur 1')
 
 
