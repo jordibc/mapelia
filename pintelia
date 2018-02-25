@@ -21,7 +21,7 @@ from collections import namedtuple
 
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
 from PIL import Image
-from numpy import sin, cos, sqrt, pi, isnan, array
+from numpy import sin, cos, sqrt, isnan, array
 
 import maps
 try:
