@@ -21,24 +21,31 @@ def test_mapelia():
     run('../mapelia venus.png')
     run('../mapelia earth_equirectangular.jpg '
         '--projection equirectangular --channel hue '
-        '--meridian none')
+        '--meridians-pos --meridians-widths')
     run('../mapelia earth_tissot_mollweide.jpg '
         '--projection mollweide --channel average '
-        '--caps none --meridian none --invert')
+        '--caps none --meridians-pos --meridians-widths --invert')
     run('../mapelia earth_tissot_equirectangular.jpg '
         '--projection equirectangular --logo-south logo_observatori.png '
-        '--caps 10 --meridian none')
+        '--caps 10 --meridians-pos --meridians-widths')
     run('../mapelia earth_central-cylindrical.jpg '
-        '--projection central-cylindrical --caps 30 --meridian 90 '
+        '--projection central-cylindrical --caps 30 --meridians-pos 90 '
         '--scale 0.05 --protrusion 1.2 --type stl')
-    run('../mapelia venus.png --thickness 0.2 --type stl --meridian none')
+    run('../mapelia venus.png --thickness 0.2 --type stl '
+        '--meridians-pos --meridians-widths')
     run('../mapelia venus.png --output venus_with_logos.ply '
         '--logo-north logo_observatori.png --logo-north-scale -0.5 '
         '--logo-south logo_observatori.png --logo-south-scale 2')
+    run('../mapelia venus.png --output venus_many_meridians.ply '
+        '--meridians-pos -10 90 170 --meridians-widths 2 5 8')
+    run('../mapelia wmap.jpg --projection mollweide --output wmap_blurred.ply '
+        '--meridians-pos --meridians-width --scale 0.04 --blur 2')
+    run('../mapelia venus.png --scale 0.06 --output venus_blurred.ply --blur 1')
 
 
 def test_pintelia():
     run('../pintelia earth_mercator.png')
+    run('../pintelia wmap.jpg --projection mollweide')
 
 
 def test_poligoniza():
@@ -60,7 +67,7 @@ def show_colored_rows():
     import asc
     os.system('../mapelia earth_equirectangular.jpg --type asc '
               '--projection equirectangular '
-              '--over --points 1000 --caps none --no-meridian')
+              '--over --points 1000 --caps none')
     points_raw = asc.get_points_raw('earth_equirectangular.asc')
     print('Fast angle:', asc.find_fast_angle(points_raw))
     points = asc.get_points(points_raw)
@@ -234,18 +241,23 @@ def palette_test():
 
 def print_palette_hsv():
     "Print hue,saturation,value for the colors specified in palette.tab"
-    palette_file = ('pds-geosciences.wustl.edu/mgn/mgn-v-gxdr-v1/mg_3002/gsdr/'
-                    'merc/palette.tab')
-    rs = Image.new('L', (1, 256))
-    gs = Image.new('L', (1, 256))
-    bs = Image.new('L', (1, 256))
-    imgRGB = Image.new('RGB', (1, 256))
-    for i, line in enumerate(open(palette_file)):
-        imgRGB.putpixel((0, i), tuple(map(int, line.split()[1:])))
-    imgHSV = imgRGB.convert('HSV')
+    from urllib.request import urlopen
+    from colorsys import rgb_to_hsv
+    palette_url = ('http://pds-geosciences.wustl.edu/mgn/mgn-v-gxdr-v1/'
+                   'mg_3002/gsdr/merc/palette.tab')
+    rgbs = [tuple(map(int, line.split()[1:])) for line in urlopen(palette_url)]
 
-    for i in range(256):
-        print('%d %d %d' % imgHSV.getpixel((0, i)))
+    # Smart way.
+    hsvs_smart = [rgb_to_hsv(r / 255, g / 255, b / 255) for r, g, b in rgbs]
+    print([(int(h * 255), int(s * 255), int(v * 255)) for h, s, v in hsvs_smart])
+
+    # Stupid way.
+    imgRGB = Image.new('RGB', (1, 256))
+    for i, rgb in enumerate(rgbs):
+        imgRGB.putpixel((0, i), rgb)
+    imgHSV = imgRGB.convert('HSV')
+    hsvs_stupid = [imgHSV.getpixel((0, i)) for i in range(256)]
+    print(hsvs_stupid)
 
 # The order seems to be:
 # -H, V
