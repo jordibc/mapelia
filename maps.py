@@ -34,7 +34,8 @@ from numpy import cos, sqrt, pi, array, zeros, average
 
 try:
     import projections as pj
-except ImportError:
+    assert pj.__version__ == '1.0.0'
+except (ImportError, AssertionError, AttributeError) as e:
     sys.exit('projections module not ready. You may want to first run:\n'
              '  %s setup.py build_ext --inplace' % sys.executable)
 

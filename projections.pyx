@@ -5,6 +5,8 @@ They are also the most computationally-intensive and thus can benefit
 from using cython.
 """
 
+__version__ = '1.0.0'
+
 # If you modify this file, you can recreate projections.c by running:
 #   cython3 -a projections.pyx
 # Then, you can create the python module with:
