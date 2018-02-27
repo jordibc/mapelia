@@ -5,7 +5,7 @@ They are also the most computationally-intensive and thus can benefit
 from using cython.
 """
 
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 
 # If you modify this file, you can recreate projections.c by running:
 #   cython3 -a projections.pyx
@@ -98,11 +98,12 @@ def get_map_points(heights, long pid, ptype, npoints, double scale, caps,
 
 
 def interpolate(p0, p1):
-    "Return function f such that f(x0) = y0 and f(x1) = y1"
-    cdef double x0, y0, x1, y1
+    "Return a function f such that f(x0) = y0 and f(x1) = y1"
+    cdef double x0, y0, x1, y1, a
     x0, y0 = p0
     x1, y1 = p1
-    return lambda x: y0 + (y1 - y0) * (x - x0)**2 / (x1 - x0)**2
+    a = (y1 - y0) / (x1 - x0)**2
+    return lambda x: y0 + a * (x - x0)**2
 
 
 def get_logo_points(heights, double phi_max, double caps_height=1, long pid=0):
