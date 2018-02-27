@@ -30,7 +30,7 @@ def test_mapelia():
         '--caps 10 --meridians-pos --meridians-widths')
     run('../mapelia earth_central-cylindrical.jpg '
         '--projection central-cylindrical --caps 30 --meridians-pos 90 '
-        '--scale 0.05 --protrusion 1.2 --type stl')
+        '--scale 0.05 --caps-height 1.2 --meridians-height 1.1 --type stl')
     run('../mapelia venus.png --thickness 0.2 --type stl '
         '--meridians-pos --meridians-widths')
     run('../mapelia venus.png --output venus_with_logos.ply '

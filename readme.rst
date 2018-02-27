@@ -89,11 +89,12 @@ Uso
                  [--channel {r,g,b,average,hue,sat,val,color}] [--invert]
                  [--projection {mercator,central-cylindrical,mollweide,equirectangular,sinusoidal}]
                  [--points POINTS] [--scale SCALE] [--caps CAPS]
-                 [--logo-north LOGO_NORTH] [--logo-north-scale LOGO_NORTH_SCALE]
-                 [--logo-south LOGO_SOUTH] [--logo-south-scale LOGO_SOUTH_SCALE]
+                 [--caps-height CAPS_HEIGHT] [--logo-north LOGO_NORTH]
+                 [--logo-north-scale LOGO_NORTH_SCALE] [--logo-south LOGO_SOUTH]
+                 [--logo-south-scale LOGO_SOUTH_SCALE]
                  [--meridians-pos [POSITION [POSITION ...]]]
                  [--meridians-widths [WIDTH [WIDTH ...]]]
-                 [--thickness THICKNESS] [--protrusion PROTRUSION]
+                 [--meridians-height MERIDIANS_HEIGHT] [--thickness THICKNESS]
                  [--no-ratio-check] [--blur BLUR] [--fix-gaps] [--config CONFIG]
                  image
 
@@ -126,6 +127,8 @@ Uso
                           (default: 0.02)
     --caps CAPS           ángulo (en grados) al que llegan los casquetes (o auto
                           o none) (default: auto)
+    --caps-height CAPS_HEIGHT
+                          altura a la que están los casquetes (default: 1.02)
     --logo-north LOGO_NORTH
                           fichero de imagen con el logo norte (default: )
     --logo-north-scale LOGO_NORTH_SCALE
@@ -142,12 +145,12 @@ Uso
     --meridians-widths WIDTH1_WIDTH2_etc
                           lista de anchuras (en grados) de los meridianos
                           (default: [2])
+    --meridians-height MERIDIANS_HEIGHT
+                          altura a la que llegan los meridianos (en el ecuador)
+                          (default: 1.02)
     --thickness THICKNESS
                           grosor del objeto generado (< 1 para que sea
                           parcialmente hueco) (default: 1)
-    --protrusion PROTRUSION
-                          fracción en la que sobresalen meridiano y casquetes
-                          del máximo (default: 1.02)
     --no-ratio-check      no arreglar el ratio alto/ancho en ciertas
                           proyecciones (default: False)
     --blur BLUR           cantidad mínima de píxeles usados para suavizar la

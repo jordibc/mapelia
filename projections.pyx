@@ -5,7 +5,7 @@ They are also the most computationally-intensive and thus can benefit
 from using cython.
 """
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 
 # If you modify this file, you can recreate projections.c by running:
 #   cython3 -a projections.pyx
@@ -22,8 +22,8 @@ Point = namedtuple('Point', ['pid', 'x', 'y', 'z'])
 red = lambda txt: '\x1b[31m%s\x1b[0m' % txt
 
 
-def get_map_points(heights, long pid, ptype, npoints,
-                   double scale, caps, meridians, double protrusion):
+def get_map_points(heights, long pid, ptype, npoints, double scale, caps,
+                   double caps_height, meridians, double meridians_height):
     "Return points on a sphere, modulated by the given heights"
     # The points returned look like a list of rows:
     # [[(0, x0_0, y0_0, z0_0), (1, x0_1, y0_1, z0_1), ...],
@@ -52,11 +52,11 @@ def get_map_points(heights, long pid, ptype, npoints,
     else:
         radii = ones_like(heights)
 
-    rmeridian = protrusion * (1 + scale / 2)
-
     n = sqrt(npoints)
     stepy = 1 if n == 0 else int(max(1, ny / (3 * n)))
     # the 3 factor is related to 1/cos(phi)
+
+    rmeridian = interpolate((0, meridians_height), (phi_cap, caps_height))
 
     for j in range(0, ny, stepy):
         y_map = ny // 2 - j
@@ -73,7 +73,7 @@ def get_map_points(heights, long pid, ptype, npoints,
             stepx = int(max(1, nx / n) * dilation)
 
         min_meridian_width = 2 * pi * stepx / nx
-        def touches_meridians(theta):
+        def on_meridians(theta):
             dist = lambda x: abs(mod_2pi(theta - x))  # angular distance
             return any(dist(pos) <= max(width / 2, min_meridian_width)
                        for pos, width in meridians)
@@ -84,7 +84,7 @@ def get_map_points(heights, long pid, ptype, npoints,
             if isnan(theta):
                 continue
 
-            r = radii[j, i] if not touches_meridians(theta) else rmeridian
+            r = rmeridian(phi) if on_meridians(theta) else radii[j, i]
 
             x = r * cos(theta) * cphi
             y = r * sin(theta) * cphi
@@ -97,7 +97,15 @@ def get_map_points(heights, long pid, ptype, npoints,
     return points
 
 
-def get_logo_points(heights, double phi_max, double protrusion=1, long pid=0):
+def interpolate(p0, p1):
+    "Return function f such that f(x0) = y0 and f(x1) = y1"
+    cdef double x0, y0, x1, y1
+    x0, y0 = p0
+    x1, y1 = p1
+    return lambda x: y0 + (y1 - y0) * (x - x0)**2 / (x1 - x0)**2
+
+
+def get_logo_points(heights, double phi_max, double caps_height=1, long pid=0):
     "Return list of rows with the points from the logo in fname"
     cdef double x, y, z, r, theta, phi, dist, sign_phi, abs_phi_max
 
@@ -115,7 +123,7 @@ def get_logo_points(heights, double phi_max, double protrusion=1, long pid=0):
             dist = sqrt( (i - nx_2)**2 + (j - ny_2)**2 ) / N_2
             if dist > 1:
                 continue  # only values inside the circle
-            r = protrusion + (protrusion - 1) * heights[j, i]
+            r = caps_height + (caps_height - 1) * heights[j, i]
             theta = sign_phi * arctan2(ny_2 - j, i - nx_2)
             phi = sign_phi * (pi / 2 - (pi / 2 - abs_phi_max) * dist)
 
