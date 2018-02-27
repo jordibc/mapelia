@@ -27,7 +27,7 @@ import os
 from collections import namedtuple
 
 import argparse as ap
-from configparser import ConfigParser
+from configparser import ConfigParser, ParsingError
 import colorsys
 from PIL import Image
 from numpy import cos, sqrt, pi, array, zeros, average
@@ -117,8 +117,9 @@ def process(args):
         try:
             cfg = read_config(args.config)
             check_config(cfg, args)
-            update_args(cfg, args)
-        except (FileNotFoundError, AssertionError, ValueError) as e:
+            update_args(args, cfg)
+        except (FileNotFoundError, AssertionError,
+                ValueError, ParsingError) as e:
             sys.exit('Error in file %s: %s' % (args.config, e))
 
     check_caps(args.caps)
@@ -183,14 +184,13 @@ def read_config(fname):
 
 def check_config(cfg, args):
     "Assert all the keys in configuration dict cfg exist in args"
-    valid_keys = dict(args._get_kwargs()).keys()
+    valid_keys = dict(args._get_kwargs()).keys() - {'image', 'config'}
     for key in cfg:
         assert key.replace('-', '_') in valid_keys, 'Unknown option "%s"' % key
-    assert 'image' not in cfg, 'Invalid option "image"'  # less confusing
 
 
-def update_args(cfg, args):
-    "Modify args with the contents of config file fname"
+def update_args(args, cfg):
+    "Modify args with the contents of config dict cfg"
     converters = get_arguments_converters()
     used_keys = {x[2:] for x in sys.argv if x.startswith('--')}
     for key in cfg.keys() - used_keys:
