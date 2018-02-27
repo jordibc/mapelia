@@ -8,6 +8,8 @@ probar cosas relacionadas con lo que quiero hacer en el programa principal.
 """
 
 import os
+from tempfile import NamedTemporaryFile
+from contextlib import contextmanager
 from PIL import Image
 import numpy as np
 
@@ -41,6 +43,30 @@ def test_mapelia():
     run('../mapelia wmap.jpg --projection mollweide --output wmap_blurred.ply '
         '--meridians-pos --meridians-widths --scale 0.04 --blur 2')
     run('../mapelia venus.png --scale 0.06 --output venus_blurred.ply --blur 1')
+    with temp_config_file() as f:
+        run('../mapelia --config %s venus.png' % f.name)
+
+
+@contextmanager
+def temp_config_file():
+    with NamedTemporaryFile() as f:
+        f.write(b"""\
+[mapelia]
+scale: 0.05
+thickness: 0.1
+caps: 8
+logo-south: logo_observatori.png
+logo-south-scale: -0.5
+type: stl
+projection: equirectangular
+meridians-height: 1.04
+caps-height: 1.01
+meridians-pos: 0 -90 180
+meridians-widths: 4 1 1
+output: venus_from_config_file.stl
+""")
+        f.flush()
+        yield f
 
 
 def test_pintelia():
@@ -59,6 +85,12 @@ def test_stl_split():
         '--scale 0.10 --caps 8 --thickness 0.2 --type stl')
     run('../stl-split wmap.stl')
 
+
+#  ************************************************************************
+#  *                                                                      *
+#  *    Little tests and code snippets I used to understand some parts    *
+#  *                                                                      *
+#  ************************************************************************
 
 def show_colored_rows():
     import os
