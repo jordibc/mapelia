@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 """
-Tests/ejemplos relacionados con mapas.
+Tests and examples related to maps.
 
-Este fichero no es necesario para ejecutar mapelia, pero me sirve para
-probar cosas relacionadas con lo que quiero hacer en el programa principal.
+This file is not necessary to run mapelia, but it allows me to try things
+related to what I want to do in the main program.
 """
 
 import os

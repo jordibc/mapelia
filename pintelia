@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 """
-Pinta en colores sobre la superficie de una esfera una imagen con un mapa.
+Paint with colors over the surface of a sphere an image with a map.
 
-Toma mapas de ficheros jpg, png, etc., y escribe ficheros ply (polígonos).
+It takes maps from jpg files, png, and so on, and writes ply (polygon) files.
 """
 
 # Spherical coordinates convention:
@@ -36,21 +36,21 @@ Point = namedtuple('Point', ['pid', 'x', 'y', 'z', 'r', 'g', 'b', 'a'])
 def main():
     parser = ArgumentParser(description=__doc__, formatter_class=fmt)
     add = parser.add_argument  # shortcut
-    add('image', help='fichero de imagen con el mapa')
+    add('image', help='image file with the map')
     add('-o', '--output', default='',
-        help='fichero de salida (si vacío, se genera a partir del de entrada)')
+        help='output file (if empty, it is generated from the image file name)')
     add('--overwrite', action='store_true',
-        help='no comprobar si el fichero de salida existe')
+        help='do not check if the output file already exists')
     add('--projection', default='mercator',
         choices=['mercator', 'cylindrical', 'mollweide', 'equirectangular',
                  'sinusoidal'],
-        help='tipo de proyección usada en el mapa')
+        help='projection used in the map')
     add('--points', type=int, default=0,
-        help='número de puntos a usar como máximo (o 0 para usar todos)')
+        help='maximum number of points to use (or 0 to use all in the image)')
     add('--no-ratio-check', action='store_true',
-        help='no arreglar el ratio alto/ancho en ciertas proyecciones')
+        help='do not fix the height/width ratio for certain projections')
     add('--fix-gaps', action='store_true',
-        help='intenta rellenar los huecos en el mapa')
+        help='try to fill the gaps in the map')
     args = parser.parse_args()
     output = process(args)
     print('The output is in file %s' % output)

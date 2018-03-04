@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 """
-Crea un fichero de polígonos (.ply o .stl) a partir de uno con sólo los puntos
+Create a file of polygons (.ply or .stl) from one with only the 3D points
 (.asc).
 
-El fichero asc original debe tener los puntos en orden correspondiente a las
-secciones de un objeto casi-esférico.
+The original asc file must have the points in the order that corresponds to
+the sections of a quasi-spherical object.
 """
 
 import sys
@@ -24,19 +24,19 @@ import asc
 def main():
     parser = ArgumentParser(description=__doc__, formatter_class=fmt)
     add = parser.add_argument  # shortcut
-    add('file', help='fichero asc con las coordenadas de los puntos')
+    add('file', help='asc file with the points coordinates')
     add('-o', '--output', default='',
-        help='fichero de salida (si vacío, se genera a partir del de entrada)')
+        help='output file (if empty, it is generated from the image file name)')
     add('--overwrite', action='store_true',
-        help='no comprobar si el fichero de salida existe')
+        help='do not check if the output file already exists')
     add('--type', choices=['ply', 'stl'], default='ply',
-        help='tipo de fichero a generar')
+        help='type of 3D file to generate')
     add('--ascii', action='store_true',
-        help='escribe el ply resultante en ascii')
+        help='write the resulting ply file in ascii')
     add('--invert', action='store_true',
-        help='invierte la orientación de las caras')
+        help='invert the orientations of the faces')
     add('--row-length', type=int, default=0,
-        help='número de puntos por sección (si 0, se autodetecta)')
+        help='maximum number of points to use (or 0 to autodetect)')
     args = parser.parse_args()
 
     output = args.output or '%s.%s' % (args.file.rsplit('.', 1)[0], args.type)

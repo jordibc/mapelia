@@ -1,10 +1,10 @@
 """
-Convierte imágenes con mapas a ficheros 3D.
+Transform images with maps into 3D files.
 
-Toma mapas de ficheros jpg, png, etc., y escribe ficheros ply (polígonos), asc
-(nube de puntos) o stl (también polígonos) con una esfera que contiene las
-elevaciones deducidas del mapa en cada punto. Estos ficheros se pueden a su vez
-manipular con programas como MeshLab o Blender.
+It takes maps images in jpg, png and so on, and writes 3D polygon files
+(ply and stl) or clouds of 3D points (asc) with a sphere that contains the
+elevations deduced from the map at each point. These files can be further
+processed with programs like MeshLab or Blender.
 """
 
 # Spherical coordinates convention:
@@ -58,50 +58,50 @@ def get_parser():
     parser = ap.ArgumentParser(description=__doc__, allow_abbrev=False,
                                formatter_class=ap.ArgumentDefaultsHelpFormatter)
     add = parser.add_argument  # shortcut
-    add('image', help='fichero de imagen con el mapa')
+    add('image', help='image file with the map')
     add('--output', default='',
-        help='fichero de salida (si vacío, se genera a partir del de entrada)')
+        help='output file (if empty, it is generated from the image file name)')
     add('--overwrite', action='store_true',
-        help='no comprobar si el fichero de salida existe')
+        help='do not check if the output file already exists')
     add('--type', choices=['ply', 'asc', 'stl'], default='ply',
-        help='tipo de fichero a generar')
+        help='type of 3D file to generate')
     add('--channel', default='val',
         choices=['r', 'g', 'b', 'average', 'hue', 'sat', 'val', 'color'],
-        help='canal que contiene la información de la elevación')
-    add('--invert', action='store_true', help='invierte las elevaciones')
+        help='channel with the elevations information in the image')
+    add('--invert', action='store_true', help='invert heights')
     add('--projection', default='mercator',
         choices=['mercator', 'central-cylindrical', 'mollweide',
                  'equirectangular', 'sinusoidal'],
-        help='tipo de proyección usada en el mapa')
+        help='projection used in the map')
     add('--points', type=int, default=0,
-        help='número de puntos a usar como máximo (o 0 para usar todos)')
+        help='maximum number of points to use (or 0 to use all in the image)')
     add('--scale', type=float, default=0.02,
-        help='fracción de radio entre el punto más bajo y más alto')
+        help='fraction of radius between the highest and lowest points')
     add('--caps', default='auto',
-        help='ángulo (en grados) al que llegan los casquetes (o auto o none)')
+        help='angle (in degrees) where the caps end (or auto or none)')
     add('--caps-height', type=float, default=1.02,
-        help='altura a la que están los casquetes')
-    add('--logo-north', default='', help='fichero de imagen con el logo norte')
+        help='height of the caps (1 would be at sea-level)')
+    add('--logo-north', default='', help='image file with the north logo')
     add('--logo-north-scale', type=float, default=1.0,
-        help='factor de escalado del logo norte (puede ser < 0 para grabados)')
-    add('--logo-south', default='', help='fichero de imagen con el logo sur')
+        help='scale factor for the north logo (can be < 0 for engravings)')
+    add('--logo-south', default='', help='image file with the south logo')
     add('--logo-south-scale', type=float, default=1.0,
-        help='factor de escalado del logo sur (puede ser < 0 para grabados)')
+        help='scale factor for the south logo (can be < 0 for engravings)')
     add('--meridians-pos', nargs='*', metavar='POSITION', type=float, default=[0],
-        help='lista de longitudes (en grados) con meridianos')
+        help='list of longitudes (in degrees) with meridians')
     add('--meridians-widths', nargs='*', metavar='WIDTH', type=float, default=[2],
-        help='lista de anchuras (en grados) de los meridianos')
+        help='list of widths (in degrees) of the meridians')
     add('--meridians-height', type=float, default=1.02,
-        help='altura a la que llegan los meridianos (en el ecuador)')
+        help='elevation of the meridians (at the equator)')
     add('--thickness', type=float, default=1,
-        help='grosor del objeto generado (< 1 para que sea parcialmente hueco)')
+        help='thickness of the generated object (< 1 for partially hollow))')
     add('--no-ratio-check', action='store_true',
-        help='no arreglar el ratio alto/ancho en ciertas proyecciones')
+        help='do not fix the height/width ratio for certain projections')
     add('--blur', type=float, default=0,
-        help='cantidad mínima de píxeles usados para suavizar la imagen')
+        help='amount of pixels used to smooth the image')
     add('--fix-gaps', action='store_true',
-        help='intenta rellenar los huecos en el mapa')
-    add('--config', default='', help='fichero con parámetros por defecto')
+        help='try to fill the gaps in the map')
+    add('--config', default='', help='file with default parameters')
     return parser
 
 

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 """
-Divide un fichero stl.
+Split an stl file.
 
-La idea es ayudar a post-procesar ficheros stl hechos con mapelia, para
-que se puedan imprimir más fácilmente. El fichero original no se modifica,
-sino que se crean dos nuevos ficheros acabados en "_N.stl" y "_S.stl"
-(o "_head.stl" y "_tail.stl" si se usa la opción --number).
+The idea is to help post-procssing stl files made with mapelia, so they
+can be printed more easily. It does not modify the original file, but
+creates two new files that end with "_N.stl" and "_S.stl"
+(or "_head.stl" and "_tail.stl" if using the option --number).
 """
 
 import sys

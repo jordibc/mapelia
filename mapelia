@@ -13,15 +13,15 @@ def main():
 if __name__ == '__main__':
     main()
 
-# Para el futuro querría:
+# Ideas for the future:
 #
-# * Añadir un interfaz gráfico decente.
-# * Barra de progreso mientras escribe el fichero.
-# * Hacer un preview de las imágenes de los mapas cuando se seleccionan.
-# * Presentar estadísticas de desviación típica, componentes de Fourier y
-#   similares, según el canal elegido para extraer la elevación.
-# * Añadir un modo de selección de canal automático, según lo que parece más
-#   prometedor por las estadísticas de la imagen.
-# * Permitir abrir el resultado en meshlab o en blender si están disponibles.
-# * Documentar el algoritmo que he escrito para conectar los puntos en triángulos
-#   de la esfera.
+# * Add a decent GUI.
+# * Progress bar while processing.
+# * Make a preview of the map images when they are selected.
+# * Show statistics about standard deviation, Fourier components and
+#   so on, depending on the channel selected to extract the elevations.
+# * Add an automatic channel selection mode, following what appears
+#   more promising from the image statistics.
+# * Let it open the result in meshlab or blender if they are available.
+# * Document the algorithm I wrote to connect the points into triangles
+#   on a sphere-like object.
