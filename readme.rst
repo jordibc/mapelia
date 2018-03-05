@@ -229,7 +229,7 @@ Example
   The output is in file ficheros_amelia/venus-out-12new.stl
 
 Usage
----
+-----
 
   usage: poligoniza [-h] [-o OUTPUT] [--overwrite] [--type {ply,stl}] [--ascii]
                     [--invert] [--row-length ROW_LENGTH]
@@ -259,9 +259,9 @@ Usage
 stl-split
 =========
 
-Divide un stl en casquete norte y casquete sur.
+Split an stl into its north and south sides.
 
-Ejemplo
+Example
 -------
 
 ::
@@ -271,56 +271,38 @@ Ejemplo
   Writing file mars_N.stl ...
   Writing file mars_S.stl ...
 
-Uso
----
+Usage
+-----
 
   usage: stl-split [-h] [-n NAME] [--number NUMBER] [--overwrite]
                    [--ignore-check]
                    file
 
-  Divide un fichero stl. La idea es ayudar a post-procesar ficheros stl hechos
-  con mapelia, para que se puedan imprimir más fácilmente. El fichero original
-  no se modifica, sino que se crean dos nuevos ficheros acabados en "_N.stl" y
-  "_S.stl" (o "_head.stl" y "_tail.stl" si se usa la opción --number).
+  Split an stl file. The idea is to help post-procssing stl files made with
+  mapelia, so they can be printed more easily. It does not modify the original
+  file, but creates two new files that end with "_N.stl" and "_S.stl" (or
+  "_head.stl" and "_tail.stl" if using the option --number).
 
   positional arguments:
     file                  fichero stl
 
   optional arguments:
     -h, --help            show this help message and exit
-    -n NAME, --name NAME  nombre de salida (si vacío, se genera a partir del de
-                          entrada) (default: )
-    --number NUMBER       separar dejando el número dado de triángulos en el
-                          primero (default: 0)
-    --overwrite           no comprobar si los ficheros de salida existen
+    -n NAME, --name NAME  output file (if empty, it is generated from the image
+                          file name) (default: )
+    --number NUMBER       split by leaving a given number of triangles in the
+                          first file (default: 0)
+    --overwrite           do not check if the output files already exist
                           (default: False)
-    --ignore-check        forzar el procesado del fichero aunque no parezca un
+    --ignore-check        go ahead even if the input file does not look like an
                           stl (default: False)
 
 
-Posibles post-procesados
-========================
+References
+==========
 
-Procesamiento con MeshLab
--------------------------
-
-Una forma posible de continuar importando un fichero asc en meshlab:
-
-* Filters -> Sampling (tercero por abajo) -> Poisson-disk Sampling (a
-  la mitad) ; number of samples: 100000, con opción: Base Mesh
-  Subsampling.
-* Filters -> Normals, curvature and orientation -> Compute normals for
-  pointsets ; neigbors: 20.
-* Filters -> Point set -> Marching cubes (APSS) ; Grid resolution: 1000.
-* Filters -> Cleaning and Repairing -> Simplification MC: Edge Collapse.
-* Exportar a stl.
-
-
-Material de referencia
-======================
-
-Mapas
------
+Maps
+----
 
 * `Finding and Using Space Image Data`_
 * `Planetary Data System`_
@@ -328,37 +310,27 @@ Mapas
 .. _`Finding and Using Space Image Data`: http://www.planetary.org/explore/space-topics/space-imaging/data.html
 .. _`Planetary Data System`: https://en.wikipedia.org/wiki/Planetary_Data_System
 
-Proyecciones
-------------
+Projections
+-----------
 
-* `Equirectangular`_
-* `De Mercator`_
-* `Central cilíndrica`_
-* `De Mollweide`_
-* `Sinusoidal`_
+* `equirectangular`_
+* `Mercator`_
+* `central cylindrical`_
+* `Mollweide`_
+* `sinusoidal`_
 
-.. _`Equirectangular`: https://en.wikipedia.org/wiki/Equirectangular_projection
-.. _`De Mercator`: https://en.wikipedia.org/wiki/Mercator_projection
-.. _`Central cilíndrica`: https://en.wikipedia.org/wiki/Central_cylindrical_projection
-.. _`De Mollweide`: https://en.wikipedia.org/wiki/Mollweide_projection
-.. _`Sinusoidal`: https://en.wikipedia.org/wiki/Sinusoidal_projection
+Formats
+-------
 
-Formatos
---------
+* `ply`_ -- "polygons" in 3D, also admits colors.
+* `stl`_ -- "stereolitography", triangles in 3D, not as nice as ``ply`` but much used for 3D printing.
+* `asc`_ -- only 3D points.
 
-* `ply`_ -- "polígonos" en 3D, también admite colores
-* `stl`_ -- "estereolitografía", triángulos en 3D, más cutre que ``ply`` pero muy usado para imprimir en 3D
-* `asc`_ -- sólo puntos 3D
 
-.. _`ply`: https://en.wikipedia.org/wiki/PLY_(file_format)
-.. _`stl`: https://en.wikipedia.org/wiki/STL_(file_format)
-.. _`asc`: https://codeyarns.com/2011/08/17/asc-file-format-for-3d-points/
+Processing
+----------
 
-Procesado
----------
-
-* `Pillow`_ -- Python Imaging Library
-* `Meshlab`_ -- programa para ver y editar mallas triangulares 3D
+* `Pillow`_ -- Python Imaging Library.
+* `Meshlab`_ -- program to view and edit 3D meshes.
 
 .. _`Pillow`: https://pillow.readthedocs.io/
-.. _`MeshLab`: https://en.wikipedia.org/wiki/MeshLab

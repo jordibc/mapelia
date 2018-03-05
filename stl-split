@@ -25,13 +25,13 @@ def main():
     add = parser.add_argument  # shortcut
     add('file', help='fichero stl')
     add('-n', '--name', default='',
-        help='nombre de salida (si vacío, se genera a partir del de entrada)')
+        help='output file (if empty, it is generated from the image file name)')
     add('--number', type=int, default=0,
-        help='separar dejando el número dado de triángulos en el primero')
+        help='split by leaving a given number of triangles in the first file')
     add('--overwrite', action='store_true',
-        help='no comprobar si los ficheros de salida existen')
+        help='do not check if the output files already exist')
     add('--ignore-check', action='store_true',
-        help='forzar el procesado del fichero aunque no parezca un stl')
+        help='go ahead even if the input file does not look like an stl')
     args = parser.parse_args()
 
     if not os.path.isfile(args.file):
