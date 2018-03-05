@@ -1,17 +1,18 @@
 mapelia and friends
 ===================
 
-This repository has several programs related to images of maps and 3D files.
+This repository contains several programs related to images of maps
+and 3D files.
 
-* ``mapelia`` -- convert maps into 3D figures with reliefs.
-* ``guapelia`` -- optional GUI to use mapelia.
-* ``pintelia`` -- convert maps into colored 3D figures.
-* ``poligoniza`` -- form faces (polygons) from 3D points.
-* ``stl-split`` -- split a 3D glove into the north and south hemispheres.
+* ``mapelia`` - convert maps into 3D figures with reliefs.
+* ``guapelia`` - optional GUI to use mapelia.
+* ``pintelia`` - convert maps into colored 3D figures.
+* ``poligoniza`` - form faces (polygons) from 3D points.
+* ``stl-split`` - split a 3D globe into the north and south hemispheres.
 
-The maps are ``jpg`` or ``png`` images and can have as projections
-`equirectangular`_, `Mercator`_, `central cylindrical`_, `Mollweide`_
-or `sinusoidal`_.
+The images are ``jpg`` or ``png`` files that contain maps in any of
+the following projections: `equirectangular`_, `Mercator`_, `central
+cylindrical`_, `Mollweide`_ or `sinusoidal`_.
 
 .. _`equirectangular`: https://en.wikipedia.org/wiki/Equirectangular_projection
 .. _`Mercator`: https://en.wikipedia.org/wiki/Mercator_projection
@@ -45,6 +46,7 @@ If you want to modify the file `projections.pyx`, you'll need to run then::
   $ cython3 -a projections.pyx
 
 to regenerate the file `projections.c`.
+
 
 mapelia
 =======
@@ -322,15 +324,15 @@ Projections
 Formats
 -------
 
-* `ply`_ -- "polygons" in 3D, also admits colors.
-* `stl`_ -- "stereolitography", triangles in 3D, not as nice as ``ply`` but much used for 3D printing.
-* `asc`_ -- only 3D points.
+* `ply`_ - "polygons" in 3D, also admits colors.
+* `stl`_ - "stereolitography", triangles in 3D, not as nice as ``ply`` but much used for 3D printing.
+* `asc`_ - only 3D points.
 
 
 Processing
 ----------
 
-* `Pillow`_ -- Python Imaging Library.
-* `Meshlab`_ -- program to view and edit 3D meshes.
+* `Pillow`_ - Python Imaging Library.
+* `Meshlab`_ - program to view and edit 3D meshes.
 
 .. _`Pillow`: https://pillow.readthedocs.io/
