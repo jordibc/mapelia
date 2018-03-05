@@ -15,7 +15,7 @@ or `sinusoidal`_.
 
 .. _`equirectangular`: https://en.wikipedia.org/wiki/Equirectangular_projection
 .. _`Mercator`: https://en.wikipedia.org/wiki/Mercator_projection
-.. _`central cilíndrica`: https://en.wikipedia.org/wiki/Central_cylindrical_projection
+.. _`central cylindrical`: https://en.wikipedia.org/wiki/Central_cylindrical_projection
 .. _`Mollweide`: https://en.wikipedia.org/wiki/Mollweide_projection
 .. _`sinusoidal`: https://en.wikipedia.org/wiki/Sinusoidal_projection
 
