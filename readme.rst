@@ -160,67 +160,65 @@ Usage
 pintelia
 ========
 
-``pintelia`` es un programa para proyectar mapas en esferas 3D con los colores
-originales del mapa.
+``pintelia`` is a program to project maps into 3D spheres with the original colors
+of the map.
 
-Ejemplo
+Example
 -------
 
-Ejecutando::
+By running::
 
   $ ./pintelia examples/earth_equirectangular.jpg --proj equirectangular
   Processing file examples/earth_equirectangular.jpg ...
   - Forming faces...
   The output is in file examples/earth_equirectangular.ply
 
-obtenemos:
+we get:
 
 .. image:: examples/screenshot_meshlab_pintelia.png
 
 
-Uso
----
+Usage
+-----
 
   usage: pintelia [-h] [-o OUTPUT] [--overwrite]
                   [--projection {mercator,cylindrical,mollweide,equirectangular,sinusoidal}]
                   [--points POINTS] [--no-ratio-check] [--fix-gaps]
                   image
 
-  Pinta en colores sobre la superficie de una esfera una imagen con un mapa.
-  Toma mapas de ficheros jpg, png, etc., y escribe ficheros ply (polígonos).
+  Paint with colors over the surface of a sphere an image with a map. It takes
+  maps from jpg files, png, and so on, and writes ply (polygon) files.
 
   positional arguments:
-    image                 fichero de imagen con el mapa
+    image                 image file with the map
 
   optional arguments:
     -h, --help            show this help message and exit
     -o OUTPUT, --output OUTPUT
-                          fichero de salida (si vacío, se genera a partir del de
-                          entrada) (default: )
-    --overwrite           no comprobar si el fichero de salida existe (default:
-                          False)
+                          output file (if empty, it is generated from the image
+                          file name) (default: )
+    --overwrite           do not check if the output file already exists
+                          (default: False)
     --projection mercator_central-cylindrical_mollweide_equirectangular_sinusoidal
-                          tipo de proyección usada en el mapa (default:
-                          mercator)
-    --points POINTS       número de puntos a usar como máximo (o 0 para usar
-                          todos) (default: 0)
-    --no-ratio-check      no arreglar el ratio alto/ancho en ciertas
-                          proyecciones (default: False)
-    --fix-gaps            intenta rellenar los huecos en el mapa (default:
-                          False)
+                          projection used in the map (default: mercator)
+    --points POINTS       maximum number of points to use (or 0 to use all in
+                          the image) (default: 0)
+    --no-ratio-check      do not fix the height/width ratio for certain
+                          projections (default: False)
+    --fix-gaps            try to fill the gaps in the map (default: False)
 
 
 poligoniza
 ==========
 
-``poligoniza`` coge ficheros de puntos 3D (``.asc``) e intenta unirlos formando
-las caras de un sólido.
+``poligoniza`` takes files of 3D points (``.asc``) and tries to join them
+forming the faces of a solid.
 
-Los puntos en el fichero original tienen que estar en cierto orden para que
-queden bien las caras. Por ejemplo, el orden en que ``mapelia`` genera los
-puntos (cuando no proyecta logos también).
+The points in the original file must be in a certain order so that the faces
+are correctly formed. For example, the order in which ``mapelia`` generates
+the points (when it does not project logos too).
 
-Ejemplo
+Example
 -------
 
 ::
@@ -230,33 +228,32 @@ Ejemplo
   - Forming faces...
   The output is in file ficheros_amelia/venus-out-12new.stl
 
-Uso
+Usage
 ---
 
   usage: poligoniza [-h] [-o OUTPUT] [--overwrite] [--type {ply,stl}] [--ascii]
                     [--invert] [--row-length ROW_LENGTH]
                     file
 
-  Crea un fichero de polígonos (.ply o .stl) a partir de uno con sólo los puntos
-  (.asc). El fichero asc original debe tener los puntos en orden correspondiente
-  a las secciones de un objeto casi-esférico.
+  Create a file of polygons (.ply or .stl) from one with only the 3D points
+  (.asc). The original asc file must have the points in the order that
+  corresponds to the sections of a quasi-spherical object.
 
   positional arguments:
-    file                  fichero asc con las coordenadas de los puntos
+    file                  asc file with the points coordinates
 
   optional arguments:
     -h, --help            show this help message and exit
     -o OUTPUT, --output OUTPUT
-                          fichero de salida (si vacío, se genera a partir del de
-                          entrada) (default: )
-    --overwrite           no comprobar si el fichero de salida existe (default:
-                          False)
-    --type ply_stl        tipo de fichero a generar (default: ply)
-    --ascii               escribe el ply resultante en ascii (default: False)
-    --invert              invierte la orientación de las caras (default: False)
+                          output file (if empty, it is generated from the image
+                          file name) (default: )
+    --overwrite           do not check if the output file already exists
+                          (default: False)
+    --type ply_stl        type of 3D file to generate (default: ply)
+    --ascii               write the resulting ply file in ascii (default: False)
+    --invert              invert the orientations of the faces (default: False)
     --row-length ROW_LENGTH
-                          número de puntos por sección (si 0, se autodetecta)
-                          (default: 0)
+                          maximum number of points to use (or 0 to autodetect)
 
 
 stl-split
