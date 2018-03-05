@@ -1,28 +1,27 @@
-mapelia y amigos
-================
+mapelia and friends
+===================
 
-Este repositorio contiene varios programas relacionados con imágenes de mapas
-y ficheros 3D.
+This repository has several programs related to images of maps and 3D files.
 
-* ``mapelia`` ("mapas estilo Amelia") -- convierte mapas en figuras 3D con relieves.
-* ``guapelia`` ("mapelia con interfaz guapo") -- GUI opcional para usar mapelia.
-* ``pintelia`` ("pinta estilo Amelia") -- convierte mapas en figuras 3D coloreadas.
-* ``poligoniza`` -- forma caras (polígonos) a partir de puntos 3D.
-* ``stl-split`` -- divide un globo 3D en hemisferios norte y sur.
+* ``mapelia`` -- convert maps into 3D figures with reliefs.
+* ``guapelia`` -- optional GUI to use mapelia.
+* ``pintelia`` -- convert maps into colored 3D figures.
+* ``poligoniza`` -- form faces (polygons) from 3D points.
+* ``stl-split`` -- split a 3D glove into the north and south hemispheres.
 
-Los mapas son imágenes ``jpg`` o ``png`` y pueden estar en proyección
-`equirectangular`_, `de Mercator`_, `central cilíndrica`_, `de Mollweide`_
-o `sinusoidal`_.
+The maps are ``jpg`` or ``png`` images and can have as projections
+`equirectangular`_, `Mercator`_, `central cylindrical`_, `Mollweide`_
+or `sinusoidal`_.
 
 .. _`equirectangular`: https://en.wikipedia.org/wiki/Equirectangular_projection
-.. _`de Mercator`: https://en.wikipedia.org/wiki/Mercator_projection
+.. _`Mercator`: https://en.wikipedia.org/wiki/Mercator_projection
 .. _`central cilíndrica`: https://en.wikipedia.org/wiki/Central_cylindrical_projection
-.. _`de Mollweide`: https://en.wikipedia.org/wiki/Mollweide_projection
+.. _`Mollweide`: https://en.wikipedia.org/wiki/Mollweide_projection
 .. _`sinusoidal`: https://en.wikipedia.org/wiki/Sinusoidal_projection
 
-El resultado de los programas son ficheros 3D (de polígonos como `ply`_ o
-`stl`_, o puntos en el espacio como `asc`_), que pueden ser visualizados y
-manipulados por programas como `MeshLab`_ o `Blender`_.
+The output of the programs are 3D files (of polygons like `ply`_ or
+`stl`_, or points in space like `asc`_), that can be visualized and
+manipulated with programs like `MeshLab`_ or `Blender`_.
 
 .. _`ply`: https://en.wikipedia.org/wiki/PLY_(file_format)
 .. _`stl`: https://en.wikipedia.org/wiki/STL_(file_format)
@@ -31,36 +30,37 @@ manipulados por programas como `MeshLab`_ o `Blender`_.
 .. _`Blender`: https://www.blender.org/
 
 
-Instalación
-===========
+Installing
+==========
 
-La primera vez que se baja este repositorio, hace falta ejecutar::
+The first time that you download this repository, you'll need to run::
 
   $ python3 setup.py build_ext --inplace
 
-de forma que se genera el módulo `projections` a partir de `projections.c`.
+so as to generate the `projections` module from `projections.c`. Trying to
+run directly `mapelia` will warn about the need to run this.
 
-Si se desea modificar el fichero `projections.pyx`, hará falta además hacer
-previamente::
+If you want to modify the file `projections.pyx`, you'll need to run then::
 
   $ cython3 -a projections.pyx
 
-para regenerar el fichero `projections.c`.
+to regenerate the file `projections.c`.
 
 mapelia
 =======
 
-``mapelia`` es un programa para manipular ficheros de imágenes de mapas y
-convertirlos en figuras 3D con los relieves extraídos del mapa.
+``mapelia`` is a program to manipulate files with map images and
+transform them into 3D figures with their heights extracted from the
+map.
 
-Ejemplo
+Example
 -------
 
-Empezando con la siguiente imagen:
+Starting with the following image:
 
 .. image:: examples/venus.png
 
-ejecutamos::
+we run::
 
   $ ./mapelia examples/venus.png
   Processing file examples/venus.png ...
@@ -78,12 +78,12 @@ ejecutamos::
   - Forming faces...
   The output is in file examples/venus.ply
 
-y obtenemos:
+and get:
 
 .. image:: examples/screenshot_meshlab.png
 
-Uso
----
+Usage
+-----
 
   usage: mapelia [-h] [--output OUTPUT] [--overwrite] [--type {ply,asc,stl}]
                  [--channel {r,g,b,average,hue,sat,val,color}] [--invert]
@@ -98,66 +98,63 @@ Uso
                  [--no-ratio-check] [--blur BLUR] [--fix-gaps] [--config CONFIG]
                  image
 
-  Convierte imágenes con mapas a ficheros 3D. Toma mapas de ficheros jpg, png,
-  etc., y escribe ficheros ply (polígonos), asc (nube de puntos) o stl (también
-  polígonos) con una esfera que contiene las elevaciones deducidas del mapa en
-  cada punto. Estos ficheros se pueden a su vez manipular con programas como
-  MeshLab o Blender.
+  Transform images with maps into 3D files. It takes maps images in jpg, png and
+  so on, and writes 3D polygon files (ply and stl) or clouds of 3D points (asc)
+  with a sphere that contains the elevations deduced from the map at each point.
+  These files can be further processed with programs like MeshLab or Blender.
 
   positional arguments:
-    image                 fichero de imagen con el mapa
+    image                 image file with the map
 
   optional arguments:
     -h, --help            show this help message and exit
-    --output OUTPUT       fichero de salida (si vacío, se genera a partir del de
-                          entrada) (default: )
-    --overwrite           no comprobar si el fichero de salida existe (default:
-                          False)
-    --type ply_asc_stl    tipo de fichero a generar (default: ply)
+    --output OUTPUT       output file (if empty, it is generated from the image
+                          file name) (default: )
+    --overwrite           do not check if the output file already exists
+                          (default: False)
+    --type ply_asc_stl    type of 3D file to generate (default: ply)
     --channel r_g_b_average_hue_sat_val_color
-                          canal que contiene la información de la elevación
+                          channel with the elevations information in the image
                           (default: val)
-    --invert              invierte las elevaciones (default: False)
+    --invert              invert heights (default: False)
     --projection mercator_central-cylindrical_mollweide_equirectangular_sinusoidal
-                          tipo de proyección usada en el mapa (default:
-                          mercator)
-    --points POINTS       número de puntos a usar como máximo (o 0 para usar
-                          todos) (default: 0)
-    --scale SCALE         fracción de radio entre el punto más bajo y más alto
-                          (default: 0.02)
-    --caps CAPS           ángulo (en grados) al que llegan los casquetes (o auto
-                          o none) (default: auto)
+                          projection used in the map (default: mercator)
+    --points POINTS       maximum number of points to use (or 0 to use all in
+                          the image) (default: 0)
+    --scale SCALE         fraction of radius between the highest and lowest
+                          points (default: 0.02)
+    --caps CAPS           angle (in degrees) where the caps end (or auto or
+                          none) (default: auto)
     --caps-height CAPS_HEIGHT
-                          altura a la que están los casquetes (default: 1.02)
+                          height of the caps (1 would be at sea-level) (default:
+                          1.02)
     --logo-north LOGO_NORTH
-                          fichero de imagen con el logo norte (default: )
+                          image file with the north logo (default: )
     --logo-north-scale LOGO_NORTH_SCALE
-                          factor de escalado del logo norte (puede ser < 0 para
-                          grabados) (default: 1.0)
+                          scale factor for the north logo (can be < 0 for
+                          engravings) (default: 1.0)
     --logo-south LOGO_SOUTH
-                          fichero de imagen con el logo sur (default: )
+                          image file with the south logo (default: )
     --logo-south-scale LOGO_SOUTH_SCALE
-                          factor de escalado del logo sur (puede ser < 0 para
-                          grabados) (default: 1.0)
+                          scale factor for the south logo (can be < 0 for
+                          engravings) (default: 1.0)
     --meridians-pos POSITION1_POSITION2_etc
-                          lista de longitudes (en grados) con meridianos
+                          list of longitudes (in degrees) with meridians
                           (default: [0])
     --meridians-widths WIDTH1_WIDTH2_etc
-                          lista de anchuras (en grados) de los meridianos
-                          (default: [2])
+                          list of widths (in degrees) of the meridians (default:
+                          [2])
     --meridians-height MERIDIANS_HEIGHT
-                          altura a la que llegan los meridianos (en el ecuador)
-                          (default: 1.02)
+                          elevation of the meridians (at the equator) (default:
+                          1.02)
     --thickness THICKNESS
-                          grosor del objeto generado (< 1 para que sea
-                          parcialmente hueco) (default: 1)
-    --no-ratio-check      no arreglar el ratio alto/ancho en ciertas
-                          proyecciones (default: False)
-    --blur BLUR           cantidad mínima de píxeles usados para suavizar la
-                          imagen (default: 0)
-    --fix-gaps            intenta rellenar los huecos en el mapa (default:
-                          False)
-    --config CONFIG       fichero con parámetros por defecto (default: )
+                          thickness of the generated object (< 1 for partially
+                          hollow)) (default: 1)
+    --no-ratio-check      do not fix the height/width ratio for certain
+                          projections (default: False)
+    --blur BLUR           amount of pixels used to smooth the image (default: 0)
+    --fix-gaps            try to fill the gaps in the map (default: False)
+    --config CONFIG       file with default parameters (default: )
 
 
 pintelia
