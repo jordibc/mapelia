@@ -41,7 +41,8 @@ The first time that you download this repository, you'll need to run::
 so as to generate the `projections` module from `projections.c`. Trying to
 run directly `mapelia` will warn about the need to run this.
 
-If you want to modify the file `projections.pyx`, you'll need to run then::
+If you also want to modify the file `projections.pyx`, you'll first
+need to run::
 
   $ cython3 -a projections.pyx
 
