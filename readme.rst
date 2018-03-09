@@ -38,15 +38,16 @@ The first time that you download this repository, you'll need to run::
 
   $ python3 setup.py build_ext --inplace
 
-so as to generate the `projections` module from `projections.c`. Trying to
-run directly `mapelia` will warn about the need to run this.
+so as to generate the ``projections`` module from
+``projections.c``. Trying to run directly ``mapelia`` will warn about
+the need to run this.
 
 If you also want to modify the file `projections.pyx`, you'll first
 need to run::
 
   $ cython3 -a projections.pyx
 
-to regenerate the file `projections.c`.
+to regenerate the file ``projections.c``.
 
 
 mapelia
