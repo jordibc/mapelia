@@ -164,11 +164,14 @@ def process(args):
                  'south': Logo(args.logo_south, args.logo_south_scale)}
 
     add_faces = args.type in ['ply', 'stl']
+
     patches = get_patches(heights, projection_args, logo_args, args.thickness,
                           add_faces)
-    if   args.type == 'asc':  write_asc(output, patches)
-    elif args.type == 'ply':  write_ply(output, patches)
-    elif args.type == 'stl':  write_stl(output, patches)
+
+    write = {'asc': write_asc,
+             'ply': write_ply,
+             'stl': write_stl}[args.type]
+    write(output, patches)
 
     return output
 
