@@ -1,0 +1,23 @@
+{
+  "@context": "https://raw.githubusercontent.com/codemeta/codemeta/master/codemeta.jsonld",
+  "@type": "Code",
+  "author": [
+    {
+      "@id": " https://orcid.org/0000-0002-9198-5380",
+      "@type": "Person",
+      "email": "jordi.burguet.castell@gmail.com",
+      "name": "Jordi Burguet-Castell",
+      "affiliation": ""
+    }
+  ],
+  "identifier": "",
+  "codeRepository": "https://github.com/jordibc/mapelia/",
+  "datePublished": "2018-03-13",
+  "dateModified": "2018-03-13",
+  "dateCreated": "2018-03-13",
+  "description": "Construct 3D models from maps",
+  "keywords": "3d,maps,astronomy,outreach,python",
+  "license": "GPL v3.0",
+  "title": "Mapelia",
+  "version": "1.1.1"
+}
