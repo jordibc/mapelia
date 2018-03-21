@@ -98,7 +98,9 @@ Usage
                  [--logo-south-scale LOGO_SOUTH_SCALE]
                  [--meridians-pos [POSITION [POSITION ...]]]
                  [--meridians-widths [WIDTH [WIDTH ...]]]
-                 [--meridians-height MERIDIANS_HEIGHT] [--thickness THICKNESS]
+                 [--meridians-height MERIDIANS_HEIGHT]
+                 [--equator-width EQUATOR_WIDTH]
+                 [--equator-height EQUATOR_HEIGHT] [--thickness THICKNESS]
                  [--no-ratio-check] [--blur BLUR] [--fix-gaps] [--config CONFIG]
                  image
 
@@ -151,6 +153,11 @@ Usage
     --meridians-height MERIDIANS_HEIGHT
                           elevation of the meridians (at the equator) (default:
                           1.02)
+    --equator-width EQUATOR_WIDTH
+                          width (in degrees) of the equator (0 for no equator)
+                          (default: 0)
+    --equator-height EQUATOR_HEIGHT
+                          elevation of the equator (default: 1.02)
     --thickness THICKNESS
                           thickness of the generated object (< 1 for partially
                           hollow)) (default: 1)

@@ -5,7 +5,7 @@ They are also the most computationally-intensive and thus can benefit
 from using cython.
 """
 
-__version__ = '1.1.1'
+__version__ = '1.2.0'
 
 # If you modify this file, you can recreate projections.c by running:
 #   cython3 -a projections.pyx
@@ -23,7 +23,8 @@ red = lambda txt: '\x1b[31m%s\x1b[0m' % txt
 
 
 def get_map_points(heights, long pid, ptype, npoints, double scale, caps,
-                   double caps_height, meridians, double meridians_height):
+                   double caps_height, meridians, double meridians_height,
+                   double equator_width, double equator_height):
     "Return points on a sphere, modulated by the given heights"
     # The points returned look like a list of rows:
     # [[(0, x0_0, y0_0, z0_0), (1, x0_1, y0_1, z0_1), ...],
@@ -84,7 +85,12 @@ def get_map_points(heights, long pid, ptype, npoints, double scale, caps,
             if isnan(theta):
                 continue
 
-            r = rmeridian(phi) if on_meridians(theta) else radii[j, i]
+            if equator_width > 0 and abs(phi) < equator_width / 2:
+                r = equator_height
+            elif on_meridians(theta):
+                r = rmeridian(phi)
+            else:
+                r = radii[j, i]
 
             x = r * cos(theta) * cphi
             y = r * sin(theta) * cphi

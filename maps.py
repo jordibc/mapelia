@@ -34,7 +34,7 @@ from numpy import cos, sqrt, pi, array, zeros, average
 
 try:
     import projections as pj
-    assert pj.__version__ == '1.1.1'
+    assert pj.__version__ == '1.2.0'
 except (ImportError, AssertionError, AttributeError) as e:
     sys.exit('projections module not ready. You may want to first run:\n'
              '  %s setup.py build_ext --inplace' % sys.executable)
@@ -93,6 +93,10 @@ def get_parser():
         help='list of widths (in degrees) of the meridians')
     add('--meridians-height', type=float, default=1.02,
         help='elevation of the meridians (at the equator)')
+    add('--equator-width', type=float, default=0,
+        help='width (in degrees) of the equator (0 for no equator)')
+    add('--equator-height', type=float, default=1.02,
+        help='elevation of the equator')
     add('--thickness', type=float, default=1,
         help='thickness of the generated object (< 1 for partially hollow))')
     add('--no-ratio-check', action='store_true',
@@ -158,7 +162,9 @@ def process(args):
                        'caps': caps,
                        'caps_height': args.caps_height,
                        'meridians': meridians,
-                       'meridians_height': args.meridians_height}
+                       'meridians_height': args.meridians_height,
+                       'equator_width': deg2rad(args.equator_width),
+                       'equator_height': args.equator_height}
 
     logo_args = {'north': Logo(args.logo_north, args.logo_north_scale),
                  'south': Logo(args.logo_south, args.logo_south_scale)}
@@ -215,6 +221,7 @@ def get_arguments_converters():
         'points': int, 'scale': float, 'thickness': float, 'blur': float,
         'logo-north-scale': float, 'logo-south-scale': float,
         'caps-height': float, 'meridians-height': float,
+        'equator-width': float, 'equator-height': float,
         'meridians-pos': list_of_floats, 'meridians-widths': list_of_floats,
         'overwrite': truth, 'invert': truth, 'no-ratio-check': truth,
         'fix-gaps': truth}
