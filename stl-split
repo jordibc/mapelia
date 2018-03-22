@@ -23,7 +23,7 @@ red = lambda txt: '\x1b[31m%s\x1b[0m' % txt
 def main():
     parser = ArgumentParser(description=__doc__, formatter_class=fmt)
     add = parser.add_argument  # shortcut
-    add('file', help='fichero stl')
+    add('file', help='stl file')
     add('-n', '--name', default='',
         help='output file (if empty, it is generated from the image file name)')
     add('--number', type=int, default=0,

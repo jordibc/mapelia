@@ -234,10 +234,10 @@ Example
 
 ::
 
-  $ ./poligoniza ficheros_amelia/venus-out-12new.asc --type stl --invert
-  Processing file ficheros_amelia/venus-out-12new.asc ...
+  $ ./poligoniza venus.asc --type stl --invert
+  Processing file venus.asc ...
   - Forming faces...
-  The output is in file ficheros_amelia/venus-out-12new.stl
+  The output is in file venus.stl
 
 Usage
 -----
@@ -295,7 +295,7 @@ Usage
   "_head.stl" and "_tail.stl" if using the option --number).
 
   positional arguments:
-    file                  fichero stl
+    file                  stl file
 
   optional arguments:
     -h, --help            show this help message and exit
