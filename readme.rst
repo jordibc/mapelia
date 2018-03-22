@@ -289,7 +289,7 @@ Usage
                    [--ignore-check]
                    file
 
-  Split an stl file. The idea is to help post-procssing stl files made with
+  Split an stl file. The idea is to help post-processing stl files made with
   mapelia, so they can be printed more easily. It does not modify the original
   file, but creates two new files that end with "_N.stl" and "_S.stl" (or
   "_head.stl" and "_tail.stl" if using the option --number).
