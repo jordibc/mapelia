@@ -26,7 +26,7 @@ from numpy import sin, cos, sqrt, isnan, array
 import maps
 try:
     import projections
-    assert projections.__version__ == '1.1.1'
+    assert projections.__version__ == '1.2.1'
 except (ImportError, AssertionError, AttributeError) as e:
     sys.exit('projections module not ready. You may want to first run:\n'
              '  %s setup.py build_ext --inplace' % sys.executable)

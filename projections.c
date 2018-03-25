@@ -788,13 +788,13 @@ struct __pyx_obj_11projections___pyx_scope_struct_5_get_faces {
  * 
  * def points_at_extreme(points, sample_points=[]):             # <<<<<<<<<<<<<<
  *     "Return a list of points that correspond to the boundary of the given ones"
- *     def rxy(p):
+ *     def r2xy(p):
  */
 struct __pyx_obj_11projections___pyx_scope_struct_6_points_at_extreme {
   PyObject_HEAD
   PyObject *__pyx_v_points;
-  PyObject *__pyx_v_rxy;
-  PyObject *__pyx_v_rxy_limit;
+  PyObject *__pyx_v_r2xy;
+  PyObject *__pyx_v_r2xy_limit;
   PyObject *__pyx_v_sample_points;
 };
 
@@ -802,9 +802,9 @@ struct __pyx_obj_11projections___pyx_scope_struct_6_points_at_extreme {
 /* "projections.pyx":336
  * 
  *     sample_points = sample_points or points[1]
- *     rxy_limit = sum(rxy(p) for p in sample_points) / len(sample_points)             # <<<<<<<<<<<<<<
+ *     r2xy_limit = sum(r2xy(p) for p in sample_points) / len(sample_points)             # <<<<<<<<<<<<<<
  * 
- *     return sorted((p for row in points for p in row if rxy(p) > rxy_limit),
+ *     return sorted((p for row in points for p in row if r2xy(p) > r2xy_limit),
  */
 struct __pyx_obj_11projections___pyx_scope_struct_7_genexpr {
   PyObject_HEAD
@@ -817,9 +817,9 @@ struct __pyx_obj_11projections___pyx_scope_struct_7_genexpr {
 
 
 /* "projections.pyx":338
- *     rxy_limit = sum(rxy(p) for p in sample_points) / len(sample_points)
+ *     r2xy_limit = sum(r2xy(p) for p in sample_points) / len(sample_points)
  * 
- *     return sorted((p for row in points for p in row if rxy(p) > rxy_limit),             # <<<<<<<<<<<<<<
+ *     return sorted((p for row in points for p in row if r2xy(p) > r2xy_limit),             # <<<<<<<<<<<<<<
  *                   key=lambda p: arctan2(p[2], p[1]))
  * 
  */
@@ -1357,7 +1357,6 @@ static const char __pyx_k_phi[] = "phi";
 static const char __pyx_k_pid[] = "pid";
 static const char __pyx_k_red[] = "red";
 static const char __pyx_k_row[] = "row";
-static const char __pyx_k_rxy[] = "rxy";
 static const char __pyx_k_sin[] = "sin";
 static const char __pyx_k_sum[] = "sum";
 static const char __pyx_k_args[] = "args";
@@ -1375,11 +1374,12 @@ static const char __pyx_k_norm[] = "norm";
 static const char __pyx_k_nphi[] = "nphi";
 static const char __pyx_k_nx_2[] = "nx_2";
 static const char __pyx_k_ny_2[] = "ny_2";
+static const char __pyx_k_r2xy[] = "r2xy";
 static const char __pyx_k_send[] = "send";
 static const char __pyx_k_sphi[] = "sphi";
 static const char __pyx_k_sqrt[] = "sqrt";
 static const char __pyx_k_test[] = "__test__";
-static const char __pyx_k_1_2_0[] = "1.2.0";
+static const char __pyx_k_1_2_1[] = "1.2.1";
 static const char __pyx_k_Point[] = "Point";
 static const char __pyx_k_close[] = "close";
 static const char __pyx_k_dist2[] = "dist2";
@@ -1432,8 +1432,8 @@ static const char __pyx_k_mollweide[] = "mollweide";
 static const char __pyx_k_ones_like[] = "ones_like";
 static const char __pyx_k_phi_start[] = "phi_start";
 static const char __pyx_k_rmeridian[] = "rmeridian";
-static const char __pyx_k_rxy_limit[] = "rxy_limit";
 static const char __pyx_k_namedtuple[] = "namedtuple";
+static const char __pyx_k_r2xy_limit[] = "r2xy_limit";
 static const char __pyx_k_sinusoidal[] = "sinusoidal";
 static const char __pyx_k_abs_phi_max[] = "abs_phi_max";
 static const char __pyx_k_caps_height[] = "caps_height";
@@ -1467,7 +1467,7 @@ static const char __pyx_k_central_cylindrical[] = "central-cylindrical";
 static const char __pyx_k_projection_functions[] = "projection_functions";
 static const char __pyx_k_get_faces_locals_lambda[] = "get_faces.<locals>.<lambda>";
 static const char __pyx_k_interpolate_locals_lambda[] = "interpolate.<locals>.<lambda>";
-static const char __pyx_k_points_at_extreme_locals_rxy[] = "points_at_extreme.<locals>.rxy";
+static const char __pyx_k_points_at_extreme_locals_r2xy[] = "points_at_extreme.<locals>.r2xy";
 static const char __pyx_k_Projecting_heights_on_a_sphere[] = "- Projecting heights on a sphere...";
 static const char __pyx_k_Projections_related_functions_f[] = "\nProjections-related functions for mapelia.\n\nThey are also the most computationally-intensive and thus can benefit\nfrom using cython.\n";
 static const char __pyx_k_points_at_extreme_locals_lambda[] = "points_at_extreme.<locals>.<lambda>";
@@ -1479,7 +1479,7 @@ static const char __pyx_k_projection_functions_locals_lamb[] = "projection_funct
 static const char __pyx_k_projection_functions_locals_get_2[] = "projection_functions.<locals>.get_phi";
 static const char __pyx_k_get_map_points_locals_on_meridia_2[] = "get_map_points.<locals>.on_meridians.<locals>.<lambda>";
 static const char __pyx_k_get_map_points_locals_on_meridia_3[] = "get_map_points.<locals>.on_meridians";
-static PyObject *__pyx_kp_s_1_2_0;
+static PyObject *__pyx_kp_s_1_2_1;
 static PyObject *__pyx_kp_s_31m_s_0m;
 static PyObject *__pyx_kp_s_Forming_faces;
 static PyObject *__pyx_kp_s_Gap_between_caps_and_the_map_pro;
@@ -1594,7 +1594,7 @@ static PyObject *__pyx_n_s_points;
 static PyObject *__pyx_n_s_points_at_extreme;
 static PyObject *__pyx_n_s_points_at_extreme_locals_genexpr;
 static PyObject *__pyx_n_s_points_at_extreme_locals_lambda;
-static PyObject *__pyx_n_s_points_at_extreme_locals_rxy;
+static PyObject *__pyx_n_s_points_at_extreme_locals_r2xy;
 static PyObject *__pyx_n_s_print;
 static PyObject *__pyx_n_s_projection_functions;
 static PyObject *__pyx_n_s_projection_functions_locals_get;
@@ -1604,6 +1604,8 @@ static PyObject *__pyx_n_s_projections;
 static PyObject *__pyx_kp_s_projections_pyx;
 static PyObject *__pyx_n_s_ptype;
 static PyObject *__pyx_n_s_r;
+static PyObject *__pyx_n_s_r2xy;
+static PyObject *__pyx_n_s_r2xy_limit;
 static PyObject *__pyx_n_s_radii;
 static PyObject *__pyx_n_s_range;
 static PyObject *__pyx_n_s_rcphi;
@@ -1612,8 +1614,6 @@ static PyObject *__pyx_n_s_rmeridian;
 static PyObject *__pyx_n_s_row;
 static PyObject *__pyx_n_s_row_current;
 static PyObject *__pyx_n_s_row_previous;
-static PyObject *__pyx_n_s_rxy;
-static PyObject *__pyx_n_s_rxy_limit;
 static PyObject *__pyx_n_s_sample_points;
 static PyObject *__pyx_n_s_scale;
 static PyObject *__pyx_n_s_send;
@@ -1671,7 +1671,7 @@ static PyObject *__pyx_lambda_funcdef_lambda12(PyObject *__pyx_self); /* proto *
 static PyObject *__pyx_pf_11projections_14get_faces(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_points, PyObject *__pyx_v_close_figure); /* proto */
 static PyObject *__pyx_pf_11projections_16norm(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_p); /* proto */
 static PyObject *__pyx_pf_11projections_18dist2(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_p0, PyObject *__pyx_v_p1); /* proto */
-static PyObject *__pyx_pf_11projections_17points_at_extreme_rxy(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_p); /* proto */
+static PyObject *__pyx_pf_11projections_17points_at_extreme_r2xy(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_p); /* proto */
 static PyObject *__pyx_pf_11projections_17points_at_extreme_2genexpr(PyObject *__pyx_self); /* proto */
 static PyObject *__pyx_pf_11projections_17points_at_extreme_5genexpr(PyObject *__pyx_self); /* proto */
 static PyObject *__pyx_lambda_funcdef_lambda15(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_p); /* proto */
@@ -11517,7 +11517,7 @@ static PyObject *__pyx_pf_11projections_18dist2(CYTHON_UNUSED PyObject *__pyx_se
  * 
  * def points_at_extreme(points, sample_points=[]):             # <<<<<<<<<<<<<<
  *     "Return a list of points that correspond to the boundary of the given ones"
- *     def rxy(p):
+ *     def r2xy(p):
  */
 
 /* Python wrapper */
@@ -11590,26 +11590,26 @@ static PyObject *__pyx_pw_11projections_21points_at_extreme(PyObject *__pyx_self
 /* "projections.pyx":330
  * def points_at_extreme(points, sample_points=[]):
  *     "Return a list of points that correspond to the boundary of the given ones"
- *     def rxy(p):             # <<<<<<<<<<<<<<
+ *     def r2xy(p):             # <<<<<<<<<<<<<<
  *         cdef double x, y
  *         _, x, y, _ = p
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_11projections_17points_at_extreme_1rxy(PyObject *__pyx_self, PyObject *__pyx_v_p); /*proto*/
-static PyMethodDef __pyx_mdef_11projections_17points_at_extreme_1rxy = {"rxy", (PyCFunction)__pyx_pw_11projections_17points_at_extreme_1rxy, METH_O, 0};
-static PyObject *__pyx_pw_11projections_17points_at_extreme_1rxy(PyObject *__pyx_self, PyObject *__pyx_v_p) {
+static PyObject *__pyx_pw_11projections_17points_at_extreme_1r2xy(PyObject *__pyx_self, PyObject *__pyx_v_p); /*proto*/
+static PyMethodDef __pyx_mdef_11projections_17points_at_extreme_1r2xy = {"r2xy", (PyCFunction)__pyx_pw_11projections_17points_at_extreme_1r2xy, METH_O, 0};
+static PyObject *__pyx_pw_11projections_17points_at_extreme_1r2xy(PyObject *__pyx_self, PyObject *__pyx_v_p) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("rxy (wrapper)", 0);
-  __pyx_r = __pyx_pf_11projections_17points_at_extreme_rxy(__pyx_self, ((PyObject *)__pyx_v_p));
+  __Pyx_RefNannySetupContext("r2xy (wrapper)", 0);
+  __pyx_r = __pyx_pf_11projections_17points_at_extreme_r2xy(__pyx_self, ((PyObject *)__pyx_v_p));
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_11projections_17points_at_extreme_rxy(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_p) {
+static PyObject *__pyx_pf_11projections_17points_at_extreme_r2xy(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_p) {
   double __pyx_v_x;
   double __pyx_v_y;
   CYTHON_UNUSED PyObject *__pyx_v__ = NULL;
@@ -11623,13 +11623,13 @@ static PyObject *__pyx_pf_11projections_17points_at_extreme_rxy(CYTHON_UNUSED Py
   PyObject *(*__pyx_t_6)(PyObject *);
   double __pyx_t_7;
   double __pyx_t_8;
-  __Pyx_RefNannySetupContext("rxy", 0);
+  __Pyx_RefNannySetupContext("r2xy", 0);
 
   /* "projections.pyx":332
- *     def rxy(p):
+ *     def r2xy(p):
  *         cdef double x, y
  *         _, x, y, _ = p             # <<<<<<<<<<<<<<
- *         return sqrt(x*x + y*y)
+ *         return x*x + y*y
  * 
  */
   if ((likely(PyTuple_CheckExact(__pyx_v_p))) || (PyList_CheckExact(__pyx_v_p))) {
@@ -11707,61 +11707,13 @@ static PyObject *__pyx_pf_11projections_17points_at_extreme_rxy(CYTHON_UNUSED Py
   /* "projections.pyx":333
  *         cdef double x, y
  *         _, x, y, _ = p
- *         return sqrt(x*x + y*y)             # <<<<<<<<<<<<<<
+ *         return x*x + y*y             # <<<<<<<<<<<<<<
  * 
  *     sample_points = sample_points or points[1]
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_3 = __Pyx_GetModuleGlobalName(__pyx_n_s_sqrt); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 333, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = PyFloat_FromDouble(((__pyx_v_x * __pyx_v_x) + (__pyx_v_y * __pyx_v_y))); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 333, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = NULL;
-  if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_3))) {
-    __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_3);
-    if (likely(__pyx_t_1)) {
-      PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_3);
-      __Pyx_INCREF(__pyx_t_1);
-      __Pyx_INCREF(function);
-      __Pyx_DECREF_SET(__pyx_t_3, function);
-    }
-  }
-  if (!__pyx_t_1) {
-    __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 333, __pyx_L1_error)
-    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __Pyx_GOTREF(__pyx_t_4);
-  } else {
-    #if CYTHON_FAST_PYCALL
-    if (PyFunction_Check(__pyx_t_3)) {
-      PyObject *__pyx_temp[2] = {__pyx_t_1, __pyx_t_2};
-      __pyx_t_4 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 333, __pyx_L1_error)
-      __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    } else
-    #endif
-    #if CYTHON_FAST_PYCCALL
-    if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
-      PyObject *__pyx_temp[2] = {__pyx_t_1, __pyx_t_2};
-      __pyx_t_4 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-1, 1+1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 333, __pyx_L1_error)
-      __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
-      __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    } else
-    #endif
-    {
-      __pyx_t_5 = PyTuple_New(1+1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 333, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_5);
-      __Pyx_GIVEREF(__pyx_t_1); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_1); __pyx_t_1 = NULL;
-      __Pyx_GIVEREF(__pyx_t_2);
-      PyTuple_SET_ITEM(__pyx_t_5, 0+1, __pyx_t_2);
-      __pyx_t_2 = 0;
-      __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 333, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_4);
-      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    }
-  }
-  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_t_4 = PyFloat_FromDouble(((__pyx_v_x * __pyx_v_x) + (__pyx_v_y * __pyx_v_y))); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 333, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
   __pyx_r = __pyx_t_4;
   __pyx_t_4 = 0;
   goto __pyx_L0;
@@ -11769,7 +11721,7 @@ static PyObject *__pyx_pf_11projections_17points_at_extreme_rxy(CYTHON_UNUSED Py
   /* "projections.pyx":330
  * def points_at_extreme(points, sample_points=[]):
  *     "Return a list of points that correspond to the boundary of the given ones"
- *     def rxy(p):             # <<<<<<<<<<<<<<
+ *     def r2xy(p):             # <<<<<<<<<<<<<<
  *         cdef double x, y
  *         _, x, y, _ = p
  */
@@ -11781,7 +11733,7 @@ static PyObject *__pyx_pf_11projections_17points_at_extreme_rxy(CYTHON_UNUSED Py
   __Pyx_XDECREF(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4);
   __Pyx_XDECREF(__pyx_t_5);
-  __Pyx_AddTraceback("projections.points_at_extreme.rxy", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("projections.points_at_extreme.r2xy", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v__);
@@ -11794,9 +11746,9 @@ static PyObject *__pyx_gb_11projections_17points_at_extreme_4generator1(__pyx_Co
 /* "projections.pyx":336
  * 
  *     sample_points = sample_points or points[1]
- *     rxy_limit = sum(rxy(p) for p in sample_points) / len(sample_points)             # <<<<<<<<<<<<<<
+ *     r2xy_limit = sum(r2xy(p) for p in sample_points) / len(sample_points)             # <<<<<<<<<<<<<<
  * 
- *     return sorted((p for row in points for p in row if rxy(p) > rxy_limit),
+ *     return sorted((p for row in points for p in row if r2xy(p) > r2xy_limit),
  */
 
 static PyObject *__pyx_pf_11projections_17points_at_extreme_2genexpr(PyObject *__pyx_self) {
@@ -11895,8 +11847,8 @@ static PyObject *__pyx_gb_11projections_17points_at_extreme_4generator1(__pyx_Co
     __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_p, __pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_4);
     __pyx_t_4 = 0;
-    if (unlikely(!__pyx_cur_scope->__pyx_outer_scope->__pyx_v_rxy)) { __Pyx_RaiseClosureNameError("rxy"); __PYX_ERR(0, 336, __pyx_L1_error) }
-    __pyx_t_4 = __pyx_pf_11projections_17points_at_extreme_rxy(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_rxy, __pyx_cur_scope->__pyx_v_p); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 336, __pyx_L1_error)
+    if (unlikely(!__pyx_cur_scope->__pyx_outer_scope->__pyx_v_r2xy)) { __Pyx_RaiseClosureNameError("r2xy"); __PYX_ERR(0, 336, __pyx_L1_error) }
+    __pyx_t_4 = __pyx_pf_11projections_17points_at_extreme_r2xy(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_r2xy, __pyx_cur_scope->__pyx_v_p); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 336, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_r = __pyx_t_4;
     __pyx_t_4 = 0;
@@ -11937,9 +11889,9 @@ static PyObject *__pyx_gb_11projections_17points_at_extreme_4generator1(__pyx_Co
 static PyObject *__pyx_gb_11projections_17points_at_extreme_7generator2(__pyx_CoroutineObject *__pyx_generator, PyObject *__pyx_sent_value); /* proto */
 
 /* "projections.pyx":338
- *     rxy_limit = sum(rxy(p) for p in sample_points) / len(sample_points)
+ *     r2xy_limit = sum(r2xy(p) for p in sample_points) / len(sample_points)
  * 
- *     return sorted((p for row in points for p in row if rxy(p) > rxy_limit),             # <<<<<<<<<<<<<<
+ *     return sorted((p for row in points for p in row if r2xy(p) > r2xy_limit),             # <<<<<<<<<<<<<<
  *                   key=lambda p: arctan2(p[2], p[1]))
  * 
  */
@@ -12088,11 +12040,11 @@ static PyObject *__pyx_gb_11projections_17points_at_extreme_7generator2(__pyx_Co
       __Pyx_XDECREF_SET(__pyx_cur_scope->__pyx_v_p, __pyx_t_7);
       __Pyx_GIVEREF(__pyx_t_7);
       __pyx_t_7 = 0;
-      if (unlikely(!__pyx_cur_scope->__pyx_outer_scope->__pyx_v_rxy)) { __Pyx_RaiseClosureNameError("rxy"); __PYX_ERR(0, 338, __pyx_L1_error) }
-      __pyx_t_7 = __pyx_pf_11projections_17points_at_extreme_rxy(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_rxy, __pyx_cur_scope->__pyx_v_p); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 338, __pyx_L1_error)
+      if (unlikely(!__pyx_cur_scope->__pyx_outer_scope->__pyx_v_r2xy)) { __Pyx_RaiseClosureNameError("r2xy"); __PYX_ERR(0, 338, __pyx_L1_error) }
+      __pyx_t_7 = __pyx_pf_11projections_17points_at_extreme_r2xy(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_r2xy, __pyx_cur_scope->__pyx_v_p); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 338, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
-      if (unlikely(!__pyx_cur_scope->__pyx_outer_scope->__pyx_v_rxy_limit)) { __Pyx_RaiseClosureNameError("rxy_limit"); __PYX_ERR(0, 338, __pyx_L1_error) }
-      __pyx_t_8 = PyObject_RichCompare(__pyx_t_7, __pyx_cur_scope->__pyx_outer_scope->__pyx_v_rxy_limit, Py_GT); __Pyx_XGOTREF(__pyx_t_8); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 338, __pyx_L1_error)
+      if (unlikely(!__pyx_cur_scope->__pyx_outer_scope->__pyx_v_r2xy_limit)) { __Pyx_RaiseClosureNameError("r2xy_limit"); __PYX_ERR(0, 338, __pyx_L1_error) }
+      __pyx_t_8 = PyObject_RichCompare(__pyx_t_7, __pyx_cur_scope->__pyx_outer_scope->__pyx_v_r2xy_limit, Py_GT); __Pyx_XGOTREF(__pyx_t_8); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 338, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
       __pyx_t_9 = __Pyx_PyObject_IsTrue(__pyx_t_8); if (unlikely(__pyx_t_9 < 0)) __PYX_ERR(0, 338, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -12150,7 +12102,7 @@ static PyObject *__pyx_gb_11projections_17points_at_extreme_7generator2(__pyx_Co
 
 /* "projections.pyx":339
  * 
- *     return sorted((p for row in points for p in row if rxy(p) > rxy_limit),
+ *     return sorted((p for row in points for p in row if r2xy(p) > r2xy_limit),
  *                   key=lambda p: arctan2(p[2], p[1]))             # <<<<<<<<<<<<<<
  * 
  * 
@@ -12262,7 +12214,7 @@ static PyObject *__pyx_lambda_funcdef_lambda15(CYTHON_UNUSED PyObject *__pyx_sel
  * 
  * def points_at_extreme(points, sample_points=[]):             # <<<<<<<<<<<<<<
  *     "Return a list of points that correspond to the boundary of the given ones"
- *     def rxy(p):
+ *     def r2xy(p):
  */
 
 static PyObject *__pyx_pf_11projections_20points_at_extreme(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_points, PyObject *__pyx_v_sample_points) {
@@ -12293,21 +12245,21 @@ static PyObject *__pyx_pf_11projections_20points_at_extreme(CYTHON_UNUSED PyObje
   /* "projections.pyx":330
  * def points_at_extreme(points, sample_points=[]):
  *     "Return a list of points that correspond to the boundary of the given ones"
- *     def rxy(p):             # <<<<<<<<<<<<<<
+ *     def r2xy(p):             # <<<<<<<<<<<<<<
  *         cdef double x, y
  *         _, x, y, _ = p
  */
-  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11projections_17points_at_extreme_1rxy, 0, __pyx_n_s_points_at_extreme_locals_rxy, NULL, __pyx_n_s_projections, __pyx_d, ((PyObject *)__pyx_codeobj__16)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 330, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_CyFunction_NewEx(&__pyx_mdef_11projections_17points_at_extreme_1r2xy, 0, __pyx_n_s_points_at_extreme_locals_r2xy, NULL, __pyx_n_s_projections, __pyx_d, ((PyObject *)__pyx_codeobj__16)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 330, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_1);
-  __pyx_cur_scope->__pyx_v_rxy = __pyx_t_1;
+  __pyx_cur_scope->__pyx_v_r2xy = __pyx_t_1;
   __pyx_t_1 = 0;
 
   /* "projections.pyx":335
- *         return sqrt(x*x + y*y)
+ *         return x*x + y*y
  * 
  *     sample_points = sample_points or points[1]             # <<<<<<<<<<<<<<
- *     rxy_limit = sum(rxy(p) for p in sample_points) / len(sample_points)
+ *     r2xy_limit = sum(r2xy(p) for p in sample_points) / len(sample_points)
  * 
  */
   __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_cur_scope->__pyx_v_sample_points); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 335, __pyx_L1_error)
@@ -12331,9 +12283,9 @@ static PyObject *__pyx_pf_11projections_20points_at_extreme(CYTHON_UNUSED PyObje
   /* "projections.pyx":336
  * 
  *     sample_points = sample_points or points[1]
- *     rxy_limit = sum(rxy(p) for p in sample_points) / len(sample_points)             # <<<<<<<<<<<<<<
+ *     r2xy_limit = sum(r2xy(p) for p in sample_points) / len(sample_points)             # <<<<<<<<<<<<<<
  * 
- *     return sorted((p for row in points for p in row if rxy(p) > rxy_limit),
+ *     return sorted((p for row in points for p in row if r2xy(p) > r2xy_limit),
  */
   __pyx_t_1 = __pyx_pf_11projections_17points_at_extreme_2genexpr(((PyObject*)__pyx_cur_scope)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 336, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
@@ -12356,13 +12308,13 @@ static PyObject *__pyx_pf_11projections_20points_at_extreme(CYTHON_UNUSED PyObje
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_GIVEREF(__pyx_t_5);
-  __pyx_cur_scope->__pyx_v_rxy_limit = __pyx_t_5;
+  __pyx_cur_scope->__pyx_v_r2xy_limit = __pyx_t_5;
   __pyx_t_5 = 0;
 
   /* "projections.pyx":338
- *     rxy_limit = sum(rxy(p) for p in sample_points) / len(sample_points)
+ *     r2xy_limit = sum(r2xy(p) for p in sample_points) / len(sample_points)
  * 
- *     return sorted((p for row in points for p in row if rxy(p) > rxy_limit),             # <<<<<<<<<<<<<<
+ *     return sorted((p for row in points for p in row if r2xy(p) > r2xy_limit),             # <<<<<<<<<<<<<<
  *                   key=lambda p: arctan2(p[2], p[1]))
  * 
  */
@@ -12377,7 +12329,7 @@ static PyObject *__pyx_pf_11projections_20points_at_extreme(CYTHON_UNUSED PyObje
 
   /* "projections.pyx":339
  * 
- *     return sorted((p for row in points for p in row if rxy(p) > rxy_limit),
+ *     return sorted((p for row in points for p in row if r2xy(p) > r2xy_limit),
  *                   key=lambda p: arctan2(p[2], p[1]))             # <<<<<<<<<<<<<<
  * 
  * 
@@ -12390,9 +12342,9 @@ static PyObject *__pyx_pf_11projections_20points_at_extreme(CYTHON_UNUSED PyObje
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "projections.pyx":338
- *     rxy_limit = sum(rxy(p) for p in sample_points) / len(sample_points)
+ *     r2xy_limit = sum(r2xy(p) for p in sample_points) / len(sample_points)
  * 
- *     return sorted((p for row in points for p in row if rxy(p) > rxy_limit),             # <<<<<<<<<<<<<<
+ *     return sorted((p for row in points for p in row if r2xy(p) > r2xy_limit),             # <<<<<<<<<<<<<<
  *                   key=lambda p: arctan2(p[2], p[1]))
  * 
  */
@@ -12409,7 +12361,7 @@ static PyObject *__pyx_pf_11projections_20points_at_extreme(CYTHON_UNUSED PyObje
  * 
  * def points_at_extreme(points, sample_points=[]):             # <<<<<<<<<<<<<<
  *     "Return a list of points that correspond to the boundary of the given ones"
- *     def rxy(p):
+ *     def r2xy(p):
  */
 
   /* function exit code */
@@ -13545,8 +13497,8 @@ static void __pyx_tp_dealloc_11projections___pyx_scope_struct_6_points_at_extrem
   struct __pyx_obj_11projections___pyx_scope_struct_6_points_at_extreme *p = (struct __pyx_obj_11projections___pyx_scope_struct_6_points_at_extreme *)o;
   PyObject_GC_UnTrack(o);
   Py_CLEAR(p->__pyx_v_points);
-  Py_CLEAR(p->__pyx_v_rxy);
-  Py_CLEAR(p->__pyx_v_rxy_limit);
+  Py_CLEAR(p->__pyx_v_r2xy);
+  Py_CLEAR(p->__pyx_v_r2xy_limit);
   Py_CLEAR(p->__pyx_v_sample_points);
   if (CYTHON_COMPILING_IN_CPYTHON && ((__pyx_freecount_11projections___pyx_scope_struct_6_points_at_extreme < 8) & (Py_TYPE(o)->tp_basicsize == sizeof(struct __pyx_obj_11projections___pyx_scope_struct_6_points_at_extreme)))) {
     __pyx_freelist_11projections___pyx_scope_struct_6_points_at_extreme[__pyx_freecount_11projections___pyx_scope_struct_6_points_at_extreme++] = ((struct __pyx_obj_11projections___pyx_scope_struct_6_points_at_extreme *)o);
@@ -13561,11 +13513,11 @@ static int __pyx_tp_traverse_11projections___pyx_scope_struct_6_points_at_extrem
   if (p->__pyx_v_points) {
     e = (*v)(p->__pyx_v_points, a); if (e) return e;
   }
-  if (p->__pyx_v_rxy) {
-    e = (*v)(p->__pyx_v_rxy, a); if (e) return e;
+  if (p->__pyx_v_r2xy) {
+    e = (*v)(p->__pyx_v_r2xy, a); if (e) return e;
   }
-  if (p->__pyx_v_rxy_limit) {
-    e = (*v)(p->__pyx_v_rxy_limit, a); if (e) return e;
+  if (p->__pyx_v_r2xy_limit) {
+    e = (*v)(p->__pyx_v_r2xy_limit, a); if (e) return e;
   }
   if (p->__pyx_v_sample_points) {
     e = (*v)(p->__pyx_v_sample_points, a); if (e) return e;
@@ -13579,11 +13531,11 @@ static int __pyx_tp_clear_11projections___pyx_scope_struct_6_points_at_extreme(P
   tmp = ((PyObject*)p->__pyx_v_points);
   p->__pyx_v_points = Py_None; Py_INCREF(Py_None);
   Py_XDECREF(tmp);
-  tmp = ((PyObject*)p->__pyx_v_rxy);
-  p->__pyx_v_rxy = Py_None; Py_INCREF(Py_None);
+  tmp = ((PyObject*)p->__pyx_v_r2xy);
+  p->__pyx_v_r2xy = Py_None; Py_INCREF(Py_None);
   Py_XDECREF(tmp);
-  tmp = ((PyObject*)p->__pyx_v_rxy_limit);
-  p->__pyx_v_rxy_limit = Py_None; Py_INCREF(Py_None);
+  tmp = ((PyObject*)p->__pyx_v_r2xy_limit);
+  p->__pyx_v_r2xy_limit = Py_None; Py_INCREF(Py_None);
   Py_XDECREF(tmp);
   tmp = ((PyObject*)p->__pyx_v_sample_points);
   p->__pyx_v_sample_points = Py_None; Py_INCREF(Py_None);
@@ -13922,7 +13874,7 @@ static struct PyModuleDef __pyx_moduledef = {
 #endif
 
 static __Pyx_StringTabEntry __pyx_string_tab[] = {
-  {&__pyx_kp_s_1_2_0, __pyx_k_1_2_0, sizeof(__pyx_k_1_2_0), 0, 0, 1, 0},
+  {&__pyx_kp_s_1_2_1, __pyx_k_1_2_1, sizeof(__pyx_k_1_2_1), 0, 0, 1, 0},
   {&__pyx_kp_s_31m_s_0m, __pyx_k_31m_s_0m, sizeof(__pyx_k_31m_s_0m), 0, 0, 1, 0},
   {&__pyx_kp_s_Forming_faces, __pyx_k_Forming_faces, sizeof(__pyx_k_Forming_faces), 0, 0, 1, 0},
   {&__pyx_kp_s_Gap_between_caps_and_the_map_pro, __pyx_k_Gap_between_caps_and_the_map_pro, sizeof(__pyx_k_Gap_between_caps_and_the_map_pro), 0, 0, 1, 0},
@@ -14037,7 +13989,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_points_at_extreme, __pyx_k_points_at_extreme, sizeof(__pyx_k_points_at_extreme), 0, 0, 1, 1},
   {&__pyx_n_s_points_at_extreme_locals_genexpr, __pyx_k_points_at_extreme_locals_genexpr, sizeof(__pyx_k_points_at_extreme_locals_genexpr), 0, 0, 1, 1},
   {&__pyx_n_s_points_at_extreme_locals_lambda, __pyx_k_points_at_extreme_locals_lambda, sizeof(__pyx_k_points_at_extreme_locals_lambda), 0, 0, 1, 1},
-  {&__pyx_n_s_points_at_extreme_locals_rxy, __pyx_k_points_at_extreme_locals_rxy, sizeof(__pyx_k_points_at_extreme_locals_rxy), 0, 0, 1, 1},
+  {&__pyx_n_s_points_at_extreme_locals_r2xy, __pyx_k_points_at_extreme_locals_r2xy, sizeof(__pyx_k_points_at_extreme_locals_r2xy), 0, 0, 1, 1},
   {&__pyx_n_s_print, __pyx_k_print, sizeof(__pyx_k_print), 0, 0, 1, 1},
   {&__pyx_n_s_projection_functions, __pyx_k_projection_functions, sizeof(__pyx_k_projection_functions), 0, 0, 1, 1},
   {&__pyx_n_s_projection_functions_locals_get, __pyx_k_projection_functions_locals_get, sizeof(__pyx_k_projection_functions_locals_get), 0, 0, 1, 1},
@@ -14047,6 +13999,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_kp_s_projections_pyx, __pyx_k_projections_pyx, sizeof(__pyx_k_projections_pyx), 0, 0, 1, 0},
   {&__pyx_n_s_ptype, __pyx_k_ptype, sizeof(__pyx_k_ptype), 0, 0, 1, 1},
   {&__pyx_n_s_r, __pyx_k_r, sizeof(__pyx_k_r), 0, 0, 1, 1},
+  {&__pyx_n_s_r2xy, __pyx_k_r2xy, sizeof(__pyx_k_r2xy), 0, 0, 1, 1},
+  {&__pyx_n_s_r2xy_limit, __pyx_k_r2xy_limit, sizeof(__pyx_k_r2xy_limit), 0, 0, 1, 1},
   {&__pyx_n_s_radii, __pyx_k_radii, sizeof(__pyx_k_radii), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
   {&__pyx_n_s_rcphi, __pyx_k_rcphi, sizeof(__pyx_k_rcphi), 0, 0, 1, 1},
@@ -14055,8 +14009,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_row, __pyx_k_row, sizeof(__pyx_k_row), 0, 0, 1, 1},
   {&__pyx_n_s_row_current, __pyx_k_row_current, sizeof(__pyx_k_row_current), 0, 0, 1, 1},
   {&__pyx_n_s_row_previous, __pyx_k_row_previous, sizeof(__pyx_k_row_previous), 0, 0, 1, 1},
-  {&__pyx_n_s_rxy, __pyx_k_rxy, sizeof(__pyx_k_rxy), 0, 0, 1, 1},
-  {&__pyx_n_s_rxy_limit, __pyx_k_rxy_limit, sizeof(__pyx_k_rxy_limit), 0, 0, 1, 1},
   {&__pyx_n_s_sample_points, __pyx_k_sample_points, sizeof(__pyx_k_sample_points), 0, 0, 1, 1},
   {&__pyx_n_s_scale, __pyx_k_scale, sizeof(__pyx_k_scale), 0, 0, 1, 1},
   {&__pyx_n_s_send, __pyx_k_send, sizeof(__pyx_k_send), 0, 0, 1, 1},
@@ -14186,14 +14138,14 @@ static int __Pyx_InitCachedConstants(void) {
   /* "projections.pyx":330
  * def points_at_extreme(points, sample_points=[]):
  *     "Return a list of points that correspond to the boundary of the given ones"
- *     def rxy(p):             # <<<<<<<<<<<<<<
+ *     def r2xy(p):             # <<<<<<<<<<<<<<
  *         cdef double x, y
  *         _, x, y, _ = p
  */
   __pyx_tuple__15 = PyTuple_Pack(4, __pyx_n_s_p, __pyx_n_s_x, __pyx_n_s_y, __pyx_n_s__14); if (unlikely(!__pyx_tuple__15)) __PYX_ERR(0, 330, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__15);
   __Pyx_GIVEREF(__pyx_tuple__15);
-  __pyx_codeobj__16 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__15, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_projections_pyx, __pyx_n_s_rxy, 330, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__16)) __PYX_ERR(0, 330, __pyx_L1_error)
+  __pyx_codeobj__16 = (PyObject*)__Pyx_PyCode_New(1, 0, 4, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__15, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_projections_pyx, __pyx_n_s_r2xy, 330, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__16)) __PYX_ERR(0, 330, __pyx_L1_error)
 
   /* "projections.pyx":25
  * 
@@ -14320,9 +14272,9 @@ static int __Pyx_InitCachedConstants(void) {
  * 
  * def points_at_extreme(points, sample_points=[]):             # <<<<<<<<<<<<<<
  *     "Return a list of points that correspond to the boundary of the given ones"
- *     def rxy(p):
+ *     def r2xy(p):
  */
-  __pyx_tuple__37 = PyTuple_Pack(8, __pyx_n_s_points, __pyx_n_s_sample_points, __pyx_n_s_rxy, __pyx_n_s_rxy, __pyx_n_s_rxy_limit, __pyx_n_s_genexpr, __pyx_n_s_genexpr, __pyx_n_s_genexpr); if (unlikely(!__pyx_tuple__37)) __PYX_ERR(0, 328, __pyx_L1_error)
+  __pyx_tuple__37 = PyTuple_Pack(8, __pyx_n_s_points, __pyx_n_s_sample_points, __pyx_n_s_r2xy, __pyx_n_s_r2xy, __pyx_n_s_r2xy_limit, __pyx_n_s_genexpr, __pyx_n_s_genexpr, __pyx_n_s_genexpr); if (unlikely(!__pyx_tuple__37)) __PYX_ERR(0, 328, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__37);
   __Pyx_GIVEREF(__pyx_tuple__37);
   __pyx_codeobj__38 = (PyObject*)__Pyx_PyCode_New(2, 0, 8, 0, 0, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__37, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_projections_pyx, __pyx_n_s_points_at_extreme, 328, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__38)) __PYX_ERR(0, 328, __pyx_L1_error)
@@ -14501,11 +14453,11 @@ PyMODINIT_FUNC PyInit_projections(void)
   /* "projections.pyx":8
  * """
  * 
- * __version__ = '1.2.0'             # <<<<<<<<<<<<<<
+ * __version__ = '1.2.1'             # <<<<<<<<<<<<<<
  * 
  * # If you modify this file, you can recreate projections.c by running:
  */
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_version, __pyx_kp_s_1_2_0) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_version, __pyx_kp_s_1_2_1) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
 
   /* "projections.pyx":15
  * #   python3 setup.py build_ext --inplace
@@ -14850,7 +14802,7 @@ PyMODINIT_FUNC PyInit_projections(void)
  * 
  * def points_at_extreme(points, sample_points=[]):             # <<<<<<<<<<<<<<
  *     "Return a list of points that correspond to the boundary of the given ones"
- *     def rxy(p):
+ *     def r2xy(p):
  */
   __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 328, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);

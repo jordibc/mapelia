@@ -5,7 +5,7 @@ They are also the most computationally-intensive and thus can benefit
 from using cython.
 """
 
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 
 # If you modify this file, you can recreate projections.c by running:
 #   cython3 -a projections.pyx
@@ -327,15 +327,15 @@ def dist2(p0, p1):
 
 def points_at_extreme(points, sample_points=[]):
     "Return a list of points that correspond to the boundary of the given ones"
-    def rxy(p):
+    def r2xy(p):
         cdef double x, y
         _, x, y, _ = p
-        return sqrt(x*x + y*y)
+        return x*x + y*y
 
     sample_points = sample_points or points[1]
-    rxy_limit = sum(rxy(p) for p in sample_points) / len(sample_points)
+    r2xy_limit = sum(r2xy(p) for p in sample_points) / len(sample_points)
 
-    return sorted((p for row in points for p in row if rxy(p) > rxy_limit),
+    return sorted((p for row in points for p in row if r2xy(p) > r2xy_limit),
                   key=lambda p: arctan2(p[2], p[1]))
 
 
