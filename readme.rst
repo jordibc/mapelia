@@ -10,9 +10,10 @@ and 3D files.
 * ``poligoniza`` - form faces (polygons) from 3D points.
 * ``stl-split`` - split a 3D globe into the north and south hemispheres.
 
-The images are ``jpg`` or ``png`` files that contain maps in any of
-the following projections: `equirectangular`_, `Mercator`_, `central
-cylindrical`_, `Mollweide`_ or `sinusoidal`_.
+The images are ``jpg`` or ``png`` files that contain maps (that is,
+gridded datasets where the value of each pixel is the elevation) in
+any of the following projections: `equirectangular`_, `Mercator`_,
+`central cylindrical`_, `Mollweide`_ or `sinusoidal`_.
 
 .. _`equirectangular`: https://en.wikipedia.org/wiki/Equirectangular_projection
 .. _`Mercator`: https://en.wikipedia.org/wiki/Mercator_projection
