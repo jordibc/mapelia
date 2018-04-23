@@ -31,18 +31,54 @@ The Universe](https://astrokit.uv.es/) on educational astronomy.
 
 There are several programs related to images of maps and 3D files:
 
-- mapelia - convert maps into 3D figures with reliefs.
-- guapelia - optional GUI to use mapelia.
-- pintelia - convert maps into colored 3D figures.
-- poligoniza - form faces (polygons) from 3D points.
-- stl-split - split a 3D globe into the north and south hemispheres.
+- `mapelia` - convert maps into 3D figures with reliefs.
+- `guapelia` - optional GUI to use mapelia.
+- `pintelia` - convert maps into colored 3D figures.
+- `poligoniza` - form faces (polygons) from 3D points.
+- `stl-split` - split a 3D globe into the north and south hemispheres.
 
-The input images are jpg or png files that contain maps in any of
-several possible projections (equirectangular, Mercator, central
-cylindrical, Mollweide or sinusoidal).
+The input images are `jpg` or `png` files that contain maps (that is,
+gridded datasets where the value of each pixel is the elevation) in
+any of several possible projections (equirectangular, Mercator,
+central cylindrical, Mollweide or sinusoidal).
 
-The output of the programs are 3D files (of polygons like ply or stl,
-or points in space like asc), that can be visualized and manipulated
-with programs like MeshLab or Blender.
+The output of the programs are 3D files (of polygons like `ply` or
+`stl`, or points in space like `asc`), that can be visualized and
+manipulated with programs like MeshLab or Blender.
+
+In the project *A Touch of The Universe*, the generated `stl` files
+are directly printed with a 3D printer, to create a physical
+representation of diverse planets and moons. Those printed models are
+used to do outreach in astronomy.
 
 # References
+
+Maps
+----
+
+* [Finding and Using Space Image Data](http://www.planetary.org/explore/space-topics/space-imaging/data.html)
+* [Planetary Data System](https://en.wikipedia.org/wiki/Planetary_Data_System)
+
+Projections
+-----------
+
+* [equirectangular](https://en.wikipedia.org/wiki/Equirectangular_projection)
+* [Mercator](https://en.wikipedia.org/wiki/Mercator_projection)
+* [central cylindrical](https://en.wikipedia.org/wiki/Central_cylindrical_projection)
+* [Mollweide](https://en.wikipedia.org/wiki/Mollweide_projection)
+* [sinusoidal](https://en.wikipedia.org/wiki/Sinusoidal_projection)
+
+Formats
+-------
+
+* [ply](https://en.wikipedia.org/wiki/PLY_(file_format))
+* [stl](https://en.wikipedia.org/wiki/STL_(file_format))
+* [asc](https://codeyarns.com/2011/08/17/asc-file-format-for-3d-points/)
+
+Processing
+----------
+
+* [Pillow](https://pillow.readthedocs.io/)
+* [NumPy](http://www.numpy.org/)
+* [Meshlab](https://en.wikipedia.org/wiki/MeshLab)
+* [Blender](https://www.blender.org/)
