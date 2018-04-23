@@ -366,4 +366,6 @@ Processing
 ----------
 
 * `Pillow`_ - Python Imaging Library.
+* `NumPy`_ - library with support for multi-dimensional arrays.
 * `Meshlab`_ - program to view and edit 3D meshes.
+* `Blender`_ - 3D computer graphics toolset.
