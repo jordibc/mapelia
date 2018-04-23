@@ -293,7 +293,8 @@ Usage
 stl-split
 =========
 
-Split an stl into its north and south sides.
+Split an stl into its north and south hemispheres. Optionally, split
+it into two files with all the points before and after a given one.
 
 Example
 -------
