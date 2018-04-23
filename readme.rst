@@ -35,6 +35,24 @@ manipulated with programs like `MeshLab`_ or `Blender`_.
 Installing
 ==========
 
+Prerequisites
+-------------
+
+All the programs need `Python 3`_ to run. In addition, most need the
+following packages: `Pillow`_ and `NumPy`_. Finally, to use the
+optional GUI ``guapelia`` you will also need `GTK+ 3`_.
+
+.. _`Python 3`: https://www.python.org/downloads/
+.. _`Pillow`: https://pillow.readthedocs.io/en/5.1.x/
+.. _`NumPy`: http://www.numpy.org/
+.. _`GTK+ 3`: https://python-gtk-3-tutorial.readthedocs.io/en/latest/
+
+They should work on any recent GNU/Linux distribution, macOS and
+Windows (though the latest has not been tested).
+
+First run
+---------
+
 The first time that you download this repository, you'll need to run::
 
   $ python3 setup.py build_ext --inplace
