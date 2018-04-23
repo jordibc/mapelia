@@ -43,12 +43,16 @@ following packages: `Pillow`_ and `NumPy`_. Finally, to use the
 optional GUI ``guapelia`` you will also need `GTK+ 3`_.
 
 .. _`Python 3`: https://www.python.org/downloads/
-.. _`Pillow`: https://pillow.readthedocs.io/en/5.1.x/
+.. _`Pillow`: https://pillow.readthedocs.io/
 .. _`NumPy`: http://www.numpy.org/
-.. _`GTK+ 3`: https://python-gtk-3-tutorial.readthedocs.io/en/latest/
+.. _`GTK+ 3`: https://python-gtk-3-tutorial.readthedocs.io/
 
-They should work on any recent GNU/Linux distribution, macOS and
-Windows (though the latest has not been tested).
+On a recent Debian system, you can install them with::
+
+  $ sudo apt install python3 python3-pil python3-numpy python3-gi libgtk-3-0
+
+They work on GNU/Linux systems (tested), macOS (tested) and should
+work on Windows (untested).
 
 First run
 ---------
@@ -362,5 +366,3 @@ Processing
 
 * `Pillow`_ - Python Imaging Library.
 * `Meshlab`_ - program to view and edit 3D meshes.
-
-.. _`Pillow`: https://pillow.readthedocs.io/
