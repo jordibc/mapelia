@@ -1,8 +1,13 @@
 mapelia and friends
 ===================
 
-This repository contains several programs related to images of maps
-and 3D files.
+This software was created to help with the development of 3D models of
+planets, moons and so on, used in the non-profit project `A Touch of
+The Universe`_ on educational astronomy.
+
+.. _`A Touch of The Universe`: https://astrokit.uv.es/
+
+There are several programs related to images of maps and 3D files:
 
 * ``mapelia`` - convert maps into 3D figures with reliefs.
 * ``guapelia`` - optional GUI to use mapelia.
@@ -30,6 +35,15 @@ manipulated with programs like `MeshLab`_ or `Blender`_.
 .. _`asc`: https://codeyarns.com/2011/08/17/asc-file-format-for-3d-points/
 .. _`MeshLab`: https://en.wikipedia.org/wiki/MeshLab
 .. _`Blender`: https://www.blender.org/
+
+In the project *A Touch of The Universe*, the generated ``stl`` files
+are directly printed with a 3D printer, to create a physical
+representation of diverse planets and moons. Those printed models are
+then used to do outreach in astronomy at the `Aula del Cel (The Sky
+Classroom)`_ in the Astronomical Observatory of the
+University of Valencia among other places.
+
+.. _`Aula del Cel (The Sky Classroom)`: http://aorgil.blogs.uv.es/aula-del-cel/
 
 
 Installing
