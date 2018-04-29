@@ -50,7 +50,7 @@ In the project *A Touch of The Universe*, the generated `stl` files
 are directly printed with a 3D printer, to create a physical
 representation of diverse planets and moons. Those printed models are
 then used to do outreach in astronomy at the *Aula del Cel (The Sky
-Classroom)* [@aula_del_cel] of the Astronomical Observatory of the
+Classroom)* [@aula_del_cel] in the Astronomical Observatory of the
 University of Valencia among other places.
 
 # References
