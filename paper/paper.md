@@ -26,8 +26,8 @@ bibliography: paper.bib
 # Summary
 
 This software was created to help with the development of 3D models of
-planets, moons and so on, used in the non-profit project [A Touch of
-The Universe](https://astrokit.uv.es/) on educational astronomy.
+planets, moons and so on, used in the non-profit project *A Touch of
+The Universe* [@astrokit] on educational astronomy.
 
 There are several programs related to images of maps and 3D files:
 
@@ -49,7 +49,9 @@ manipulated with programs like MeshLab or Blender.
 In the project *A Touch of The Universe*, the generated `stl` files
 are directly printed with a 3D printer, to create a physical
 representation of diverse planets and moons. Those printed models are
-used to do outreach in astronomy.
+then used to do outreach in astronomy at the *Aula del Cel (The Sky
+Classroom)* [@aula_del_cel] of the Astronomical Observatory of the
+University of Valencia among other places.
 
 # References
 
