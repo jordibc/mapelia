@@ -5,7 +5,7 @@ They are also the most computationally-intensive and thus can benefit
 from using cython.
 """
 
-__version__ = '1.2.1'
+__version__ = '1.2.2'
 
 # If you modify this file, you can recreate projections.c by running:
 #   cython3 -a projections.pyx
@@ -193,7 +193,6 @@ def projection_functions(ptype, int nx, int ny):
     "Return functions to get theta, phi from x, y"
     cdef double r, x, y
 
-    r = nx / (2 * pi)  # reconstructing the radius from nx
     if ptype == 'mercator':
         # Mercator projection:
         #   x = r * theta
@@ -201,6 +200,7 @@ def projection_functions(ptype, int nx, int ny):
         # Inverse:
         #   theta = x / r
         #   phi = 2 * atan(exp(y / r)) - pi / 2
+        r = nx / (2 * pi)  # reconstructing the radius from nx
         get_theta = lambda x, y: x / r
         get_phi = lambda y: 2 * arctan(exp(y / r)) - pi / 2
     elif ptype == 'central-cylindrical':
@@ -210,6 +210,7 @@ def projection_functions(ptype, int nx, int ny):
         # Inverse:
         #   theta = x / r
         #   phi = atan(y / r)
+        r = nx / (2 * pi)  # reconstructing the radius from nx
         get_theta = lambda x, y: x / r
         get_phi = lambda y: arctan2(y, r)
     elif ptype == 'mollweide':
@@ -218,22 +219,28 @@ def projection_functions(ptype, int nx, int ny):
         #   y = r * sqrt(2) * sin(aux)
         # where aux is such that:  2 * aux + sin(2 * aux) = pi * sin(phi)
         # Inverse:
-        #   theta = pi * x / (2 * r * sqrt(2) * cos(asin(aux)))
-        #   phi = asin( ((2 * asin(aux) + sin(2 * asin(aux)) ) / pi)
-        # with  aux = y / (r * sqrt(2))
-        sqrt2 = sqrt(2)
+        #   theta = pi * x / (2 * r * sqrt(2) * cos(aux))
+        #   phi = arcsin((2 * aux + sin(2 * aux)) / pi)
+        # with  aux = arcsin(y / (r * sqrt(2)))
+        sqrt2 = sqrt(2)  # shortcut
+        epsilon = 1e-8  # avoid overlapping points on the border
+        r = nx / ((4 * sqrt2) - epsilon)  # reconstructing the radius from nx
         def get_theta(x, y):
-            aux = y / (r * sqrt2)
-            if not -1 < aux < 1:
+            sin_aux = y / (r * sqrt2)
+            if not -1 < sin_aux < 1:
                 return nan
-            aux2 = pi * x / (2 * r * sqrt2 * sqrt(1 - aux*aux))
-            return aux2 if -pi < aux2 < pi else nan
+            aux = arcsin(sin_aux)
+
+            theta = pi * x / (2 * r * sqrt2 * cos(aux))
+            return theta if -pi < theta < pi else nan
         def get_phi(y):
-            aux = y / (r * sqrt2)
-            if not -1 < aux < 1:
+            sin_aux = y / (r * sqrt2)
+            if not -1 < sin_aux < 1:
                 return nan
-            aux2 = (2 * arcsin(aux) + sin(2 * arcsin(aux))) / pi
-            return arcsin(aux2) if -1 < aux2 < 1 else nan
+            aux = arcsin(sin_aux)
+
+            sin_phi = (2 * aux + sin(2 * aux)) / pi
+            return arcsin(sin_phi) if -1 < sin_phi < 1 else nan
     elif ptype == 'equirectangular':
         # Equirectangular projection:
         #   x = r * theta
@@ -241,6 +248,7 @@ def projection_functions(ptype, int nx, int ny):
         # Inverse:
         #   theta = x / r
         #   phi = y / r
+        r = nx / (2 * pi)  # reconstructing the radius from nx
         get_theta = lambda x, y: x / r
         get_phi = lambda y: y / r
     elif ptype == 'sinusoidal':
@@ -250,6 +258,7 @@ def projection_functions(ptype, int nx, int ny):
         # Inverse:
         #   theta = x / (r * cos(y / r))
         #   phi = y / r
+        r = nx / (2 * pi)  # reconstructing the radius from nx
         def get_theta(x, y):
             theta = x / (r * cos(y / r))
             return theta if -pi < theta < pi else nan

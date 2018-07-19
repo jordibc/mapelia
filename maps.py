@@ -34,7 +34,7 @@ from numpy import cos, sqrt, pi, array, zeros, average
 
 try:
     import projections as pj
-    assert pj.__version__ == '1.2.1'
+    assert pj.__version__ == '1.2.2'
 except (ImportError, AssertionError, AttributeError) as e:
     sys.exit('projections module not ready. You may want to first run:\n'
              '  %s setup.py build_ext --inplace' % sys.executable)
@@ -230,7 +230,7 @@ def get_arguments_converters():
 def fix_ratios(img, ptype):
     "Resize the image if ptype expects to have a different nx/ny ratio"
     nx, ny = img.size
-    nys = {'mollweide': int(nx * sqrt(2) / pi),
+    nys = {'mollweide': nx // 2,
            'equirectangular': nx // 2,
            'sinusoidal': nx // 2}
     if ptype in nys:
