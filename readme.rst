@@ -339,6 +339,7 @@ Usage
     -h, --help            show this help message and exit
     -n NAME, --name NAME  output file (if empty, it is generated from the image
                           file name) (default: )
+    --zcut ZCUT           z value of the cutting xy-plane (default: 0)
     --number NUMBER       split by leaving a given number of triangles in the
                           first file (default: 0)
     --overwrite           do not check if the output files already exist
