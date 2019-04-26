@@ -26,6 +26,7 @@ def main():
     add('file', help='stl file')
     add('-n', '--name', default='',
         help='output file (if empty, it is generated from the image file name)')
+    add('--zcut', type=float, default=0, help='z value of the limit x-y plane')
     add('--number', type=int, default=0,
         help='split by leaving a given number of triangles in the first file')
     add('--overwrite', action='store_true',
@@ -46,7 +47,7 @@ def main():
     if args.number == 0:
         def find_class(n, data):
             v1_z, _, _, v2_z, _, _, v3_z = struct.unpack('<7f', data[20:48])
-            return 'N' if v1_z + v2_z + v3_z >= 0 else 'S'
+            return 'N' if v1_z + v2_z + v3_z >= args.zcut else 'S'
     else:
         def find_class(n, data):
             return 'head' if n < args.number else 'tail'
