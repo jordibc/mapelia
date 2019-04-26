@@ -26,7 +26,7 @@ def main():
     add('file', help='stl file')
     add('-n', '--name', default='',
         help='output file (if empty, it is generated from the image file name)')
-    add('--zcut', type=float, default=0, help='z value of the limit x-y plane')
+    add('--zcut', type=float, default=0, help='z value of the cutting xy-plane')
     add('--number', type=int, default=0,
         help='split by leaving a given number of triangles in the first file')
     add('--overwrite', action='store_true',
