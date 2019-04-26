@@ -65,6 +65,11 @@ On a recent Debian system, you can install them with::
 
   $ sudo apt install python3 python3-pil python3-numpy python3-gi libgtk-3-0
 
+The main computation is done with a compiled module. To use it you will also
+need::
+
+  $ sudo apt install python3-dev python3-distutils
+
 They work on GNU/Linux systems (tested), macOS (tested) and should
 work on Windows (untested).
 
