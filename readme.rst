@@ -323,7 +323,7 @@ Example
 Usage
 -----
 
-  usage: stl-split [-h] [-n NAME] [--number NUMBER] [--overwrite]
+  usage: stl-split [-h] [-n NAME] [--zcut ZCUT] [--number NUMBER] [--overwrite]
                    [--ignore-check]
                    file
 
