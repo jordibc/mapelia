@@ -86,6 +86,9 @@ def test_stl_split():
     run('../mapelia wmap.jpg --projection mollweide --channel hue '
         '--scale 0.10 --caps 8 --thickness 0.2 --type stl')
     run('../stl-split wmap.stl')
+    run('../stl-split --number 10000 wmap.stl')
+    run('../stl-split --zcut 0.7 --name wmap_uneven wmap.stl')
+    run('../stl-split --zcut auto --name wmap_auto wmap.stl')
 
 
 #  ************************************************************************
