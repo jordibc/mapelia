@@ -26,7 +26,7 @@ def main():
     add('file', help='stl file')
     add('-n', '--name', default='',
         help='output file (if empty, it is generated from the image file name)')
-    add('--zcut', type=float, default=0, help='z value of the cutting xy-plane')
+    add('--zcut', default='0', help='z value of the cutting xy-plane (or auto)')
     add('--number', type=int, default=0,
         help='split by leaving a given number of triangles in the first file')
     add('--overwrite', action='store_true',
@@ -45,9 +45,15 @@ def main():
             sys.exit('Cancelling (use --ignore-check to force processing it).')
 
     if args.number == 0:
+        zcut = get_zcut(args.zcut, args.file)
         def find_class(n, data):
             v1_z, _, _, v2_z, _, _, v3_z = struct.unpack('<7f', data[20:48])
-            return 'N' if v1_z + v2_z + v3_z >= args.zcut else 'S'
+            if min(v1_z, v2_z, v3_z) >= zcut:
+                return 'N'
+            elif max(v1_z, v2_z, v3_z) <= zcut:
+                return 'S'
+            else:
+                return 'discarded'
     else:
         def find_class(n, data):
             return 'head' if n < args.number else 'tail'
@@ -99,6 +105,30 @@ def valid_stl(fname):
                   '  It declares to have %d triangles but has capacity for %g.'
                   % (fname, ntriangles, size_content / size_triangle)))
         return False
+
+
+def get_zcut(zcut, fname):
+    "Return the z value where the hemispheres will be cut"
+    try:
+        return float(zcut)
+    except ValueError:
+        if zcut == 'auto':
+            return z_mean(fname)
+        else:
+            sys.exit('zcut can be "auto" or a float.')
+
+
+def z_mean(fname):
+    "Return the mean z of all the triangles in the stl file fname"
+    z, n = 0, 0
+    with open(fname, 'rb') as fin:
+        fin.read(84)  # discard header + number of triangles
+        size_triangle = 12 * 4 + 2  # 12 floats and 2 dummy bytes
+        for i, data in enumerate(iter(lambda: fin.read(size_triangle), b'')):
+            v1_z, _, _, v2_z, _, _, v3_z = struct.unpack('<7f', data[20:48])
+            z = (n * z + v1_z + v2_z + v3_z) / (n + 3)
+            n += 3
+    return z
 
 
 
