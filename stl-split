@@ -21,6 +21,29 @@ red = lambda txt: '\x1b[31m%s\x1b[0m' % txt
 
 
 def main():
+    args = get_args()
+
+    if not os.path.isfile(args.file):
+        sys.exit('File %s does not exist.' % args.file)
+
+    if not valid_stl(args.file):
+        if args.ignore_check:
+            print('Going ahead anyway as you used --ignore-check ...')
+        else:
+            sys.exit('Cancelling (use --ignore-check to force processing it).')
+
+    find_class = class_selector(args.number, args.zcut, args.file)
+
+    name = args.name or args.file.rsplit('.', 1)[0]
+    for tclass, triangles in extract_triangles(args.file, find_class).items():
+        output = '%s_%s.stl' % (name, tclass)
+        if not args.overwrite:
+            check_if_exists(output)
+        write_stl(output, triangles)
+
+
+def get_args():
+    "Return the parsed command line arguments"
     parser = ArgumentParser(description=__doc__, formatter_class=fmt)
     add = parser.add_argument  # shortcut
     add('file', help='stl file')
@@ -33,59 +56,7 @@ def main():
         help='do not check if the output files already exist')
     add('--ignore-check', action='store_true',
         help='go ahead even if the input file does not look like an stl')
-    args = parser.parse_args()
-
-    if not os.path.isfile(args.file):
-        sys.exit('File %s does not exist.' % args.file)
-
-    if not valid_stl(args.file):
-        if args.ignore_check:
-            print('Going ahead anyway as you used --ignore-check ...')
-        else:
-            sys.exit('Cancelling (use --ignore-check to force processing it).')
-
-    if args.number == 0:
-        zcut = get_zcut(args.zcut, args.file)
-        def find_class(n, data):
-            v1_z, _, _, v2_z, _, _, v3_z = struct.unpack('<7f', data[20:48])
-            if min(v1_z, v2_z, v3_z) >= zcut:
-                return 'N'
-            elif max(v1_z, v2_z, v3_z) <= zcut:
-                return 'S'
-            else:
-                return 'discarded'
-    else:
-        def find_class(n, data):
-            return 'head' if n < args.number else 'tail'
-
-    name = args.name or args.file.rsplit('.', 1)[0]
-    for group, triangles in extract_triangles(args.file, find_class).items():
-        output = '%s_%s.stl' % (name, group)
-        if not args.overwrite:
-            check_if_exists(output)
-        write_stl(output, triangles)
-
-
-def extract_triangles(fname, find_class):
-    "Return dict with the triangles belonging to each class of stl file fname"
-    print('Processing file %s ...' % fname)
-    triangles = {}
-    with open(fname, 'rb') as fin:
-        fin.read(84)  # discard header + number of triangles
-        size_triangle = 12 * 4 + 2  # 12 floats and 2 dummy bytes
-        for i, data in enumerate(iter(lambda: fin.read(size_triangle), b'')):
-            triangles.setdefault(find_class(i, data), []).append(data)
-    return triangles
-
-
-def write_stl(fname, triangles):
-    "Write binary-encoded list of triangles as an stl file"
-    print('Writing file %s ...' % fname)
-    with open(fname, 'wb') as fout:
-        fout.write(b'\0' * 80)  # header (empty)
-        fout.write(struct.pack('<I', len(triangles)))  # number of triangles
-        for t in triangles:
-            fout.write(t)
+    return parser.parse_args()
 
 
 def valid_stl(fname):
@@ -121,14 +92,63 @@ def get_zcut(zcut, fname):
 def z_mean(fname):
     "Return the mean z of all the triangles in the stl file fname"
     z, n = 0, 0
+    for triangle in get_triangles(fname):
+        _, _, v1_z, _, _, v2_z, _, _, v3_z = unpack(triangle)
+        z = (n * z + v1_z + v2_z + v3_z) / (n + 3)
+        n += 3
+    return z
+
+
+def get_triangles(fname):
+    "Yield raw-data triangles in file fname"
     with open(fname, 'rb') as fin:
         fin.read(84)  # discard header + number of triangles
         size_triangle = 12 * 4 + 2  # 12 floats and 2 dummy bytes
-        for i, data in enumerate(iter(lambda: fin.read(size_triangle), b'')):
-            v1_z, _, _, v2_z, _, _, v3_z = struct.unpack('<7f', data[20:48])
-            z = (n * z + v1_z + v2_z + v3_z) / (n + 3)
-            n += 3
-    return z
+        yield from iter(lambda: fin.read(size_triangle), b'')
+
+
+def unpack(triangle):
+    "Return x, y, z from the 3 points that define the raw-data triangle"
+    return struct.unpack('<9f', triangle[12:48])
+
+
+def class_selector(number, zcut_arg, fname):
+    "Return function that, given a number and a triangle, returns its class"
+    if number == 0:
+        zcut = get_zcut(zcut_arg, fname)
+        def find_class(n, triangle):
+            _, _, v1_z, _, _, v2_z, _, _, v3_z = unpack(triangle)
+            if min(v1_z, v2_z, v3_z) >= zcut:
+                return 'N'
+            elif max(v1_z, v2_z, v3_z) <= zcut:
+                return 'S'
+            else:
+                return 'discarded'
+    else:
+        def find_class(n, triangle):
+            return 'head' if n < number else 'tail'
+
+    return find_class
+
+
+def extract_triangles(fname, find_class):
+    "Return dict with the triangles belonging to each class of stl file fname"
+    print('Processing file %s ...' % fname)
+    triangles = {}
+    for i, triangle in enumerate(get_triangles(fname)):
+        tclass = find_class(i, triangle)  # N, S, head, tail...
+        triangles.setdefault(tclass, []).append(triangle)
+    return triangles
+
+
+def write_stl(fname, triangles):
+    "Write binary-encoded list of triangles as an stl file"
+    print('Writing file %s ...' % fname)
+    with open(fname, 'wb') as fout:
+        fout.write(b'\0' * 80)  # header (empty)
+        fout.write(struct.pack('<I', len(triangles)))  # number of triangles
+        for triangle in triangles:
+            fout.write(triangle)
 
 
 
