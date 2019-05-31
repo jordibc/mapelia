@@ -151,6 +151,18 @@ def write_stl(fname, triangles):
             fout.write(triangle)
 
 
+def find_border(triangles):
+    "Return the points that form part of at most 2 triangles"
+    appearances = {}
+    for triangle in triangles:
+        for i in range(3):
+            start = 12 + i * 12
+            p = struct.unpack('<3f', triangle[start:start+12])
+            appearances.setdefault(p, 0)
+            appearances[p] += 1
+    return [p for p, n in appearances.values() if n < 3]
+
+
 
 if __name__ == '__main__':
     main()
