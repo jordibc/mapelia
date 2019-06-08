@@ -32,10 +32,19 @@ def main():
         else:
             sys.exit('Cancelling (use --ignore-check to force processing it).')
 
-    find_class = class_selector(args.number, args.zcut, args.file)
+    zcut = get_zcut(args.zcut, args.file)
+    find_class = class_selector(args.number, zcut)
+
+    triangles_per_class = extract_triangles(args.file, find_class)
+
+    if not args.discard_border:
+        triangles_discarded = triangles_per_class.pop('discarded', {})
+        stitches_per_class = stitch(triangles_discarded, zcut)
+        for tclass in triangles_per_class:
+            triangles_per_class[tclass] += stitches_per_class.get(tclass, [])
 
     name = args.name or args.file.rsplit('.', 1)[0]
-    for tclass, triangles in extract_triangles(args.file, find_class).items():
+    for tclass, triangles in triangles_per_class.items():
         output = '%s_%s.stl' % (name, tclass)
         if not args.overwrite:
             check_if_exists(output)
@@ -50,6 +59,8 @@ def get_args():
     add('-n', '--name', default='',
         help='output file (if empty, it is generated from the image file name)')
     add('--zcut', default='0', help='z value of the cutting xy-plane (or auto)')
+    add('--discard-border', action='store_true',
+        help='put triangles not cleanly cut in a "_discarded.stl" file')
     add('--number', type=int, default=0,
         help='split by leaving a given number of triangles in the first file')
     add('--overwrite', action='store_true',
@@ -112,10 +123,9 @@ def unpack(triangle):
     return struct.unpack('<9f', triangle[12:48])
 
 
-def class_selector(number, zcut_arg, fname):
+def class_selector(number, zcut):
     "Return function that, given a number and a triangle, returns its class"
     if number == 0:
-        zcut = get_zcut(zcut_arg, fname)
         def find_class(n, triangle):
             _, _, v1_z, _, _, v2_z, _, _, v3_z = unpack(triangle)
             if min(v1_z, v2_z, v3_z) >= zcut:
@@ -134,11 +144,58 @@ def class_selector(number, zcut_arg, fname):
 def extract_triangles(fname, find_class):
     "Return dict with the triangles belonging to each class of stl file fname"
     print('Processing file %s ...' % fname)
-    triangles = {}
+    triangles_per_class = {}
     for i, triangle in enumerate(get_triangles(fname)):
         tclass = find_class(i, triangle)  # N, S, head, tail...
-        triangles.setdefault(tclass, []).append(triangle)
-    return triangles
+        triangles_per_class.setdefault(tclass, []).append(triangle)
+    return triangles_per_class
+
+
+def stitch(triangles, zcut):
+    "Return dict with the cut and stitched triangles belonging to each class"
+    stitches_per_class = {}
+    for triangle in triangles:
+        points = []
+        v1_x, v1_y, v1_z, v2_x, v2_y, v2_z, v3_x, v3_y, v3_z = unpack(triangle)
+        hemisphere_last = None
+        p_last = None
+        for p in [(v1_x, v1_y, v1_z),
+                  (v2_x, v2_y, v2_z),
+                  (v3_x, v3_y, v3_z),
+                  (v1_x, v1_y, v1_z)]:
+            hemisphere = 'N' if p[2] > zcut else 'S'
+            if hemisphere_last and hemisphere != hemisphere_last:
+                points.append((pq_at_zcut(p_last, p, zcut), 'x'))
+            if (p, hemisphere) not in points:
+                points.append((p, hemisphere))
+            hemisphere_last, p_last = hemisphere, p
+
+        for i in range(5):  # we end up with the 3 points plus 2 at z=zcut
+            tclass = points[i][1]
+            if tclass != 'x':
+                l, r, rr = (i - 1) % 5, (i + 1) % 5, (i + 2) % 5
+                i2 = r if points[r][1] == 'x' else rr
+                triangle = pack(points[i][0], points[i2][0], points[l][0])
+                stitches_per_class.setdefault(tclass, []).append(triangle)
+
+    return stitches_per_class
+
+
+def pq_at_zcut(p, q, zcut):
+    "Return point between p and q that has z=cut"
+    pq = (q[0] - p[0], q[1] - p[1], q[2] - p[2])
+    a = (zcut - p[2]) / pq[2]
+    return (p[0] + a * pq[0], p[1] + a * pq[1], zcut)
+
+
+def pack(p0, p1, p2):
+    "Return triangle formed by the given points, packed in stl-style"
+    sp = struct.pack  # shortcut
+    return (sp('<3f', 0, 0, 0) +  # normal vector (empty)
+            sp('<3f', *p0) +      # vertex 1
+            sp('<3f', *p1) +      # vertex 2
+            sp('<3f', *p2) +      # vertex 3
+            sp('<H', 0))          # attribute byte count (empty)
 
 
 def write_stl(fname, triangles):
@@ -150,17 +207,6 @@ def write_stl(fname, triangles):
         for triangle in triangles:
             fout.write(triangle)
 
-
-def find_border(triangles):
-    "Return the points that form part of at most 2 triangles"
-    appearances = {}
-    for triangle in triangles:
-        for i in range(3):
-            start = 12 + i * 12
-            p = struct.unpack('<3f', triangle[start:start+12])
-            appearances.setdefault(p, 0)
-            appearances[p] += 1
-    return [p for p, n in appearances.values() if n < 3]
 
 
 
