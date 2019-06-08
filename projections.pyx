@@ -345,7 +345,7 @@ def points_at_extreme(points, sample_points=[]):
     r2xy_limit = sum(r2xy(p) for p in sample_points) / len(sample_points)
 
     return sorted((p for row in points for p in row if r2xy(p) > r2xy_limit),
-                  key=lambda p: arctan2(p[2], p[1]))
+                  key=lambda p: arctan2(p.y, p.x))
 
 
 def invert(faces):
