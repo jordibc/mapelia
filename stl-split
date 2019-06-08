@@ -173,9 +173,9 @@ def stitch(triangles, zcut):
         for i in range(5):  # we end up with the 3 points plus 2 at z=zcut
             tclass = points[i][1]
             if tclass != 'x':
-                l, r, rr = (i - 1) % 5, (i + 1) % 5, (i + 2) % 5
-                i2 = r if points[r][1] == 'x' else rr
-                triangle = pack(points[i][0], points[i2][0], points[l][0])
+                il, ir, irr = (i - 1) % 5, (i + 1) % 5, (i + 2) % 5
+                i2 = ir if points[ir][1] == 'x' else irr
+                triangle = pack(points[i][0], points[i2][0], points[il][0])
                 stitches_per_class.setdefault(tclass, []).append(triangle)
 
     return stitches_per_class
