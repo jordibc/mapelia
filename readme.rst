@@ -328,8 +328,8 @@ Example
 Usage
 -----
 
-  usage: stl-split [-h] [-n NAME] [--zcut ZCUT] [--number NUMBER] [--overwrite]
-                   [--ignore-check]
+  usage: stl-split [-h] [-n NAME] [--zcut ZCUT] [--discard-border]
+                   [--number NUMBER] [--overwrite] [--ignore-check]
                    file
 
   Split an stl file. The idea is to help post-processing stl files made with
@@ -345,6 +345,8 @@ Usage
     -n NAME, --name NAME  output file (if empty, it is generated from the image
                           file name) (default: )
     --zcut ZCUT           z value of the cutting xy-plane (or auto) (default: 0)
+    --discard-border      put triangles not cleanly cut in a "_discarded.stl"
+                          file (default: False)
     --number NUMBER       split by leaving a given number of triangles in the
                           first file (default: 0)
     --overwrite           do not check if the output files already exist
