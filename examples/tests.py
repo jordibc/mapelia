@@ -382,6 +382,31 @@ def modify_ply():
             # faces.
 
 
+def find_border(triangles, zcut):
+    "Return the points that form part of at most 2 triangles"
+    appearances = {}
+    for triangle in triangles:
+        for i in range(3):
+            start = 12 + i * 12
+            p = struct.unpack('<3f', triangle[start:start+12])
+            appearances.setdefault(p, 0)
+            appearances[p] += 1
+    return sorted((p for p, n in appearances.items() if n < 5 and abs(p[2] - zcut) < 10),
+                  key=lambda p: math.atan2(p[1], p[0]))
+
+
+def add_border(triangles, zcut):
+    "Return triangles that would fill up to the z=zcut plane"
+    filling = []
+    border = find_border(triangles, zcut)
+    for i in range(len(border)):
+        p0, p1 = border[i], border[(i + 1) % len(border)]
+        p0z, p1z = (p0[0], p0[1], zcut), (p1[0], p1[1], zcut)
+        filling.append(pack(p0, p1, p0z))
+        filling.append(pack(p1, p1z, p0z))
+    return filling
+
+
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.realpath(__file__)))
