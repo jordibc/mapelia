@@ -209,6 +209,5 @@ def write_stl(fname, triangles):
 
 
 
-
 if __name__ == '__main__':
     main()
