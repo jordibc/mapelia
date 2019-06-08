@@ -89,6 +89,8 @@ def test_stl_split():
     run('../stl-split --number 10000 wmap.stl')
     run('../stl-split --zcut 0.7 --name wmap_uneven wmap.stl')
     run('../stl-split --zcut auto --name wmap_auto wmap.stl')
+    run('../stl-split --zcut auto --discard-border '
+        '--name wmap_auto_border wmap.stl')
 
 
 #  ************************************************************************
