@@ -182,7 +182,7 @@ def stitch(triangles, zcut):
 
 
 def pq_at_zcut(p, q, zcut):
-    "Return point between p and q that has z=cut"
+    "Return point between p and q that has z=zcut"
     pq = (q[0] - p[0], q[1] - p[1], q[2] - p[2])
     a = (zcut - p[2]) / pq[2]
     return (p[0] + a * pq[0], p[1] + a * pq[1], zcut)
