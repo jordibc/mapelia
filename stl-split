@@ -35,13 +35,8 @@ def main():
     zcut = get_zcut(args.zcut, args.file)
     find_class = class_selector(args.number, zcut)
 
-    triangles_per_class = extract_triangles(args.file, find_class)
-
-    if not args.discard_border:
-        triangles_discarded = triangles_per_class.pop('discarded', {})
-        stitches_per_class = stitch(triangles_discarded, zcut)
-        for tclass in triangles_per_class:
-            triangles_per_class[tclass] += stitches_per_class.get(tclass, [])
+    triangles_per_class = extract_triangles(args.file, find_class, zcut,
+        args.discard_border)
 
     name = args.name or args.file.rsplit('.', 1)[0]
     for tclass, triangles in triangles_per_class.items():
@@ -141,44 +136,43 @@ def class_selector(number, zcut):
     return find_class
 
 
-def extract_triangles(fname, find_class):
+def extract_triangles(fname, find_class, zcut, discard):
     "Return dict with the triangles belonging to each class of stl file fname"
     print('Processing file %s ...' % fname)
     triangles_per_class = {}
     for i, triangle in enumerate(get_triangles(fname)):
         tclass = find_class(i, triangle)  # N, S, head, tail...
-        triangles_per_class.setdefault(tclass, []).append(triangle)
+        if discard or tclass != 'discarded':
+            triangles_per_class.setdefault(tclass, []).append(triangle)
+        else:
+            for pclass, piece in cut(triangle, zcut):
+                triangles_per_class.setdefault(pclass, []).append(piece)
     return triangles_per_class
 
 
-def stitch(triangles, zcut):
-    "Return dict with the cut and stitched triangles belonging to each class"
-    stitches_per_class = {}
-    for triangle in triangles:
-        points = []
-        v1_x, v1_y, v1_z, v2_x, v2_y, v2_z, v3_x, v3_y, v3_z = unpack(triangle)
-        hemisphere_last = None
-        p_last = None
-        for p in [(v1_x, v1_y, v1_z),
-                  (v2_x, v2_y, v2_z),
-                  (v3_x, v3_y, v3_z),
-                  (v1_x, v1_y, v1_z)]:
-            hemisphere = 'N' if p[2] > zcut else 'S'
-            if hemisphere_last and hemisphere != hemisphere_last:
-                points.append((pq_at_zcut(p_last, p, zcut), 'x'))
-            if (p, hemisphere) not in points:
-                points.append((p, hemisphere))
-            hemisphere_last, p_last = hemisphere, p
+def cut(triangle, zcut):
+    "Yield pairs of (class, piece) that form a tiling of the given triangle"
+    points = []
+    v1_x, v1_y, v1_z, v2_x, v2_y, v2_z, v3_x, v3_y, v3_z = unpack(triangle)
+    hemisphere_last = None
+    p_last = None
+    for p in [(v1_x, v1_y, v1_z),
+              (v2_x, v2_y, v2_z),
+              (v3_x, v3_y, v3_z),
+              (v1_x, v1_y, v1_z)]:
+        hemisphere = 'N' if p[2] > zcut else 'S'
+        if hemisphere_last and hemisphere != hemisphere_last:
+            points.append((pq_at_zcut(p_last, p, zcut), 'x'))
+        if (p, hemisphere) not in points:
+            points.append((p, hemisphere))
+        hemisphere_last, p_last = hemisphere, p
 
-        for i in range(5):  # we end up with the 3 points plus 2 at z=zcut
-            tclass = points[i][1]
-            if tclass != 'x':
-                il, ir, irr = (i - 1) % 5, (i + 1) % 5, (i + 2) % 5
-                i2 = ir if points[ir][1] == 'x' else irr
-                triangle = pack(points[i][0], points[i2][0], points[il][0])
-                stitches_per_class.setdefault(tclass, []).append(triangle)
-
-    return stitches_per_class
+    for i in range(5):  # we end up with the 3 points plus 2 at z=zcut
+        pclass = points[i][1]
+        if pclass != 'x':
+            il, ir, irr = (i - 1) % 5, (i + 1) % 5, (i + 2) % 5
+            i2 = ir if points[ir][1] == 'x' else irr
+            yield pclass, pack(points[i][0], points[i2][0], points[il][0])
 
 
 def pq_at_zcut(p, q, zcut):
