@@ -136,15 +136,15 @@ def class_selector(number, zcut):
     return find_class
 
 
-def extract_triangles(fname, find_class, zcut, discard):
+def extract_triangles(fname, find_class, zcut=0, separate_discarded=False):
     "Return dict with the triangles belonging to each class of stl file fname"
     print('Processing file %s ...' % fname)
     triangles_per_class = {}
     for i, triangle in enumerate(get_triangles(fname)):
         tclass = find_class(i, triangle)  # N, S, head, tail...
-        if discard or tclass != 'discarded':
+        if tclass != 'discarded' or separate_discarded:
             triangles_per_class.setdefault(tclass, []).append(triangle)
-        else:
+        else:  # convert discarded triangle into a tiling
             for pclass, piece in cut(triangle, zcut):
                 triangles_per_class.setdefault(pclass, []).append(piece)
     return triangles_per_class
