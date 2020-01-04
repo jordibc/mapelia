@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+
+"""
+Create a smoothed version of an image.
+"""
+
+# TODO: check if we can use these cool functions from the ImageOps module:
+#   autocontrast and equalize.
+
+import sys
+from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
+
+import numpy as np
+from PIL import Image, ImageFilter, ImageOps
+
+from maps import check_if_exists
+
+
+def main():
+    args = get_args()
+
+    img = Image.open(args.image).convert('L')
+
+    if args.invert:
+        img = ImageOps.invert(img)
+
+    im0 = np.asarray(img)
+
+    kernel = ImageFilter.Kernel((5, 5),
+        [1, 1, 1, 1, 1,
+         1, 2, 2, 2, 1,
+         1, 2, 8, 2, 1,
+         1, 2, 2, 2, 1,
+         1, 1, 1, 1, 1])
+    for i in range(args.intensity):
+        img = img.filter(kernel)
+
+    img = Image.fromarray(np.minimum(im0, np.asarray(img)))
+
+    output = args.output or '%s_smoothed.jpg' % args.image.rsplit('.', 1)[0]
+    if not args.overwrite:
+        check_if_exists(output)
+    img.save(output)
+
+
+def get_args():
+    "Return the parsed command line arguments"
+    parser = ArgumentParser(description=__doc__, formatter_class=fmt)
+    add = parser.add_argument  # shortcut
+    add('image', help='image file with the map')
+    add('--output', default='',
+        help='output file (if empty, it is generated from the image file name)')
+    add('--overwrite', action='store_true',
+        help='do not check if the output file already exists')
+    add('--invert', action='store_true', help='invert the colors of the image')
+    add('--intensity', type=int, default=10, help='intensity of the smoothing')
+    return parser.parse_args()
+
+
+
+if __name__ == '__main__':
+    main()
