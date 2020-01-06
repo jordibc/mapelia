@@ -7,7 +7,6 @@ Create a smoothed version of an image.
 # TODO: check if we can use these cool functions from the ImageOps module:
 #   autocontrast and equalize.
 
-import sys
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter as fmt
 
 import numpy as np
