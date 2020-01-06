@@ -33,6 +33,9 @@ def get_map_points(heights, long pid, ptype, npoints, double scale, caps,
     # This will be useful later on to connect the points and form faces.
     cdef double x, y, z, r, theta, phi
 
+    if ptype in ['half-sphere']:
+        return get_halfmap_points(heights, pid, ptype, npoints, scale)
+
     print('- Projecting heights on a sphere...')
 
     ny, nx = heights.shape
@@ -95,6 +98,49 @@ def get_map_points(heights, long pid, ptype, npoints, double scale, caps,
             x = r * cos(theta) * cphi
             y = r * sin(theta) * cphi
             z = r * sphi
+            row.append(Point(pid, x, y, z))
+            pid += 1
+        if row:
+            points.append(row)
+
+    return points
+
+
+def get_halfmap_points(heights, long pid, ptype, npoints, double scale):
+    "Return points on a half-sphere, modulated by the given heights"
+    cdef double x, y, z, r, theta, phi
+
+    print('- Projecting heights on a half-sphere...')
+
+    ny, nx = heights.shape
+    get_theta, get_phi = projection_functions(ptype, nx, ny)
+    points = []
+
+    # Points from the given heights.
+    hmin, hmax = heights.min(), heights.max()
+    if hmax - hmin > 1e-6:
+        radii = 1 + scale * (2 * (heights - hmin) / (hmax - hmin) - 1)
+    else:
+        radii = ones_like(heights)
+
+    for j in range(0, ny):
+        y_map = ny // 2 - j
+
+        row = []
+        for i in range(0, nx):
+            x_map = i - nx // 2
+
+            phi = get_phi(x_map, y_map)
+            theta = get_theta(x_map, y_map)
+            if isnan(phi) or isnan(theta):
+                continue
+
+            cphi = cos(phi)
+            r = radii[j, i]
+
+            x = r * cos(theta) * cphi
+            y = r * sin(theta) * cphi
+            z = r * sin(phi)
             row.append(Point(pid, x, y, z))
             pid += 1
         if row:
@@ -183,6 +229,8 @@ def get_phi_cap(caps, heights, ptype):
     if caps in ['auto', 'none']:
         ny, nx = heights.shape
         get_theta, get_phi = projection_functions(ptype, nx, ny)
+        if ptype in ['half-sphere']:
+            return pi / 2
         return get_phi(ny // 2)
         # If caps == 'none' that value will only be used for the logo.
     else:  # caps is an angle then
@@ -264,6 +312,17 @@ def projection_functions(ptype, int nx, int ny):
             return theta if -pi < theta < pi else nan
         def get_phi(y):
             return y / r
+    elif ptype == 'half-sphere':
+        # Projecting on a half-sphere. I'm making this up.
+        #   theta = atan2(y, x)
+        #   phi = pi/2 * (1 - sqrt(x**2 + y**2) / (nx/2))
+        rmax2 = nx * nx / 4
+        def get_theta(x, y):
+            return arctan2(y, x)
+        def get_phi(x, y):
+            r2 = x*x + y*y
+            return pi / 2 * (1 - sqrt(r2 / rmax2)) if r2 <= rmax2 else nan
+
     return get_theta, get_phi
 
 

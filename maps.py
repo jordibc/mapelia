@@ -71,7 +71,7 @@ def get_parser():
     add('--invert', action='store_true', help='invert heights')
     add('--projection', default='mercator',
         choices=['mercator', 'central-cylindrical', 'mollweide',
-                 'equirectangular', 'sinusoidal'],
+                 'equirectangular', 'sinusoidal', 'half-sphere'],
         help='projection used in the map')
     add('--points', type=int, default=0,
         help='maximum number of points to use (or 0 to use all in the image)')
@@ -101,6 +101,8 @@ def get_parser():
         help='thickness of the generated object (< 1 for partially hollow))')
     add('--no-ratio-check', action='store_true',
         help='do not fix the height/width ratio for certain projections')
+    add('--no-faces', action='store_true', help='add no faces, only points')
+    add('--no-close-figure', action='store_true', help='do not stitch borders')
     add('--blur', type=float, default=0,
         help='amount of pixels used to smooth the image')
     add('--fix-gaps', action='store_true',
@@ -169,10 +171,12 @@ def process(args):
     logo_args = {'north': Logo(args.logo_north, args.logo_north_scale),
                  'south': Logo(args.logo_south, args.logo_south_scale)}
 
-    add_faces = args.type in ['ply', 'stl']
+    add_faces = args.type in ['ply', 'stl'] and not args.no_faces
+    close_figure = (args.projection not in ['half-sphere'] and
+                    not args.no_close_figure)
 
     patches = get_patches(heights, projection_args, logo_args, args.thickness,
-                          add_faces)
+                          add_faces, close_figure)
 
     write = {'asc': write_asc,
              'ply': write_ply,
@@ -224,7 +228,7 @@ def get_arguments_converters():
         'equator-width': float, 'equator-height': float,
         'meridians-pos': list_of_floats, 'meridians-widths': list_of_floats,
         'overwrite': truth, 'invert': truth, 'no-ratio-check': truth,
-        'fix-gaps': truth}
+        'no-faces': truth, 'no-close-figure': truth, 'fix-gaps': truth}
 
 
 def fix_ratios(img, ptype):
@@ -281,7 +285,8 @@ def check_if_exists(fname):
             sys.exit('\nCancelling.')
 
 
-def get_patches(heights, projection_args, logo_args, thickness, add_faces=True):
+def get_patches(heights, projection_args, logo_args, thickness,
+                add_faces=True, close_figure=True):
     "Return a list of the patches (points and faces) that form the figure"
     patches = []
 
@@ -304,8 +309,8 @@ def get_patches(heights, projection_args, logo_args, thickness, add_faces=True):
         limiting_points = patch.points[-1]
 
     # Map.
-    patch = get_map_patch(heights, projection_args,
-                          pid=get_pid(), add_faces=add_faces)
+    patch = get_map_patch(heights, projection_args, pid=get_pid(),
+                          add_faces=add_faces, close_figure=close_figure)
     if add_faces and patches:
         print(blue('Stitching patches...'))
         faces = pj.get_faces([limiting_points, patch.points[0]])
@@ -339,11 +344,12 @@ def get_patches(heights, projection_args, logo_args, thickness, add_faces=True):
     return patches
 
 
-def get_map_patch(heights, projection_args, pid=0, add_faces=True):
+def get_map_patch(heights, projection_args, pid=0,
+                  add_faces=True, close_figure=True):
     "Return patch (points, faces) containing the map"
     print(blue('Adding map...'))
     points = pj.get_map_points(heights, pid=pid, **projection_args)
-    faces = pj.get_faces(points) if add_faces else []
+    faces = pj.get_faces(points, close_figure) if add_faces else []
     return Patch(points, faces)
 
 
