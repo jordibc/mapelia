@@ -39,6 +39,7 @@ def main():
     output = args.output or '%s_smoothed.jpg' % args.image.rsplit('.', 1)[0]
     if not args.overwrite:
         check_if_exists(output)
+    print('Writing file %s ...' % output)
     img.save(output)
 
 
