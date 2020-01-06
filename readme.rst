@@ -14,6 +14,7 @@ There are several programs related to images of maps and 3D files:
 * ``pintelia`` - convert maps into colored 3D figures.
 * ``poligoniza`` - form faces (polygons) from 3D points.
 * ``stl-split`` - split a 3D globe into the north and south hemispheres.
+* ``smooth`` - create a smoothed version of an image.
 
 The images are ``jpg`` or ``png`` files that contain maps (that is,
 gridded datasets where the value of each pixel is the elevation) in
@@ -133,7 +134,7 @@ Usage
 
   usage: mapelia [-h] [--output OUTPUT] [--overwrite] [--type {ply,asc,stl}]
                  [--channel {r,g,b,average,hue,sat,val,color}] [--invert]
-                 [--projection {mercator,central-cylindrical,mollweide,equirectangular,sinusoidal}]
+                 [--projection {mercator,central-cylindrical,mollweide,equirectangular,sinusoidal,half-sphere}]
                  [--points POINTS] [--scale SCALE] [--caps CAPS]
                  [--caps-height CAPS_HEIGHT] [--logo-north LOGO_NORTH]
                  [--logo-north-scale LOGO_NORTH_SCALE] [--logo-south LOGO_SOUTH]
@@ -143,7 +144,8 @@ Usage
                  [--meridians-height MERIDIANS_HEIGHT]
                  [--equator-width EQUATOR_WIDTH]
                  [--equator-height EQUATOR_HEIGHT] [--thickness THICKNESS]
-                 [--no-ratio-check] [--blur BLUR] [--fix-gaps] [--config CONFIG]
+                 [--no-ratio-check] [--no-faces] [--no-close-figure]
+                 [--blur BLUR] [--fix-gaps] [--config CONFIG]
                  image
 
   Transform images with maps into 3D files. It takes maps images in jpg, png and
@@ -165,7 +167,7 @@ Usage
                           channel with the elevations information in the image
                           (default: val)
     --invert              invert heights (default: False)
-    --projection mercator_central-cylindrical_mollweide_equirectangular_sinusoidal
+    --projection mercator_central-cylindrical_mollweide_equirectangular_sinusoidal_half-sphere
                           projection used in the map (default: mercator)
     --points POINTS       maximum number of points to use (or 0 to use all in
                           the image) (default: 0)
@@ -205,6 +207,8 @@ Usage
                           hollow)) (default: 1)
     --no-ratio-check      do not fix the height/width ratio for certain
                           projections (default: False)
+    --no-faces            add no faces, only points (default: False)
+    --no-close-figure     do not stitch borders (default: False)
     --blur BLUR           amount of pixels used to smooth the image (default: 0)
     --fix-gaps            try to fill the gaps in the map (default: False)
     --config CONFIG       file with default parameters (default: )
@@ -353,6 +357,44 @@ Usage
                           (default: False)
     --ignore-check        go ahead even if the input file does not look like an
                           stl (default: False)
+
+
+smooth
+======
+
+Create a smoothed version of an image.
+
+Example
+-------
+
+::
+
+  $ ./stl-split mars.stl
+  Processing file mars.stl ...
+  Writing file mars_N.stl ...
+  Writing file mars_S.stl ...
+
+Usage
+-----
+
+  usage: smooth [-h] [--output OUTPUT] [--overwrite] [--invert]
+                [--intensity INTENSITY]
+                image
+
+  Create a smoothed version of an image.
+
+  positional arguments:
+    image                 image file with the map
+
+  optional arguments:
+    -h, --help            show this help message and exit
+    --output OUTPUT       output file (if empty, it is generated from the image
+                          file name) (default: )
+    --overwrite           do not check if the output file already exists
+                          (default: False)
+    --invert              invert the colors of the image (default: False)
+    --intensity INTENSITY
+                          intensity of the smoothing (default: 10)
 
 
 References
