@@ -1647,7 +1647,7 @@ static const char __pyx_k_send[] = "send";
 static const char __pyx_k_sphi[] = "sphi";
 static const char __pyx_k_sqrt[] = "sqrt";
 static const char __pyx_k_test[] = "__test__";
-static const char __pyx_k_1_2_2[] = "1.2.2";
+static const char __pyx_k_1_3_0[] = "1.3.0";
 static const char __pyx_k_Point[] = "Point";
 static const char __pyx_k_close[] = "close";
 static const char __pyx_k_dist2[] = "dist2";
@@ -1754,7 +1754,7 @@ static const char __pyx_k_projection_functions_locals_lamb[] = "projection_funct
 static const char __pyx_k_projection_functions_locals_get_2[] = "projection_functions.<locals>.get_phi";
 static const char __pyx_k_get_map_points_locals_on_meridia_2[] = "get_map_points.<locals>.on_meridians.<locals>.<lambda>";
 static const char __pyx_k_get_map_points_locals_on_meridia_3[] = "get_map_points.<locals>.on_meridians";
-static PyObject *__pyx_kp_u_1_2_2;
+static PyObject *__pyx_kp_u_1_3_0;
 static PyObject *__pyx_kp_u_31m_s_0m;
 static PyObject *__pyx_kp_u_Forming_faces;
 static PyObject *__pyx_kp_u_Gap_between_caps_and_the_map_pro;
@@ -14810,7 +14810,7 @@ static struct PyModuleDef __pyx_moduledef = {
 #endif
 
 static __Pyx_StringTabEntry __pyx_string_tab[] = {
-  {&__pyx_kp_u_1_2_2, __pyx_k_1_2_2, sizeof(__pyx_k_1_2_2), 0, 1, 0, 0},
+  {&__pyx_kp_u_1_3_0, __pyx_k_1_3_0, sizeof(__pyx_k_1_3_0), 0, 1, 0, 0},
   {&__pyx_kp_u_31m_s_0m, __pyx_k_31m_s_0m, sizeof(__pyx_k_31m_s_0m), 0, 1, 0, 0},
   {&__pyx_kp_u_Forming_faces, __pyx_k_Forming_faces, sizeof(__pyx_k_Forming_faces), 0, 1, 0, 0},
   {&__pyx_kp_u_Gap_between_caps_and_the_map_pro, __pyx_k_Gap_between_caps_and_the_map_pro, sizeof(__pyx_k_Gap_between_caps_and_the_map_pro), 0, 1, 0, 0},
@@ -15683,11 +15683,11 @@ if (!__Pyx_RefNanny) {
   /* "projections.pyx":8
  * """
  * 
- * __version__ = '1.2.2'             # <<<<<<<<<<<<<<
+ * __version__ = '1.3.0'             # <<<<<<<<<<<<<<
  * 
  * # If you modify this file, you can recreate projections.c by running:
  */
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_version, __pyx_kp_u_1_2_2) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_version, __pyx_kp_u_1_3_0) < 0) __PYX_ERR(0, 8, __pyx_L1_error)
 
   /* "projections.pyx":15
  * #   python3 setup.py build_ext --inplace

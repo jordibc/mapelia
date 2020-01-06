@@ -5,7 +5,7 @@ They are also the most computationally-intensive and thus can benefit
 from using cython.
 """
 
-__version__ = '1.2.2'
+__version__ = '1.3.0'
 
 # If you modify this file, you can recreate projections.c by running:
 #   cython3 -a projections.pyx
