@@ -36,7 +36,7 @@ def main():
 
     img = Image.fromarray(np.minimum(im0, np.asarray(img)))
 
-    output = args.output or '%s_smoothed.jpg' % args.image.rsplit('.', 1)[0]
+    output = args.output or '%s_smoothed.%s' % tuple(args.image.rsplit('.', 1))
     if not args.overwrite:
         check_if_exists(output)
     print('Writing file %s ...' % output)
