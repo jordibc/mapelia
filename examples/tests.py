@@ -93,6 +93,12 @@ def test_stl_split():
         '--name wmap_auto_border wmap.stl')
 
 
+def test_smooth():
+    run('../smooth constellations_half-sphere.png --invert')
+    run('../mapelia --projection half-sphere --caps none '
+        'constellations_half-sphere_smoothed.png')
+
+
 #  ************************************************************************
 #  *                                                                      *
 #  *    Little tests and code snippets I used to understand some parts    *
@@ -416,3 +422,4 @@ if __name__ == '__main__':
     test_pintelia()
     test_poligoniza()
     test_stl_split()
+    test_smooth()
