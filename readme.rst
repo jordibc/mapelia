@@ -88,7 +88,7 @@ directly ``mapelia`` will warn you about the need to do it.
 If you also want to modify the file ``projections.pyx``, you'll first
 need to run::
 
-  $ cython3 -a projections.pyx
+  $ cython3 -3 projections.pyx
 
 to regenerate the file ``projections.c``.
 
