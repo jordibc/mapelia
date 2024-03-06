@@ -95,16 +95,18 @@ def get_args_callback(widget, result):
 
 def create_dialog(parser, parent=None):
     "Return a gtk dialog with a form extracted from the args of parser"
-    dialog = Gtk.Dialog(parser.prog, parent, 0,
-                        (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                         Gtk.STOCK_OK, Gtk.ResponseType.OK))
+    dialog = Gtk.Dialog(parser.prog, parent, 0)
+    dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                       Gtk.STOCK_OK, Gtk.ResponseType.OK)
     dialog.name = parser.prog
 
     box = dialog.get_content_area()  # here it's where we will put stuff
     box.set_border_width(20)
     box.set_spacing(20)
 
-    box.add(Gtk.Label(parser.description or ''))  # description of program
+    label = Gtk.Label()
+    label.set_text(parser.description or '')
+    box.add(label)  # description of program
     args_info = get_args_info(parser.format_help())  # description of arguments
     box.add(create_expander('Arguments', args_info, parent=dialog))
     box.add(Gtk.Separator())  # ----
@@ -148,7 +150,8 @@ def create_grid(parser):
     grid.row = 0
     def add(name, widget, helptxt):
         "Add a new row to the grid, that looks like: [name | widget]"
-        label = Gtk.Label(name.replace('_', ' '))
+        label = Gtk.Label()
+        label.set_text(name.replace('_', ' '))
         if helptxt:
             label.set_tooltip_text(helptxt)
         grid.attach(label, 0, grid.row, 1, 1)
@@ -236,14 +239,14 @@ def create_checkbox(name, active):
 
 def create_image_button(name):
     "Return a button that opens a dialog to choose an image"
-    dialog = Gtk.FileChooserDialog(
-        'File with the map', None, Gtk.FileChooserAction.OPEN,
-        (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-         Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+    dialog = Gtk.FileChooserDialog(title='File with the map',
+                                   action=Gtk.FileChooserAction.OPEN)
+    dialog.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+                       Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
     add_filter(dialog, 'Image files', mimes=['image/jpeg', 'image/png'])
     add_filter(dialog, 'Any files', patterns=['*'])
-    button = Gtk.FileChooserButton('Select an image',
-                                   Gtk.FileChooserAction.OPEN,
+    button = Gtk.FileChooserButton(title='Select an image',
+                                   action=Gtk.FileChooserAction.OPEN,
                                    dialog=dialog)
     button.set_current_folder('.')
     button.name = name
