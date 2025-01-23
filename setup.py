@@ -1,21 +1,20 @@
-# With this file, one has to run:
-#   python3 setup.py build_ext --inplace
-# to compile the C module.
+# With this file, one can to run:
+#   python3 setup.py develop
+# to compile the cython module.
 
-from distutils.core import setup
+from setuptools import setup
 
-from distutils.extension import Extension
+try:
+    from Cython.Build import cythonize
+except:
+    def cythonize(*args, **kwargs):
+        return []
+
+
 setup(
-    ext_modules = [Extension("projections", ["projections.c"])]
+    name='mapelia',
+    ext_modules=cythonize(
+        ['projections.pyx'],
+        language_level=3,  # so it compiles for python3 (and not python2)
+        compiler_directives={'embedsignature': True}),  # for call signatures
 )
-# The file projections.c is generated from projections.pyx with:
-#   cython3 -a projections.pyx
-# so we can distribute the code to people that don't have cython installed.
-#
-# If we don't want to pre-generate projections.c and assume that the end
-# user has cython, we could use instead:
-#
-# from Cython.Build import cythonize
-#
-# setup(ext_modules = cythonize('projections.pyx'))
-#

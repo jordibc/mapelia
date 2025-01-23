@@ -8,7 +8,7 @@ __version__ = '1.3.0'
 # have cython, you can more than double the speed of mapelia by doing first:
 #   cython3 -a projections.pyx
 # to create projections.c, and then create the python module with:
-#   python3 setup.py build_ext --inplace
+#   python3 setup.py develop
 
 from collections import namedtuple
 

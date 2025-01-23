@@ -37,7 +37,7 @@ try:
     assert pj.__version__ == '1.3.0'
 except (ImportError, AssertionError, AttributeError) as e:
     sys.exit('projections module not ready. You may want to first run:\n'
-             '  %s setup.py build_ext --inplace' % sys.executable)
+             '  %s setup.py develop' % sys.executable)
 
 from formats import write_ply, write_asc, write_stl
 

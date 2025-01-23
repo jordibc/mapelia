@@ -55,6 +55,27 @@ Or, if you already have installed the prerequisites (mainly `numpy`
 and `pillow`, see below), then you can directly run the programs.
 
 
+### Faster execution with Cython
+
+The main computation is done with `projections.py`, but we can create
+a faster compiled module. To do it, you can add the optional `cython`
+dependency:
+
+```sh
+$ pip install -e '.[cython]'
+```
+
+Then, the first time that you download this repository, you'll need to
+run:
+
+```sh
+$ python3 setup.py develop
+```
+
+If you don't do it, `mapelia` will still work, but just using the
+slower version.
+
+
 ### Prerequisites
 
 All the programs need [Python 3](https://www.python.org/downloads/) to
@@ -83,35 +104,55 @@ $ sudo apt install python3-gi libgtk-3-0
 ```
 
 
-### Faster execution with Cython
+## Tests
 
-The main computation is done with `projections.py`, but we can create
-a faster compiled module. To do it you will also need:
-
-```sh
-$ sudo apt install python3-dev python3-distutils
-```
-
-Then, the first time that you download this repository, you'll need to run:
+You can run some tests that use maps from the `examples` directory
+with:
 
 ```sh
-$ python3 setup.py build_ext --inplace
+$ ./tests.py
 ```
 
-so as to generate the `projections` module from `projections.c`.
 
-If you don't do it, `mapelia` will still work, but just using the
-slower version.
+## References
 
-If you also want to modify the file `projections.pyx`, you'll first
-need to run:
+### Maps
 
-```sh
-$ cython3 -3 projections.pyx
-```
+- [Space Image Library](https://www.planetary.org/space-images)
+- [Planetary Data System](https://en.wikipedia.org/wiki/Planetary_Data_System)
 
-to regenerate the file `projections.c`.
 
+### Projections
+
+- [Equirectangular](https://en.wikipedia.org/wiki/Equirectangular_projection)
+- [Mercator](https://en.wikipedia.org/wiki/Mercator_projection)
+- [Central cylindrical](https://en.wikipedia.org/wiki/Central_cylindrical_projection)
+- [Mollweide](https://en.wikipedia.org/wiki/Mollweide_projection)
+- [Sinusoidal](https://en.wikipedia.org/wiki/Sinusoidal_projection)
+
+
+### Formats
+
+- [ply](https://en.wikipedia.org/wiki/PLY_(file_format)) - "polygons"
+  in 3D, also admits colors
+- [stl](https://en.wikipedia.org/wiki/STL_(file_format)) -
+  "stereolitography", triangles in 3D, not as nice as `ply` but much
+  used for 3D printing
+- [asc](https://codeyarns.com/2011/08/17/asc-file-format-for-3d-points/) -
+  only 3D points
+
+
+### Processing
+
+- [Pillow](https://pillow.readthedocs.io/) - Python Imaging Library
+- [NumPy](https://www.numpy.org/) - library with support for multi-dimensional arrays
+- [MeshLab](https://en.wikipedia.org/wiki/MeshLab) - program to view and edit 3D meshes
+- [Blender](https://www.blender.org/) - 3D computer graphics toolset
+
+
+---
+
+# Descriptions, examples and usage of the programs
 
 ## mapelia
 
@@ -419,39 +460,3 @@ optional arguments:
   --intensity INTENSITY
                         intensity of the smoothing (default: 10)
 ```
-
-
-## References
-
-### Maps
-
-- [Space Image Library](https://www.planetary.org/space-images)
-- [Planetary Data System](https://en.wikipedia.org/wiki/Planetary_Data_System)
-
-
-### Projections
-
-- [Equirectangular](https://en.wikipedia.org/wiki/Equirectangular_projection)
-- [Mercator](https://en.wikipedia.org/wiki/Mercator_projection)
-- [Central cylindrical](https://en.wikipedia.org/wiki/Central_cylindrical_projection)
-- [Mollweide](https://en.wikipedia.org/wiki/Mollweide_projection)
-- [Sinusoidal](https://en.wikipedia.org/wiki/Sinusoidal_projection)
-
-
-### Formats
-
-- [ply](https://en.wikipedia.org/wiki/PLY_(file_format)) - "polygons"
-  in 3D, also admits colors
-- [stl](https://en.wikipedia.org/wiki/STL_(file_format)) -
-  "stereolitography", triangles in 3D, not as nice as `ply` but much
-  used for 3D printing
-- [asc](https://codeyarns.com/2011/08/17/asc-file-format-for-3d-points/) -
-  only 3D points
-
-
-### Processing
-
-- [Pillow](https://pillow.readthedocs.io/) - Python Imaging Library
-- [NumPy](https://www.numpy.org/) - library with support for multi-dimensional arrays
-- [MeshLab](https://en.wikipedia.org/wiki/MeshLab) - program to view and edit 3D meshes
-- [Blender](https://www.blender.org/) - 3D computer graphics toolset
