@@ -31,4 +31,4 @@ stl-split = "stl_split:main"
 smooth = "smooth:main"
 
 [project.optional-dependencies]
-cython = ["cython"]
+cython = ["cython", "setuptools"]
