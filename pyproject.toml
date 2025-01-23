@@ -27,7 +27,7 @@ mapelia = "mapelia:main"
 guapelia = "guapelia:main"
 pintelia = "pintelia:main"
 poligoniza = "poligoniza:main"
-stl-split = "stl-split:main"
+stl-split = "stl_split:main"
 smooth = "smooth:main"
 
 [project.optional-dependencies]
