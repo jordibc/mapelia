@@ -6,12 +6,12 @@ The Universe](https://astrokit.uv.es/) on educational astronomy.
 
 There are several programs related to images of maps and 3D files:
 
-- `mapelia` - convert maps into 3D figures with reliefs.
-- `guapelia` - optional GUI to use mapelia.
-- `pintelia` - convert maps into colored 3D figures.
-- `poligoniza` - form faces (polygons) from 3D points.
-- `stl-split` - split a 3D globe into the north and south hemispheres.
-- `smooth` - create a smoothed version of an image.
+- `mapelia` - convert maps into 3D figures with reliefs
+- `guapelia` - optional GUI to use mapelia
+- `pintelia` - convert maps into colored 3D figures
+- `poligoniza` - form faces (polygons) from 3D points
+- `stl-split` - split a 3D globe into the north and south hemispheres
+- `smooth` - create a smoothed version of an image
 
 The images are `jpg` or `png` files that contain maps (that is,
 gridded datasets where the value of each pixel is the elevation) in
