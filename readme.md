@@ -33,15 +33,15 @@ that can be visualized and manipulated with programs like
 [Blender](https://www.blender.org/).
 
 In the project *A Touch of The Universe*, the generated `stl` files
-are directly printed with a 3D printer, to create a physical
-representation of diverse planets and moons. Those printed models are
-then used to do outreach in astronomy at the [Aula del Cel (The Sky
+are printed with a 3D printer, to create a physical representation of
+diverse planets and moons. Those printed models are then used to do
+outreach in astronomy at the [Aula del Cel (The Sky
 Classroom)](https://aorgil.blogs.uv.es/aula-del-cel/) in the
 Astronomical Observatory of the University of Valencia among other
 places.
 
 
-## Installing
+## 📥 Installation
 
 ### Quick installation
 
@@ -106,7 +106,7 @@ $ sudo apt install python3-gi libgtk-3-0
 ```
 
 
-## Tests
+## ⏱️ Tests
 
 You can run some tests that use maps from the `examples` directory
 with:
@@ -116,7 +116,7 @@ $ ./tests.py
 ```
 
 
-## References
+## 📚 References
 
 ### Maps
 
@@ -152,9 +152,16 @@ $ ./tests.py
 - [Blender](https://www.blender.org/) - 3D computer graphics toolset
 
 
+## ⚖️ License
+
+This program is licensed under the GPL v3. See the [project
+license](license.md) for further details.
+
+
 ---
 
-# Descriptions, examples and usage of the programs
+
+# 📋 Descriptions, examples and usage of the programs
 
 ## mapelia
 
