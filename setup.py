@@ -13,8 +13,9 @@ except:
 
 setup(
     name='mapelia',
+    packages=['mapelia'],
     ext_modules=cythonize(
-        ['projections.pyx'],
+        ['mapelia/projections.pyx'],
         language_level=3,  # so it compiles for python3 (and not python2)
         compiler_directives={'embedsignature': True}),  # for call signatures
 )

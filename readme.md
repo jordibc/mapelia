@@ -65,11 +65,10 @@ dependency:
 $ pip install -e '.[cython]'
 ```
 
-Then, the first time that you download this repository, you'll need to
-run:
+Then, you can run:
 
 ```sh
-$ python3 setup.py develop
+$ python setup.py develop
 ```
 
 If you don't do it, `mapelia` will still work, but just using the
@@ -91,6 +90,9 @@ $ sudo apt install python3 python3-pil python3-numpy
 
 This will allow you to run `mapelia`, `pintelia`, `poligoniza`,
 `stl-split` and `smooth`.
+
+If you haven't installed them with `pip install -e .` you can still
+run them like `./mapelia/mapelia.py` and so on.
 
 
 ### Optional GUI
@@ -169,7 +171,7 @@ Starting with the following image:
 we run:
 
 ```sh
-$ ./mapelia examples/venus.png
+$ mapelia examples/venus.png
 Processing file examples/venus.png ...
 - Extracting heights from image (channel "val")...
 Adding north cap...
@@ -287,7 +289,7 @@ original colors of the map.
 By running:
 
 ```sh
-$ ./pintelia examples/earth_equirectangular.jpg --proj equirectangular
+$ pintelia examples/earth_equirectangular.jpg --proj equirectangular
 Processing file examples/earth_equirectangular.jpg ...
 - Forming faces...
 The output is in file examples/earth_equirectangular.ply
@@ -342,7 +344,7 @@ generates the points (when it does not project logos too).
 ### Example
 
 ```sh
-$ ./poligoniza venus.asc --type stl --invert
+$ poligoniza venus.asc --type stl --invert
 Processing file venus.asc ...
 - Forming faces...
 The output is in file venus.stl
@@ -387,7 +389,7 @@ it into two files with all the points before and after a given one.
 ### Example
 
 ```sh
-$ ./stl-split mars.stl
+$ stl-split mars.stl
 Processing file mars.stl ...
 Writing file mars_N.stl ...
 Writing file mars_S.stl ...
@@ -433,7 +435,7 @@ Create a smoothed version of an image.
 ### Example
 
 ```sh
-$ ./smooth starmap.jpg
+$ smooth starmap.jpg
 Writing file starmap_smoothed.jpg ...
 ```
 
