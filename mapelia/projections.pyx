@@ -10,7 +10,7 @@ __version__ = '1.3.0'
 # If you modify this file, you can recreate projections.c by running:
 #   cython3 -a projections.pyx
 # Then, you can create the python module with:
-#   python3 setup.py build_ext --inplace
+#   python3 setup.py develop
 
 from collections import namedtuple
 
